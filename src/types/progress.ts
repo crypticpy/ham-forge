@@ -9,6 +9,7 @@ export interface QuestionProgress {
   easeFactor: number // SM-2 algorithm factor (starts at 2.5)
   interval: number // Days until next review
   status: 'new' | 'learning' | 'review' | 'mastered'
+  confidenceHistory?: number[] // Track last N confidence ratings (1-5 scale)
 }
 
 export interface StudySession {

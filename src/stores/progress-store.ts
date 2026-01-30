@@ -13,10 +13,33 @@ interface ProgressState {
   totalQuestionsAnswered: number
   totalCorrect: number
 
+  // Module completion tracking
+  // Maps moduleId -> array of completed sectionIds
+  completedModules: Record<string, string[]>
+
+  // Flagged questions for later review
+  flaggedQuestions: string[] // Array of question IDs
+
   // Actions
   recordStudyDay: () => void
   incrementAnswered: (correct: boolean) => void
   resetProgress: () => void
+
+  // Module tracking actions
+  markSectionComplete: (moduleId: string, sectionId: string) => void
+  markSectionIncomplete: (moduleId: string, sectionId: string) => void
+  resetModuleProgress: (moduleId: string) => void
+
+  // Module tracking selectors
+  isSectionComplete: (moduleId: string, sectionId: string) => boolean
+  getCompletedSections: (moduleId: string) => string[]
+  getModuleProgress: (moduleId: string, totalSections: number) => number
+
+  // Question flagging actions
+  toggleFlagQuestion: (questionId: string) => void
+  isFlagged: (questionId: string) => boolean
+  clearAllFlags: () => void
+  getFlaggedCount: () => number
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -27,6 +50,8 @@ export const useProgressStore = create<ProgressState>()(
       lastStudyDate: null,
       totalQuestionsAnswered: 0,
       totalCorrect: 0,
+      completedModules: {},
+      flaggedQuestions: [],
 
       recordStudyDay: () => {
         const today = new Date().toISOString().split('T')[0]
@@ -63,7 +88,95 @@ export const useProgressStore = create<ProgressState>()(
           lastStudyDate: null,
           totalQuestionsAnswered: 0,
           totalCorrect: 0,
+          completedModules: {},
+          flaggedQuestions: [],
         }),
+
+      // Mark a section as complete
+      markSectionComplete: (moduleId, sectionId) =>
+        set((state) => {
+          const currentSections = state.completedModules[moduleId] || []
+          if (currentSections.includes(sectionId)) {
+            return state // Already marked
+          }
+          return {
+            completedModules: {
+              ...state.completedModules,
+              [moduleId]: [...currentSections, sectionId],
+            },
+          }
+        }),
+
+      // Mark a section as incomplete (undo completion)
+      markSectionIncomplete: (moduleId, sectionId) =>
+        set((state) => {
+          const currentSections = state.completedModules[moduleId] || []
+          return {
+            completedModules: {
+              ...state.completedModules,
+              [moduleId]: currentSections.filter((id) => id !== sectionId),
+            },
+          }
+        }),
+
+      // Reset all progress for a specific module
+      resetModuleProgress: (moduleId) =>
+        set((state) => {
+          const { [moduleId]: _, ...rest } = state.completedModules
+          return {
+            completedModules: rest,
+          }
+        }),
+
+      // Check if a section is complete
+      isSectionComplete: (moduleId, sectionId) => {
+        const { completedModules } = get()
+        const sections = completedModules[moduleId] || []
+        return sections.includes(sectionId)
+      },
+
+      // Get all completed sections for a module
+      getCompletedSections: (moduleId) => {
+        const { completedModules } = get()
+        return completedModules[moduleId] || []
+      },
+
+      // Get progress percentage for a module (0-100)
+      getModuleProgress: (moduleId, totalSections) => {
+        const { completedModules } = get()
+        const completed = completedModules[moduleId]?.length || 0
+        if (totalSections === 0) return 0
+        return Math.round((completed / totalSections) * 100)
+      },
+
+      // Toggle flag status for a question (add if not present, remove if present)
+      toggleFlagQuestion: (questionId) =>
+        set((state) => {
+          const isFlagged = state.flaggedQuestions.includes(questionId)
+          return {
+            flaggedQuestions: isFlagged
+              ? state.flaggedQuestions.filter((id) => id !== questionId)
+              : [...state.flaggedQuestions, questionId],
+          }
+        }),
+
+      // Check if a question is flagged
+      isFlagged: (questionId) => {
+        const { flaggedQuestions } = get()
+        return flaggedQuestions.includes(questionId)
+      },
+
+      // Clear all flagged questions
+      clearAllFlags: () =>
+        set({
+          flaggedQuestions: [],
+        }),
+
+      // Get the count of flagged questions
+      getFlaggedCount: () => {
+        const { flaggedQuestions } = get()
+        return flaggedQuestions.length
+      },
     }),
     {
       name: 'hamforge-progress',

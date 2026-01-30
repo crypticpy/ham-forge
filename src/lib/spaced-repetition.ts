@@ -96,9 +96,78 @@ export function calculateSM2(input: SM2Input): SM2Result {
 }
 
 /**
+ * Default confidence level (neutral)
+ */
+export const DEFAULT_CONFIDENCE = 3
+
+/**
+ * Maximum number of confidence ratings to store in history
+ */
+export const MAX_CONFIDENCE_HISTORY = 10
+
+/**
+ * Calculate confidence adjustment factor for SM-2 algorithm
+ *
+ * Confidence affects the algorithm as follows:
+ * - High confidence (4-5) on correct answer: slight bonus to interval/easeFactor
+ * - Low confidence (1-2) on correct answer: reduce interval boost (lucky guess)
+ * - High confidence (4-5) on wrong answer: larger easeFactor penalty (overconfidence)
+ * - Low confidence (1-2) on wrong answer: normal penalty (expected outcome)
+ *
+ * @param confidence - User's confidence rating (1-5)
+ * @param isCorrect - Whether the answer was correct
+ * @returns Adjustment factors for easeFactor and interval
+ */
+function calculateConfidenceAdjustment(
+  confidence: number,
+  isCorrect: boolean
+): { easeFactorDelta: number; intervalMultiplier: number } {
+  // Normalize confidence to -2 to +2 range (3 is neutral)
+  const normalizedConfidence = confidence - 3
+
+  if (isCorrect) {
+    // Correct answer
+    if (normalizedConfidence >= 1) {
+      // High confidence (4-5) on correct: small bonus
+      // Confidence 4: +0.02 easeFactor, 1.05x interval
+      // Confidence 5: +0.04 easeFactor, 1.10x interval
+      return {
+        easeFactorDelta: normalizedConfidence * 0.02,
+        intervalMultiplier: 1 + normalizedConfidence * 0.05,
+      }
+    } else if (normalizedConfidence <= -1) {
+      // Low confidence (1-2) on correct: reduce boost (lucky guess)
+      // Confidence 2: -0.02 easeFactor, 0.85x interval
+      // Confidence 1: -0.04 easeFactor, 0.70x interval
+      return {
+        easeFactorDelta: normalizedConfidence * 0.02,
+        intervalMultiplier: 1 + normalizedConfidence * 0.15,
+      }
+    }
+  } else {
+    // Incorrect answer
+    if (normalizedConfidence >= 1) {
+      // High confidence (4-5) on wrong: larger penalty (overconfidence)
+      // This is a knowledge gap that needs addressing
+      // Confidence 4: -0.05 easeFactor
+      // Confidence 5: -0.10 easeFactor
+      return {
+        easeFactorDelta: -normalizedConfidence * 0.05,
+        intervalMultiplier: 1, // Interval resets on wrong answer anyway
+      }
+    }
+    // Low confidence on wrong: normal penalty (expected outcome)
+  }
+
+  // Neutral confidence (3) or low confidence on wrong: no adjustment
+  return { easeFactorDelta: 0, intervalMultiplier: 1 }
+}
+
+/**
  * Simplified function for processing multiple choice answers
  * @param isCorrect - Whether the answer was correct
  * @param currentProgress - Current progress (or undefined for new questions)
+ * @param confidence - User's confidence rating (1-5, defaults to 3)
  * @returns Updated SM2 result
  */
 export function processAnswer(
@@ -108,8 +177,12 @@ export function processAnswer(
     interval: number
     attempts: number
     correctCount?: number
-  }
+  },
+  confidence: number = DEFAULT_CONFIDENCE
 ): SM2Result {
+  // Clamp confidence to valid range
+  const clampedConfidence = Math.max(1, Math.min(5, Math.round(confidence)))
+
   // Convert boolean to quality rating
   // Correct = 4 (correct after hesitation)
   // Incorrect = 2 (incorrect, but seemed easy to recall)
@@ -134,7 +207,64 @@ export function processAnswer(
     interval: currentProgress?.interval ?? 0,
   }
 
-  return calculateSM2(input)
+  // Get base SM2 result
+  const baseResult = calculateSM2(input)
+
+  // Apply confidence adjustments
+  const { easeFactorDelta, intervalMultiplier } = calculateConfidenceAdjustment(
+    clampedConfidence,
+    isCorrect
+  )
+
+  // Apply adjustments while respecting SM-2 constraints
+  const adjustedEaseFactor = Math.max(MIN_EASE_FACTOR, baseResult.easeFactor + easeFactorDelta)
+
+  const adjustedInterval = Math.max(1, Math.round(baseResult.interval * intervalMultiplier))
+
+  // Recalculate next review date with adjusted interval
+  const nextReview = new Date()
+  nextReview.setDate(nextReview.getDate() + adjustedInterval)
+  nextReview.setHours(0, 0, 0, 0)
+
+  return {
+    ...baseResult,
+    easeFactor: adjustedEaseFactor,
+    interval: adjustedInterval,
+    nextReview,
+  }
+}
+
+/**
+ * Update confidence history with new rating
+ * @param history - Current confidence history (or undefined)
+ * @param newConfidence - New confidence rating to add
+ * @returns Updated confidence history array
+ */
+export function updateConfidenceHistory(
+  history: number[] | undefined,
+  newConfidence: number
+): number[] {
+  const currentHistory = history ?? []
+  const updatedHistory = [...currentHistory, newConfidence]
+
+  // Keep only the last N ratings
+  if (updatedHistory.length > MAX_CONFIDENCE_HISTORY) {
+    return updatedHistory.slice(-MAX_CONFIDENCE_HISTORY)
+  }
+
+  return updatedHistory
+}
+
+/**
+ * Calculate average confidence from history
+ * @param history - Confidence history array
+ * @returns Average confidence or undefined if no history
+ */
+export function getAverageConfidence(history: number[] | undefined): number | undefined {
+  if (!history || history.length === 0) {
+    return undefined
+  }
+  return history.reduce((sum, val) => sum + val, 0) / history.length
 }
 
 /**

@@ -15,9 +15,13 @@ export interface SessionConfig {
   examLevel: ExamLevel
   questionCount: number
   subelements: string[]
+  groups?: string[] // e.g., ['T1A', 'T1B', 'G2C'] - optional for backwards compatibility
   status: ('new' | 'learning' | 'review' | 'mastered')[]
+  flaggedOnly?: boolean // Only include flagged questions
   shuffleAnswers: boolean
   showExplanations: boolean
+  isQuickStudy?: boolean
+  durationSeconds?: number
 }
 
 export interface SessionState {
@@ -68,6 +72,7 @@ export function usePracticeSession(config: SessionConfig) {
 
   // Extract config values for stable dependency array
   const subelementsKey = config.subelements.join(',')
+  const groupsKey = config.groups?.join(',') || ''
   const statusKey = config.status.join(',')
 
   // Load questions based on config
@@ -85,6 +90,16 @@ export function usePracticeSession(config: SessionConfig) {
           for (const sub of config.subelements) {
             const subQuestions = await getQuestionsBySubelement(config.examLevel, sub)
             questions.push(...subQuestions)
+          }
+
+          // If groups are specified, filter questions to only include those groups
+          // Groups are in format like "T1A", "G2B" (subelement + group letter)
+          if (config.groups && config.groups.length > 0) {
+            const groupSet = new Set(config.groups)
+            questions = questions.filter((q) => {
+              const questionGroup = `${q.subelement}${q.group}`
+              return groupSet.has(questionGroup)
+            })
           }
         } else if (config.status.length > 0) {
           // If status filter is specified without subelement filter
@@ -113,6 +128,13 @@ export function usePracticeSession(config: SessionConfig) {
           }
           const statusIds = new Set(statusQuestions.map((q) => q.id))
           questions = questions.filter((q) => statusIds.has(q.id))
+        }
+
+        // If flaggedOnly is set, filter to only flagged questions
+        if (config.flaggedOnly) {
+          const { flaggedQuestions } = useProgressStore.getState()
+          const flaggedSet = new Set(flaggedQuestions)
+          questions = questions.filter((q) => flaggedSet.has(q.id))
         }
 
         // Shuffle the questions for variety
@@ -150,17 +172,17 @@ export function usePracticeSession(config: SessionConfig) {
     }
     // Note: recordStudyDay is stable (from zustand), so we don't include it in deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.examLevel, config.questionCount, subelementsKey, statusKey])
+  }, [config.examLevel, config.questionCount, subelementsKey, groupsKey, statusKey])
 
   // Handle answer submission
   const submitAnswer = useCallback(
-    async (selectedIndex: number, isCorrect: boolean) => {
+    async (selectedIndex: number, isCorrect: boolean, confidence?: number) => {
       const currentQuestion = state.questions[state.currentIndex]
       if (!currentQuestion) return
 
       try {
-        // Save to IndexedDB first
-        await saveQuestionProgress(currentQuestion.id, isCorrect)
+        // Save to IndexedDB first (with optional confidence)
+        await saveQuestionProgress(currentQuestion.id, isCorrect, confidence)
 
         // Only update stores if save succeeded
         incrementAnswered(isCorrect)

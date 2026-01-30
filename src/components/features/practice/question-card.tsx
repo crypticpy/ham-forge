@@ -7,6 +7,8 @@ import type { Question } from '@/types'
 import { AnswerButton } from './answer-button'
 import { FigureDisplay } from './figure-display'
 import { ExplanationCard } from './explanation-card'
+import { FlagButton } from './flag-button'
+import { ConfidenceSelector } from './confidence-selector'
 import { ChevronRight } from 'lucide-react'
 
 interface QuestionCardProps {
@@ -15,7 +17,8 @@ interface QuestionCardProps {
   totalQuestions: number
   shuffleAnswers?: boolean
   showExplanation?: boolean
-  onAnswer: (selectedIndex: number, isCorrect: boolean) => void
+  showConfidence?: boolean
+  onAnswer: (selectedIndex: number, isCorrect: boolean, confidence?: number) => void
   onNext: () => void
 }
 
@@ -50,14 +53,15 @@ export function QuestionCard({
   totalQuestions,
   shuffleAnswers = true,
   showExplanation = true,
+  showConfidence = true,
   onAnswer,
   onNext,
 }: QuestionCardProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isRevealed, setIsRevealed] = useState(false)
+  const [selectedConfidence, setSelectedConfidence] = useState<number | undefined>(undefined)
 
   // Use lazy state initialization - the function only runs once when state is first created
-  // This is the React-approved way to run impure code during initialization
   const [shuffledAnswers, setShuffledAnswers] = useState<ShuffledAnswer[]>(() =>
     createShuffledAnswers(question.answers, shuffleAnswers)
   )
@@ -70,19 +74,32 @@ export function QuestionCard({
     [isRevealed]
   )
 
+  // Submit just reveals the answer - actual recording happens on Next
   const handleSubmit = useCallback(() => {
     if (selectedAnswer === null) return
-    const originalIndex = shuffledAnswers[selectedAnswer].originalIndex
-    const isCorrect = originalIndex === question.correctAnswer
     setIsRevealed(true)
-    onAnswer(originalIndex, isCorrect)
-  }, [selectedAnswer, shuffledAnswers, question.correctAnswer, onAnswer])
+  }, [selectedAnswer])
 
+  // Next records the answer with confidence and moves to next question
   const handleNext = useCallback(() => {
+    if (selectedAnswer !== null) {
+      const originalIndex = shuffledAnswers[selectedAnswer].originalIndex
+      const isCorrectAnswer = originalIndex === question.correctAnswer
+      // Default confidence to 3 (neutral) if not selected
+      onAnswer(originalIndex, isCorrectAnswer, selectedConfidence ?? 3)
+    }
     setSelectedAnswer(null)
     setIsRevealed(false)
+    setSelectedConfidence(undefined)
     onNext()
-  }, [onNext])
+  }, [
+    onNext,
+    selectedAnswer,
+    shuffledAnswers,
+    question.correctAnswer,
+    onAnswer,
+    selectedConfidence,
+  ])
 
   // Determine if user answered correctly
   const isCorrect =
@@ -99,19 +116,23 @@ export function QuestionCard({
     setLastQuestionId(currentQuestionId)
     setSelectedAnswer(null)
     setIsRevealed(false)
+    setSelectedConfidence(undefined)
     setShuffledAnswers(createShuffledAnswers(question.answers, shuffleAnswers))
   }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <CardTitle className="text-lg sm:text-xl">
-            Question {questionNumber} of {totalQuestions}
-          </CardTitle>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-            {question.id}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <CardTitle className="text-lg sm:text-xl">
+              Question {questionNumber} of {totalQuestions}
+            </CardTitle>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+              {question.id}
+            </span>
+          </div>
+          <FlagButton questionId={question.id} />
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -152,9 +173,17 @@ export function QuestionCard({
           </Button>
         )}
 
-        {/* After reveal: Explanation and Next button */}
+        {/* After reveal: Confidence, Explanation and Next button */}
         {isRevealed && (
           <div className="space-y-4">
+            {/* Confidence selector */}
+            {showConfidence && (
+              <ConfidenceSelector
+                onSelect={setSelectedConfidence}
+                selectedConfidence={selectedConfidence}
+              />
+            )}
+
             {showExplanation && (
               <ExplanationCard
                 explanation={question.explanation}

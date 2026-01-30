@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Target, Brain, Trophy, Zap, Settings2, Loader2 } from 'lucide-react'
+import { BookOpen, Target, Brain, Trophy, Zap, Settings2, Loader2, Timer } from 'lucide-react'
 import {
   SessionConfig,
   type SessionConfig as SessionConfigType,
@@ -75,18 +75,34 @@ export default function PracticePage() {
 
   const handleQuickStart = (preset: Partial<SessionConfigType>) => {
     const config: SessionConfigType = {
-      examLevel: currentExamLevel,
-      questionCount: 10,
-      subelements: [],
-      status: [],
-      shuffleAnswers: true,
-      showExplanations: true,
-      ...preset,
+      examLevel: preset.examLevel ?? currentExamLevel,
+      questionCount: preset.questionCount ?? 10,
+      subelements: preset.subelements ?? [],
+      groups: preset.groups ?? [],
+      status: preset.status ?? [],
+      flaggedOnly: preset.flaggedOnly ?? false,
+      shuffleAnswers: preset.shuffleAnswers ?? true,
+      showExplanations: preset.showExplanations ?? true,
+      isQuickStudy: preset.isQuickStudy,
+      durationSeconds: preset.durationSeconds,
     }
     handleStartSession(config)
   }
 
   const quickStartOptions: QuickStartOption[] = [
+    {
+      id: 'quick-study',
+      title: '5-Minute Quick Study',
+      description: 'Timed session - answer as many as you can',
+      icon: <Timer className="size-6" />,
+      color: 'text-emerald-500',
+      action: () =>
+        handleQuickStart({
+          questionCount: 9999, // Unlimited - time is the limit
+          isQuickStudy: true,
+          durationSeconds: 300, // 5 minutes
+        }),
+    },
     {
       id: 'quick',
       title: 'Quick Practice',

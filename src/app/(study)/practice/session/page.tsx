@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePracticeSession, type SessionConfig } from '@/hooks/use-practice-session'
 import { useHydration } from '@/hooks/use-hydration'
 import { QuestionCard } from '@/components/features/practice/question-card'
 import { PracticeHeader } from '@/components/features/practice/practice-header'
+import { QuickStudyTimer } from '@/components/features/practice/quick-study-timer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, CheckCircle, XCircle, Trophy, RotateCcw, Home } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Trophy, RotateCcw, Home, Timer } from 'lucide-react'
 import Link from 'next/link'
 
 // Cache for getSessionConfig to avoid infinite loops with useSyncExternalStore
@@ -75,6 +76,7 @@ export default function PracticeSessionPage() {
 
 function PracticeSession({ config }: { config: SessionConfig }) {
   const router = useRouter()
+  const [timeExpired, setTimeExpired] = useState(false)
   const {
     questions,
     currentIndex,
@@ -86,6 +88,15 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     submitAnswer,
     nextQuestion,
   } = usePracticeSession(config)
+
+  // Handle quick study timer expiration
+  const handleTimeUp = useCallback(() => {
+    setTimeExpired(true)
+  }, [])
+
+  // Determine if session is complete (either finished all questions or time expired)
+  const sessionComplete = isComplete || timeExpired
+  const isQuickStudy = config.isQuickStudy && config.durationSeconds
 
   if (isLoading) {
     return (
@@ -130,18 +141,25 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     )
   }
 
-  if (isComplete) {
+  if (sessionComplete) {
     // Show results screen
+    const completionTitle = timeExpired ? "Time's Up!" : 'Session Complete'
+    const completionMessage = timeExpired
+      ? `You answered ${stats.answered} questions in ${Math.floor((config.durationSeconds || 300) / 60)} minutes`
+      : `You completed ${stats.totalQuestions} questions`
+
     return (
       <div className="container mx-auto p-4 max-w-2xl">
-        <PracticeHeader title="Session Complete" showBack={false} />
+        <PracticeHeader title={completionTitle} showBack={false} />
 
         <div className="mt-6 space-y-6">
           {/* Results Summary */}
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto mb-4">
-                {stats.accuracy >= 70 ? (
+                {timeExpired ? (
+                  <Timer className="size-16 text-emerald-500" />
+                ) : stats.accuracy >= 70 ? (
                   <Trophy className="size-16 text-amber-500" />
                 ) : (
                   <CheckCircle className="size-16 text-primary" />
@@ -156,7 +174,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
                       ? 'Keep Practicing!'
                       : 'Room for Improvement'}
               </CardTitle>
-              <CardDescription>You completed {stats.totalQuestions} questions</CardDescription>
+              <CardDescription>{completionMessage}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-center">
@@ -180,6 +198,22 @@ function PracticeSession({ config }: { config: SessionConfig }) {
                 <p className="text-4xl font-bold text-primary">{stats.accuracy}%</p>
                 <p className="text-sm text-muted-foreground mt-1">Accuracy</p>
               </div>
+
+              {/* Quick Study specific stats */}
+              {timeExpired && (
+                <div className="mt-4 p-3 bg-emerald-500/10 rounded-lg text-center">
+                  <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                    {stats.answered} questions answered
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Average:{' '}
+                    {stats.answered > 0
+                      ? Math.round((config.durationSeconds || 300) / stats.answered)
+                      : 0}{' '}
+                    seconds per question
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -193,7 +227,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
               }}
             >
               <RotateCcw className="size-4 mr-2" />
-              Practice Again
+              {timeExpired ? 'Try Again' : 'Practice Again'}
             </Button>
             <Button variant="outline" className="flex-1" asChild>
               <Link href="/practice">
@@ -208,16 +242,42 @@ function PracticeSession({ config }: { config: SessionConfig }) {
   }
 
   // Active practice session
+  const sessionTitle = isQuickStudy
+    ? '5-Minute Quick Study'
+    : `${config.examLevel.charAt(0).toUpperCase() + config.examLevel.slice(1)} Practice`
+  const sessionSubtitle = isQuickStudy
+    ? `${stats.answered} answered`
+    : `Question ${currentIndex + 1} of ${questions.length}`
+
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <PracticeHeader
-        title={`${config.examLevel.charAt(0).toUpperCase() + config.examLevel.slice(1)} Practice`}
-        subtitle={`Question ${currentIndex + 1} of ${questions.length}`}
-        progress={{
-          current: currentIndex + 1,
-          total: questions.length,
-        }}
-      />
+      {/* Header with optional timer */}
+      <div className="flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 -mx-4 -mt-4 mb-2">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="size-9" asChild>
+            <Link href="/practice">
+              <Home className="size-5" />
+              <span className="sr-only">Back to Practice</span>
+            </Link>
+          </Button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-semibold leading-tight">{sessionTitle}</h1>
+            <p className="text-sm text-muted-foreground">{sessionSubtitle}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isQuickStudy ? (
+            <QuickStudyTimer durationSeconds={config.durationSeconds!} onTimeUp={handleTimeUp} />
+          ) : (
+            <div className="flex items-center gap-1 rounded-full bg-muted px-3 py-1">
+              <span className="text-sm font-medium">{currentIndex + 1}</span>
+              <span className="text-sm text-muted-foreground">/</span>
+              <span className="text-sm text-muted-foreground">{questions.length}</span>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-6">
         {currentQuestion && (
@@ -225,7 +285,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
             key={currentQuestion.id}
             question={currentQuestion}
             questionNumber={currentIndex + 1}
-            totalQuestions={questions.length}
+            totalQuestions={isQuickStudy ? stats.answered + 1 : questions.length}
             shuffleAnswers={config.shuffleAnswers}
             showExplanation={config.showExplanations}
             onAnswer={submitAnswer}
@@ -237,17 +297,19 @@ function PracticeSession({ config }: { config: SessionConfig }) {
       {/* Progress bar at bottom */}
       <div className="mt-6">
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
-          <span>Progress</span>
+          <span>{isQuickStudy ? 'Stats' : 'Progress'}</span>
           <span>
             {stats.correct} correct, {stats.incorrect} incorrect
           </span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${(currentIndex / questions.length) * 100}%` }}
-          />
-        </div>
+        {!isQuickStudy && (
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${(currentIndex / questions.length) * 100}%` }}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

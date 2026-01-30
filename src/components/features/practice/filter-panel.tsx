@@ -1,8 +1,13 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
+import { getGroupsForSubelement } from '@/lib/question-scheduler'
+import { useProgressStore } from '@/stores/progress-store'
+import { Flag } from 'lucide-react'
 import type { ExamLevel } from '@/types'
 
 // Subelement definitions for each exam level
@@ -41,28 +46,99 @@ const STATUS_OPTIONS = [
 
 type QuestionStatus = 'new' | 'learning' | 'review' | 'mastered'
 
+// Sub-component for flagged questions toggle
+function FlaggedOnlyToggle({
+  showFlaggedOnly,
+  onFlaggedOnlyChange,
+}: {
+  showFlaggedOnly: boolean
+  onFlaggedOnlyChange: (flaggedOnly: boolean) => void
+}) {
+  const flaggedCount = useProgressStore((state) => state.getFlaggedCount())
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Flag
+          className={cn(
+            'size-5',
+            showFlaggedOnly ? 'text-amber-500 fill-current' : 'text-muted-foreground'
+          )}
+          aria-hidden="true"
+        />
+        <div className="space-y-0.5">
+          <label htmlFor="flagged-only" className="text-sm font-medium leading-none">
+            Flagged Questions Only
+          </label>
+          <p className="text-xs text-muted-foreground">
+            {flaggedCount === 0
+              ? 'No questions flagged yet'
+              : `${flaggedCount} question${flaggedCount === 1 ? '' : 's'} flagged`}
+          </p>
+        </div>
+      </div>
+      <Switch
+        id="flagged-only"
+        checked={showFlaggedOnly}
+        onCheckedChange={onFlaggedOnlyChange}
+        disabled={flaggedCount === 0}
+      />
+    </div>
+  )
+}
+
 interface FilterPanelProps {
   examLevel: ExamLevel
   selectedSubelements: string[]
+  selectedGroups: string[]
   selectedStatus: QuestionStatus[]
+  showFlaggedOnly: boolean
   onSubelementsChange: (subelements: string[]) => void
+  onGroupsChange: (groups: string[]) => void
   onStatusChange: (status: QuestionStatus[]) => void
+  onFlaggedOnlyChange: (flaggedOnly: boolean) => void
 }
 
 export function FilterPanel({
   examLevel,
   selectedSubelements,
+  selectedGroups,
   selectedStatus,
+  showFlaggedOnly,
   onSubelementsChange,
+  onGroupsChange,
   onStatusChange,
+  onFlaggedOnlyChange,
 }: FilterPanelProps) {
   const subelements = examLevel === 'technician' ? TECHNICIAN_SUBELEMENTS : GENERAL_SUBELEMENTS
 
+  // Get available groups for selected subelements
+  const availableGroups = useMemo(() => {
+    if (selectedSubelements.length === 0) return []
+    const groups: string[] = []
+    for (const sub of selectedSubelements) {
+      groups.push(...getGroupsForSubelement(examLevel, sub))
+    }
+    return groups.sort()
+  }, [examLevel, selectedSubelements])
+
   const toggleSubelement = (id: string) => {
     if (selectedSubelements.includes(id)) {
+      // When removing a subelement, also remove its groups from selection
+      const groupsToRemove = getGroupsForSubelement(examLevel, id)
+      const newGroups = selectedGroups.filter((g) => !groupsToRemove.includes(g))
+      onGroupsChange(newGroups)
       onSubelementsChange(selectedSubelements.filter((s) => s !== id))
     } else {
       onSubelementsChange([...selectedSubelements, id])
+    }
+  }
+
+  const toggleGroup = (groupId: string) => {
+    if (selectedGroups.includes(groupId)) {
+      onGroupsChange(selectedGroups.filter((g) => g !== groupId))
+    } else {
+      onGroupsChange([...selectedGroups, groupId])
     }
   }
 
@@ -80,6 +156,15 @@ export function FilterPanel({
 
   const clearSubelements = () => {
     onSubelementsChange([])
+    onGroupsChange([]) // Also clear groups when clearing subelements
+  }
+
+  const selectAllGroups = () => {
+    onGroupsChange(availableGroups)
+  }
+
+  const clearGroups = () => {
+    onGroupsChange([])
   }
 
   const selectAllStatus = () => {
@@ -129,6 +214,49 @@ export function FilterPanel({
         </CardContent>
       </Card>
 
+      {/* Topic Groups Filter - only shown when subelements are selected */}
+      {availableGroups.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Topic Groups</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="xs" onClick={selectAllGroups} className="text-xs">
+                  All
+                </Button>
+                <Button variant="ghost" size="xs" onClick={clearGroups} className="text-xs">
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex flex-wrap gap-2">
+              {availableGroups.map((groupId) => (
+                <button
+                  key={groupId}
+                  onClick={() => toggleGroup(groupId)}
+                  className={cn(
+                    'inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                    'border hover:bg-accent',
+                    selectedGroups.includes(groupId)
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-input bg-background text-muted-foreground'
+                  )}
+                >
+                  {groupId}
+                </button>
+              ))}
+            </div>
+            {selectedGroups.length === 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                No groups selected - all groups in selected topics will be included
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Status Filter */}
       <Card>
         <CardHeader className="pb-3">
@@ -163,6 +291,16 @@ export function FilterPanel({
               </button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Flagged Questions Filter */}
+      <Card>
+        <CardContent className="py-4">
+          <FlaggedOnlyToggle
+            showFlaggedOnly={showFlaggedOnly}
+            onFlaggedOnlyChange={onFlaggedOnlyChange}
+          />
         </CardContent>
       </Card>
     </div>

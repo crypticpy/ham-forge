@@ -14,14 +14,13 @@ import {
   Loader2,
   AlertCircle,
   Play,
+  RotateCcw,
 } from 'lucide-react'
 import { useHydration } from '@/hooks/use-hydration'
+import { useProgressStore } from '@/stores/progress-store'
 import { getModuleById } from '@/lib/learning-modules'
 import type { LearningModule } from '@/types/learning'
 import type { ExamLevel } from '@/types'
-
-// Storage key for learning progress
-const PROGRESS_KEY = 'hamforge-learning-progress'
 
 interface ModulePageProps {
   params: Promise<{ moduleId: string }>
@@ -36,19 +35,6 @@ function getModule(moduleId: string): LearningModule | null {
   return getModuleById(examLevel, moduleId) ?? null
 }
 
-/**
- * Get completed sections from localStorage
- */
-function getCompletedSections(): Record<string, string[]> {
-  if (typeof window === 'undefined') return {}
-  try {
-    const stored = localStorage.getItem(PROGRESS_KEY)
-    return stored ? JSON.parse(stored) : {}
-  } catch {
-    return {}
-  }
-}
-
 export default function ModuleOverviewPage({ params }: ModulePageProps) {
   const resolvedParams = use(params)
   const router = useRouter()
@@ -56,7 +42,12 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
   const [module, setModule] = useState<LearningModule | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [completedSections, setCompletedSections] = useState<string[]>([])
+
+  // Get progress from store
+  const getCompletedSections = useProgressStore((state) => state.getCompletedSections)
+  const resetModuleProgress = useProgressStore((state) => state.resetModuleProgress)
+
+  const completedSections = isHydrated && module ? getCompletedSections(module.id) : []
 
   // Load module data
   useEffect(() => {
@@ -78,20 +69,20 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
     loadModule()
   }, [resolvedParams.moduleId])
 
-  // Load progress from localStorage
-  useEffect(() => {
-    if (!isHydrated || !module) return
-
-    const progress = getCompletedSections()
-    const moduleProgress = progress[module.id] || []
-    setCompletedSections(moduleProgress)
-  }, [isHydrated, module])
-
   // Calculate progress percentage
   const progressPercentage =
     module && module.sections.length > 0
       ? Math.round((completedSections.length / module.sections.length) * 100)
       : 0
+
+  const isModuleComplete = module && completedSections.length === module.sections.length
+
+  // Handle reset progress
+  const handleResetProgress = () => {
+    if (module) {
+      resetModuleProgress(module.id)
+    }
+  }
 
   // Loading state
   if (isLoading || !isHydrated) {
@@ -124,6 +115,9 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
   }
 
   const firstSectionId = module.sections[0]?.id
+  // Find the first incomplete section for "Continue" button
+  const nextSectionId =
+    module.sections.find((s) => !completedSections.includes(s.id))?.id || firstSectionId
 
   return (
     <div className="container max-w-3xl py-6 px-4">
@@ -145,6 +139,12 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
             </span>
             <h1 className="text-2xl font-bold">{module.title}</h1>
           </div>
+          {isModuleComplete && (
+            <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
+              <CheckCircle className="size-4" aria-hidden="true" />
+              <span className="text-sm font-medium">Complete</span>
+            </div>
+          )}
         </div>
         <p className="text-muted-foreground mb-4">{module.description}</p>
 
@@ -176,13 +176,21 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
+          {completedSections.length > 0 && (
+            <div className="mt-3 flex justify-end">
+              <Button variant="ghost" size="sm" onClick={handleResetProgress}>
+                <RotateCcw className="size-4 mr-1.5" aria-hidden="true" />
+                Reset Progress
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Start/Continue Button */}
-      {firstSectionId && (
+      {nextSectionId && (
         <Button className="w-full mb-8" size="lg" asChild>
-          <Link href={`/learn/${module.id}/${firstSectionId}`}>
+          <Link href={`/learn/${module.id}/${nextSectionId}`}>
             <Play className="size-4 mr-2" aria-hidden="true" />
             {completedSections.length === 0
               ? 'Start Learning'

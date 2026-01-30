@@ -10,11 +10,15 @@ import {
   getMasteryStatus,
   calculatePriority,
 } from './spaced-repetition'
+import { getExplanation } from '@/data/explanations'
 import type { Question, QuestionProgress, ExamLevel } from '@/types'
 
 // Import question pools (static JSON)
 import technicianPool from '@/data/pools/technician.json'
 import generalPool from '@/data/pools/general.json'
+
+// Re-export getExplanation for convenience
+export { getExplanation } from '@/data/explanations'
 
 /**
  * Get the question pool for a given exam level
@@ -215,6 +219,36 @@ export async function getQuestionsBySubelement(
 }
 
 /**
+ * Get questions filtered by group (subelement + group letter)
+ * @param examLevel - The exam level
+ * @param subelement - The subelement (e.g., 'T1', 'G2')
+ * @param group - The group letter (e.g., 'A', 'B')
+ * @returns Array of questions in that group
+ */
+export function getQuestionsByGroup(
+  examLevel: ExamLevel,
+  subelement: string,
+  group: string
+): Question[] {
+  const pool = getQuestionPool(examLevel)
+  return pool.filter((q) => q.subelement === subelement && q.group === group)
+}
+
+/**
+ * Get all unique groups for a subelement
+ * @param examLevel - The exam level
+ * @param subelement - The subelement to get groups for (e.g., 'T1')
+ * @returns Array of group identifiers with full format (e.g., ['T1A', 'T1B', 'T1C'])
+ */
+export function getGroupsForSubelement(examLevel: ExamLevel, subelement: string): string[] {
+  const pool = getQuestionPool(examLevel)
+  const groups = new Set(
+    pool.filter((q) => q.subelement === subelement).map((q) => `${q.subelement}${q.group}`)
+  )
+  return Array.from(groups).sort()
+}
+
+/**
  * Get questions filtered by mastery status
  * @param examLevel - The exam level
  * @param status - The status to filter by
@@ -246,8 +280,13 @@ export async function getQuestionsByStatus(
  * Save progress for a question after answering
  * @param questionId - The question ID
  * @param isCorrect - Whether the answer was correct
+ * @param confidence - Optional confidence rating (1-5, defaults to 3)
  */
-export async function saveQuestionProgress(questionId: string, isCorrect: boolean): Promise<void> {
+export async function saveQuestionProgress(
+  questionId: string,
+  isCorrect: boolean,
+  confidence?: number
+): Promise<void> {
   const now = new Date()
 
   try {
@@ -256,12 +295,16 @@ export async function saveQuestionProgress(questionId: string, isCorrect: boolea
 
     if (existing) {
       // Update existing progress
-      const result = processAnswer(isCorrect, {
-        easeFactor: existing.easeFactor,
-        interval: existing.interval,
-        attempts: existing.attempts,
-        correctCount: existing.correctCount,
-      })
+      const result = processAnswer(
+        isCorrect,
+        {
+          easeFactor: existing.easeFactor,
+          interval: existing.interval,
+          attempts: existing.attempts,
+          correctCount: existing.correctCount,
+        },
+        confidence
+      )
 
       const newCorrectCount = isCorrect ? existing.correctCount + 1 : existing.correctCount
       const newAttempts = existing.attempts + 1
@@ -280,7 +323,7 @@ export async function saveQuestionProgress(questionId: string, isCorrect: boolea
       })
     } else {
       // Create new progress record
-      const result = processAnswer(isCorrect, undefined)
+      const result = processAnswer(isCorrect, undefined, confidence)
       const initial = getInitialProgress()
 
       const progress: QuestionProgress = {
@@ -465,4 +508,47 @@ export function getRandomQuestion(
 
   const randomIndex = Math.floor(Math.random() * filtered.length)
   return filtered[randomIndex]
+}
+
+/**
+ * Get a question with its explanation merged in
+ * @param examLevel - The exam level
+ * @param questionId - The question ID
+ * @returns The question with explanation field populated, or undefined if not found
+ */
+export function getQuestionWithExplanation(
+  examLevel: ExamLevel,
+  questionId: string
+): Question | undefined {
+  const pool = getQuestionPool(examLevel)
+  const question = pool.find((q) => q.id === questionId)
+
+  if (!question) {
+    return undefined
+  }
+
+  // Merge explanation if available
+  const explanation = getExplanation(questionId)
+  if (explanation) {
+    return { ...question, explanation }
+  }
+
+  return question
+}
+
+/**
+ * Get the question pool with explanations merged into each question
+ * @param examLevel - The exam level
+ * @returns Array of questions with explanation fields populated
+ */
+export function getQuestionPoolWithExplanations(examLevel: ExamLevel): Question[] {
+  const pool = getQuestionPool(examLevel)
+
+  return pool.map((question) => {
+    const explanation = getExplanation(question.id)
+    if (explanation) {
+      return { ...question, explanation }
+    }
+    return question
+  })
 }

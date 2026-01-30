@@ -12,9 +12,13 @@ export interface SessionConfig {
   examLevel: ExamLevel
   questionCount: number
   subelements: string[] // Empty = all
+  groups: string[] // Empty = all groups within selected subelements (e.g., ['T1A', 'T1B'])
   status: ('new' | 'learning' | 'review' | 'mastered')[] // Empty = all
+  flaggedOnly: boolean // Only show flagged questions
   shuffleAnswers: boolean
   showExplanations: boolean
+  isQuickStudy?: boolean
+  durationSeconds?: number
 }
 
 interface SessionConfigProps {
@@ -39,7 +43,9 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
   const [examLevel, setExamLevel] = useState<ExamLevel>(initialExamLevel)
   const [questionCount, setQuestionCount] = useState(10)
   const [subelements, setSubelements] = useState<string[]>([])
+  const [groups, setGroups] = useState<string[]>([])
   const [status, setStatus] = useState<('new' | 'learning' | 'review' | 'mastered')[]>([])
+  const [flaggedOnly, setFlaggedOnly] = useState(false)
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
   const [showExplanations, setShowExplanations] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
@@ -49,13 +55,15 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
       examLevel,
       questionCount: questionCount === -1 ? 9999 : questionCount,
       subelements,
+      groups,
       status,
+      flaggedOnly,
       shuffleAnswers,
       showExplanations,
     })
   }
 
-  const hasFilters = subelements.length > 0 || status.length > 0
+  const hasFilters = subelements.length > 0 || groups.length > 0 || status.length > 0 || flaggedOnly
 
   return (
     <div className="space-y-4">
@@ -73,6 +81,7 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
                 onClick={() => {
                   setExamLevel(level.id)
                   setSubelements([]) // Reset subelements when changing exam level
+                  setGroups([]) // Reset groups when changing exam level
                 }}
                 className={cn(
                   'flex flex-col items-start rounded-lg border p-4 text-left transition-colors hover:bg-accent',
@@ -123,7 +132,7 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
               <CardTitle className="text-base">Filters</CardTitle>
               <CardDescription>
                 {hasFilters
-                  ? `${subelements.length || 'All'} topics, ${status.length || 'All'} statuses`
+                  ? `${subelements.length || 'All'} topics${groups.length > 0 ? `, ${groups.length} groups` : ''}, ${status.length || 'All'} statuses`
                   : 'No filters applied - all questions included'}
               </CardDescription>
             </div>
@@ -137,9 +146,13 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
             <FilterPanel
               examLevel={examLevel}
               selectedSubelements={subelements}
+              selectedGroups={groups}
               selectedStatus={status}
+              showFlaggedOnly={flaggedOnly}
               onSubelementsChange={setSubelements}
+              onGroupsChange={setGroups}
               onStatusChange={setStatus}
+              onFlaggedOnlyChange={setFlaggedOnly}
             />
           </CardContent>
         )}
