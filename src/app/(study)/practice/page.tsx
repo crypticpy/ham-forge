@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Target, Brain, Trophy, Zap, Settings2 } from 'lucide-react'
+import { BookOpen, Target, Brain, Trophy, Zap, Settings2, Loader2 } from 'lucide-react'
 import {
   SessionConfig,
   type SessionConfig as SessionConfigType,
 } from '@/components/features/practice/session-config'
 import { useStudyStore } from '@/stores/study-store'
+import { useHydration } from '@/hooks/use-hydration'
+import { getProgressBySubelement } from '@/lib/question-scheduler'
+import { getSubelementName } from '@/lib/subelement-metadata'
 
 interface QuickStartOption {
   id: string
@@ -20,10 +23,49 @@ interface QuickStartOption {
   action: () => void
 }
 
+interface SubelementProgress {
+  id: string
+  name: string
+  total: number
+  mastered: number
+  accuracy: number
+}
+
 export default function PracticePage() {
   const router = useRouter()
   const [showConfig, setShowConfig] = useState(false)
   const { currentExamLevel } = useStudyStore()
+  const isHydrated = useHydration()
+  const [progress, setProgress] = useState<SubelementProgress[]>([])
+  const [isLoadingProgress, setIsLoadingProgress] = useState(true)
+
+  // Load progress data
+  useEffect(() => {
+    if (!isHydrated) return
+
+    const loadProgress = async () => {
+      setIsLoadingProgress(true)
+      try {
+        const subProgress = await getProgressBySubelement(currentExamLevel)
+        const progressArray: SubelementProgress[] = Array.from(subProgress.entries())
+          .map(([id, data]) => ({
+            id,
+            name: getSubelementName(id),
+            total: data.total,
+            mastered: data.mastered,
+            accuracy: data.accuracy,
+          }))
+          .sort((a, b) => a.id.localeCompare(b.id))
+        setProgress(progressArray)
+      } catch (error) {
+        console.error('Failed to load progress:', error)
+      } finally {
+        setIsLoadingProgress(false)
+      }
+    }
+
+    loadProgress()
+  }, [currentExamLevel, isHydrated])
 
   const handleStartSession = (config: SessionConfigType) => {
     // Store config in session storage and navigate
@@ -144,22 +186,67 @@ export default function PracticePage() {
         </CardContent>
       </Card>
 
-      {/* Progress Overview Placeholder */}
+      {/* Progress Overview */}
       <div className="mt-8">
         <h2 className="mb-4 text-lg font-semibold">Your Progress</h2>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Progress by Topic</CardTitle>
-            <CardDescription>Complete practice sessions to track your progress</CardDescription>
+            <CardDescription>
+              {progress.some((p) => p.mastered > 0 || p.accuracy > 0)
+                ? 'Your mastery across different subelements'
+                : 'Complete practice sessions to track your progress'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center py-8 text-center text-muted-foreground">
-              <div>
-                <Trophy className="mx-auto mb-2 size-8 opacity-50" />
-                <p className="text-sm">No practice history yet</p>
-                <p className="text-xs">Start a session to see your progress here</p>
+            {isLoadingProgress ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
               </div>
-            </div>
+            ) : progress.length === 0 || !progress.some((p) => p.mastered > 0 || p.accuracy > 0) ? (
+              <div className="flex items-center justify-center py-8 text-center text-muted-foreground">
+                <div>
+                  <Trophy className="mx-auto mb-2 size-8 opacity-50" />
+                  <p className="text-sm">No practice history yet</p>
+                  <p className="text-xs">Start a session to see your progress here</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {progress
+                  .filter((p) => p.mastered > 0 || p.accuracy > 0)
+                  .map((sub) => {
+                    const masteryPercent =
+                      sub.total > 0 ? Math.round((sub.mastered / sub.total) * 100) : 0
+                    const accuracyPercent = Math.round(sub.accuracy * 100)
+
+                    return (
+                      <div key={sub.id} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">
+                            {sub.id}: {sub.name}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {sub.mastered}/{sub.total} mastered ({accuracyPercent}% accuracy)
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full transition-all ${
+                              masteryPercent >= 80
+                                ? 'bg-green-500'
+                                : masteryPercent >= 50
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                            }`}
+                            style={{ width: `${masteryPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

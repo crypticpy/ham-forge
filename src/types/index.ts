@@ -1,2 +1,4 @@
 export * from './question'
 export * from './progress'
+export * from './learning'
+export * from './radio'
