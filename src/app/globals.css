@@ -125,3 +125,43 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Accessibility: Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable Tailwind's animate-spin (loading spinners) - use subtle opacity instead */
+  .animate-spin {
+    animation: none !important;
+    opacity: 0.7;
+  }
+
+  /* Disable Tailwind's animate-pulse (skeleton loaders) */
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind's animate-bounce */
+  .animate-bounce {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind's animate-ping */
+  .animate-ping {
+    animation: none !important;
+    opacity: 0.75;
+  }
+
+  /* Ensure progress bars still show state changes (instant updates) */
+  [role="progressbar"],
+  progress {
+    transition: none !important;
+  }
+}

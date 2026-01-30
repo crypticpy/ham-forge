@@ -1,16 +1,101 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, Menu, Settings, Star, Lightbulb, Info } from 'lucide-react'
+import {
+  ArrowLeft,
+  Menu,
+  Settings,
+  Star,
+  Lightbulb,
+  Info,
+  Loader2,
+  Search,
+  Folder,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MenuTree } from '@/components/features/radio/menu-tree'
 import {
   IC7300_MENU_TREE,
   getRecommendedSettings,
   getExamRelevantSettings,
 } from '@/data/radio/ic7300-menu'
 import type { MenuItem } from '@/data/radio/ic7300-menu'
+
+/**
+ * Loading skeleton for the MenuTree component
+ * Mimics the search bar and tree structure layout
+ */
+function MenuTreeSkeleton() {
+  return (
+    <div className="w-full">
+      {/* Search input skeleton */}
+      <div className="mb-4 space-y-3">
+        <div className="relative">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50"
+            aria-hidden="true"
+          />
+          <div className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted/30 animate-pulse" />
+        </div>
+
+        {/* Checkbox skeleton */}
+        <div className="flex items-center gap-2">
+          <div className="size-4 rounded border border-input bg-muted/30 animate-pulse" />
+          <div className="h-4 w-48 bg-muted rounded animate-pulse" />
+        </div>
+      </div>
+
+      {/* Tree items skeleton */}
+      <div className="space-y-1">
+        {/* Loading indicator */}
+        <div className="flex items-center justify-center py-4 mb-2">
+          <Loader2 className="size-5 text-muted-foreground animate-spin" aria-hidden="true" />
+          <span className="ml-2 text-sm text-muted-foreground">Loading menu tree...</span>
+        </div>
+
+        {/* Skeleton tree items to hint at structure */}
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="py-2 px-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Folder className="size-4 text-muted-foreground/30" aria-hidden="true" />
+              <div
+                className="h-5 bg-muted rounded animate-pulse"
+                style={{ width: `${80 + i * 15}px` }}
+              />
+            </div>
+            {/* Nested items hint */}
+            {i <= 2 && (
+              <div className="ml-6 mt-2 space-y-2">
+                {[1, 2].map((j) => (
+                  <div key={j} className="flex items-center gap-2 py-1 pl-4">
+                    <div className="w-4" />
+                    <div
+                      className="h-4 bg-muted/70 rounded animate-pulse"
+                      style={{ width: `${60 + j * 20}px` }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Dynamically imported MenuTree component with code splitting
+ * Uses ssr: false since it's an interactive client component with state
+ */
+const MenuTree = dynamic(
+  () => import('@/components/features/radio/menu-tree').then((mod) => ({ default: mod.MenuTree })),
+  {
+    loading: () => <MenuTreeSkeleton />,
+    ssr: false,
+  }
+)
 
 /**
  * Counts total leaf menu items (settings) in the tree

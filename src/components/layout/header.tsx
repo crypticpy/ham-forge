@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, X, Radio } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
@@ -19,6 +19,20 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Close mobile menu on Escape key press
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [mobileMenuOpen])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -56,7 +70,9 @@ export function Header() {
             size="icon"
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -64,26 +80,29 @@ export function Header() {
       </div>
 
       {/* Mobile Navigation Dropdown */}
-      {mobileMenuOpen && (
-        <nav className="md:hidden border-t bg-background p-4">
-          <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Button
-                key={link.href}
-                variant="ghost"
-                asChild
-                className={cn(
-                  'justify-start text-muted-foreground',
-                  pathname === link.href && 'text-foreground bg-accent'
-                )}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Link href={link.href}>{link.label}</Link>
-              </Button>
-            ))}
-          </div>
-        </nav>
-      )}
+      <nav
+        id="mobile-menu"
+        className={cn('md:hidden border-t bg-background p-4', !mobileMenuOpen && 'hidden')}
+        aria-label="Mobile navigation"
+        aria-hidden={!mobileMenuOpen}
+      >
+        <div className="flex flex-col gap-2">
+          {navLinks.map((link) => (
+            <Button
+              key={link.href}
+              variant="ghost"
+              asChild
+              className={cn(
+                'justify-start text-muted-foreground',
+                pathname === link.href && 'text-foreground bg-accent'
+              )}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Link href={link.href}>{link.label}</Link>
+            </Button>
+          ))}
+        </div>
+      </nav>
     </header>
   )
 }

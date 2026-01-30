@@ -1,14 +1,79 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, Monitor, X } from 'lucide-react'
+import { ArrowLeft, Monitor, X, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FrontPanel } from '@/components/features/radio/front-panel'
 import { ControlCard } from '@/components/features/radio/control-card'
 import { RelatedQuestions } from '@/components/features/radio/related-questions'
 import { getControlById } from '@/lib/ic7300-data'
+
+/**
+ * Loading skeleton for the FrontPanel component
+ * Matches the aspect ratio and layout of the actual panel
+ */
+function FrontPanelSkeleton() {
+  return (
+    <div className="w-full">
+      <div className="relative w-full bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700 shadow-xl overflow-hidden aspect-[2.5/1] min-h-[280px] md:min-h-[350px]">
+        {/* Loading spinner overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <Loader2 className="size-8 text-zinc-400 animate-spin" aria-hidden="true" />
+          <span className="mt-3 text-sm text-zinc-400">Loading front panel...</span>
+        </div>
+
+        {/* Skeleton elements to hint at layout */}
+        <div className="absolute inset-0 opacity-20">
+          {/* Display area skeleton */}
+          <div
+            className="absolute border-2 border-zinc-600 rounded-lg bg-zinc-950/50"
+            style={{ left: '15%', top: '5%', width: '55%', height: '35%' }}
+          />
+
+          {/* Main dial skeleton */}
+          <div
+            className="absolute rounded-full bg-zinc-700/50 border-4 border-zinc-600"
+            style={{ left: '77%', top: '30%', width: '18%', height: '35%' }}
+          />
+
+          {/* Left knobs skeleton */}
+          <div className="absolute flex flex-col gap-3" style={{ left: '3%', top: '45%' }}>
+            <div className="w-10 h-10 rounded-full bg-zinc-700/50" />
+            <div className="w-10 h-10 rounded-full bg-zinc-700/50" />
+            <div className="w-8 h-8 rounded-full bg-zinc-700/50" />
+          </div>
+
+          {/* Mode buttons skeleton */}
+          <div className="absolute flex gap-2" style={{ left: '18%', top: '45%', width: '55%' }}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex-1 h-8 rounded bg-zinc-700/50" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Instruction text skeleton */}
+      <div className="mt-4 flex justify-center">
+        <div className="h-4 w-64 bg-muted rounded animate-pulse" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Dynamically imported FrontPanel component with code splitting
+ * Uses ssr: false since it's an interactive client component
+ */
+const FrontPanel = dynamic(
+  () =>
+    import('@/components/features/radio/front-panel').then((mod) => ({ default: mod.FrontPanel })),
+  {
+    loading: () => <FrontPanelSkeleton />,
+    ssr: false,
+  }
+)
 
 export default function InteractivePanelPage() {
   const [selectedControlId, setSelectedControlId] = useState<string | null>(null)

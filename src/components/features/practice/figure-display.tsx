@@ -29,15 +29,15 @@ export function FigureDisplay({ figure }: FigureDisplayProps) {
     <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/30">
       <div className="flex flex-col items-center p-4">
         <p className="text-sm font-medium text-muted-foreground mb-3">Figure {figure}</p>
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full max-w-md aspect-[4/3]">
           <Image
             src={imagePath}
             alt={`Figure ${figure} - Reference diagram for this question`}
-            width={500}
-            height={400}
-            className="w-full h-auto object-contain rounded"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 448px"
+            className="object-contain rounded"
             onError={() => setHasError(true)}
-            priority={false}
+            loading="lazy"
           />
         </div>
       </div>

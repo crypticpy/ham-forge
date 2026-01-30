@@ -161,6 +161,14 @@ export function QuestionCard({
           })}
         </div>
 
+        {/* Screen reader announcement for answer feedback */}
+        <div role="status" aria-live="polite" className="sr-only">
+          {isRevealed &&
+            (isCorrect
+              ? 'Correct answer!'
+              : `Incorrect. The correct answer is ${question.answers[question.correctAnswer]}`)}
+        </div>
+
         {/* Submit button (before reveal) */}
         {!isRevealed && (
           <Button
