@@ -11,16 +11,30 @@ import { Button } from '@/components/ui/button'
 import { Loader2, CheckCircle, XCircle, Trophy, RotateCcw, Home } from 'lucide-react'
 import Link from 'next/link'
 
-// Read session config from sessionStorage safely
+// Cache for getSessionConfig to avoid infinite loops with useSyncExternalStore
+let cachedConfigJson: string | null = null
+let cachedConfig: SessionConfig | null = null
+
+// Read session config from sessionStorage safely (cached to prevent infinite loops)
 function getSessionConfig(): SessionConfig | null {
   if (typeof window === 'undefined') return null
   const stored = sessionStorage.getItem('practiceConfig')
-  if (!stored) return null
-  try {
-    return JSON.parse(stored) as SessionConfig
-  } catch {
+  if (!stored) {
+    cachedConfigJson = null
+    cachedConfig = null
     return null
   }
+  // Only parse if the JSON string changed
+  if (stored !== cachedConfigJson) {
+    try {
+      cachedConfigJson = stored
+      cachedConfig = JSON.parse(stored) as SessionConfig
+    } catch {
+      cachedConfigJson = null
+      cachedConfig = null
+    }
+  }
+  return cachedConfig
 }
 
 // Subscribe function for useSyncExternalStore (sessionStorage doesn't fire events within same tab)
