@@ -1,4 +1,5 @@
 import { SiteHeader } from '@/components/layout/site-header'
+import { TimeTrackingProvider } from '@/providers/time-tracking-provider'
 
 /**
  * Study Route Group Layout
@@ -7,6 +8,7 @@ import { SiteHeader } from '@/components/layout/site-header'
  * and provides:
  * - Main content landmark with proper id for skip link target
  * - Semantic HTML structure for assistive technologies
+ * - Time tracking provider for study session duration
  *
  * Accessibility Notes:
  * - The SkipLink is provided by the root layout (first focusable element in DOM)
@@ -16,7 +18,7 @@ import { SiteHeader } from '@/components/layout/site-header'
  */
 export default function StudyLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <TimeTrackingProvider>
       <SiteHeader />
       <main
         id="main-content"
@@ -26,6 +28,6 @@ export default function StudyLayout({ children }: { children: React.ReactNode })
       >
         {children}
       </main>
-    </>
+    </TimeTrackingProvider>
   )
 }

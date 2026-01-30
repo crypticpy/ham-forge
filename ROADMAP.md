@@ -231,8 +231,8 @@ This roadmap addresses all gaps identified between the current implementation an
 | A - Question Pool         | Complete    | 100%       |
 | B - Learning Modules      | Complete    | 100%       |
 | C - Practice Enhancements | Complete    | 100%       |
-| D - IC-7300 Integration   | Not Started | 0%         |
-| E - Dashboard & UX        | Not Started | 0%         |
+| D - IC-7300 Integration   | Complete    | 100%       |
+| E - Dashboard & UX        | Complete    | 100%       |
 | F - Performance & Testing | Not Started | 0%         |
 
 ---
@@ -291,3 +291,74 @@ _Last updated: 2026-01-30_
   - Added "5-Minute Quick Study" quick start option
   - Timer auto-completes session when time expires
   - Shows questions answered and average time per question
+
+### Phase D - IC-7300 Integration Expansion (Completed 2026-01-30)
+
+- **D.1 Interactive Front Panel**: Visual panel with clickable controls
+  - Created FrontPanel component with schematic layout
+  - Created ControlHotspot component for interactive areas
+  - New page at /radio/panel with control detail sidebar
+  - Mobile-friendly touch interaction
+
+- **D.2 Menu System Guide**: Searchable menu hierarchy
+  - Created ic7300-menu.ts with complete menu tree (63 menu items)
+  - Created MenuTree component with recursive expand/collapse
+  - New page at /radio/menu with search and recommended filter
+  - Includes exam-relevant and recommended setting badges
+
+- **D.3 Mode Operation Guides**: Detailed mode tutorials
+  - Created ic7300-mode-guides.ts with 7 mode guides (LSB, USB, CW, FM, AM, RTTY, DATA)
+  - Each guide includes overview, sections, quick setup, common settings, exam tips
+  - Created ModeGuideCard, ModeQuickSetup, ModeCommonSettings, ModeExamTips components
+  - New pages at /radio/modes and /radio/modes/[mode]
+
+- **D.4 Additional Feature Guides**: In-depth feature tutorials
+  - Created ic7300-guides.ts with 4 feature guides (spectrum, filters, memory, tuner)
+  - Each guide includes sections with step-by-step instructions
+  - Created GuideCard, GuideSection, GuideStepList, GuideQuickTips, GuideExamRelevance components
+  - New pages at /radio/guides and /radio/guides/[guide]
+
+- **D.5 Question Cross-References**: Bidirectional question-control mapping
+  - Created question-control-mapping.ts with 107 question mappings
+  - Created RelatedQuestions component (shows questions related to a control)
+  - Created RelatedControls component (shows controls related to a question)
+  - Updated controls/page.tsx to use data library (24 controls, was 20)
+  - Updated radio landing page with 6 navigation cards for all new sections
+
+- **Types & Infrastructure**:
+  - Added MenuItem, ModeGuide, ModeGuideSection, FeatureGuide, GuideStep, QuestionControlMapping to types/radio.ts
+
+### Phase E - Dashboard & UX Polish (Completed 2026-01-30)
+
+- **E.1 Data Export/Import**: Full progress data portability
+  - Created `lib/data-export.ts` with export/import/validate functions
+  - Created `components/features/settings/export-dialog.tsx` with UI
+  - Created `/settings` page with data management section
+  - Exports include: questionProgress, examAttempts, studySessions, streaks, completedModules, flaggedQuestions
+  - Import includes validation and confirmation dialog
+
+- **E.2 Study Time Tracking**: Track and visualize study duration
+  - Created `stores/session-time-store.ts` with Zustand persistence
+  - Created `lib/time-tracking.ts` with aggregation utilities
+  - Created `components/features/dashboard/time-charts.tsx` with visualizations
+  - Added StudyTimeCard to analytics page
+  - Shows today, this week, this month, all-time stats
+  - Bar charts for 7 days, 4 weeks, or 3 months views
+  - Created TimeTrackingProvider for automatic session tracking
+
+- **E.3 Continue Where You Left Off**: Resume last activity
+  - Created `stores/activity-store.ts` with activity tracking
+  - Created `components/features/dashboard/continue-card.tsx` with UI
+  - Added ContinueCard to dashboard page (top of content)
+  - Tracks activity type, path, label, timestamp, and metadata
+  - Shows "Continue" button with context or "Start Studying" if no recent activity
+  - Added activity recording to practice session and learn section pages
+
+- **E.4 Module Knowledge Checks**: Mini-quizzes in learning sections
+  - Created `hooks/use-knowledge-check.ts` for quiz state management
+  - Created `components/features/learning/knowledge-check.tsx` with quiz UI
+  - Added sectionQuizResults tracking to progress store
+  - Added KnowledgeCheck to section page (after KeyPoints)
+  - Shows intro, questions, feedback, and results screens
+  - 60% pass threshold, 3-5 questions per quiz
+  - "Quiz Passed" badge shows in section header

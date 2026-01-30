@@ -51,3 +51,74 @@ export interface RadioMode {
   typicalUse: string
   bandwidth?: string
 }
+
+// Menu System Types
+export interface MenuItem {
+  /** Unique identifier for the menu item */
+  id: string
+  /** Display name of the menu item */
+  name: string
+  /** Breadcrumb path to this item (e.g., ['SET', 'Display']) */
+  path: string[]
+  /** Detailed description of what this setting does */
+  description: string
+  /** Factory default value */
+  defaultValue?: string
+  /** Recommended value for new ham radio operators */
+  recommendedValue?: string
+  /** Whether this setting is relevant to ham radio license exams */
+  examRelevant?: boolean
+  /** Tips related to exam questions */
+  examTips?: string
+  /** Child menu items */
+  children?: MenuItem[]
+}
+
+// Mode Guide Types
+export interface ModeGuideSection {
+  id: string
+  title: string
+  content: string
+}
+
+export interface ModeGuide {
+  id: string
+  name: string
+  fullName: string
+  overview: string
+  sections: ModeGuideSection[]
+  quickSetup: string[]
+  commonSettings: { setting: string; value: string; reason: string }[]
+  examTips: string[]
+  relatedControlIds: string[]
+}
+
+// Feature Guide Types
+export interface GuideStep {
+  step: number
+  instruction: string
+  tip?: string
+}
+
+export interface FeatureGuide {
+  id: string
+  name: string
+  description: string
+  icon: string
+  sections: {
+    id: string
+    title: string
+    content: string
+    steps?: GuideStep[]
+  }[]
+  quickTips: string[]
+  examRelevance: string[]
+  relatedControlIds: string[]
+}
+
+// Question-Control Mapping Types
+export interface QuestionControlMapping {
+  questionId: string
+  controlIds: string[]
+  relevance: 'direct' | 'related'
+}

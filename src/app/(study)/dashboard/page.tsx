@@ -12,6 +12,7 @@ import { SubelementHeatmap } from '@/components/features/dashboard/subelement-he
 import { ReadinessScore } from '@/components/features/dashboard/readiness-score'
 import { StreakTracker } from '@/components/features/dashboard/streak-tracker'
 import { CoverageStats } from '@/components/features/dashboard/coverage-stats'
+import { ContinueCard } from '@/components/features/dashboard/continue-card'
 import type { ExamLevel } from '@/types'
 
 interface ProgressStats {
@@ -62,6 +63,9 @@ export default function DashboardPage() {
 
   return (
     <div className="container max-w-3xl py-6 px-4">
+      {/* Continue Where You Left Off */}
+      <ContinueCard />
+
       {/* Header with Exam Level Selector */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Progress Dashboard</h1>

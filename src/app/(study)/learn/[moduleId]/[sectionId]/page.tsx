@@ -13,11 +13,14 @@ import {
   AlertCircle,
   Check,
   BookOpen,
+  Trophy,
 } from 'lucide-react'
 import { useHydration } from '@/hooks/use-hydration'
 import { useProgressStore } from '@/stores/progress-store'
+import { useActivityStore } from '@/stores/activity-store'
 import { MarkdownRenderer } from '@/components/features/learning/markdown-renderer'
 import { KeyPoints } from '@/components/features/learning/key-points'
+import { KnowledgeCheck } from '@/components/features/learning/knowledge-check'
 import { getModuleById } from '@/lib/learning-modules'
 import type { LearningModule, LearningSection } from '@/types/learning'
 import type { ExamLevel } from '@/types'
@@ -48,9 +51,33 @@ export default function SectionContentPage({ params }: SectionPageProps) {
   const isSectionComplete = useProgressStore((state) => state.isSectionComplete)
   const markSectionComplete = useProgressStore((state) => state.markSectionComplete)
   const markSectionIncomplete = useProgressStore((state) => state.markSectionIncomplete)
+  const getSectionQuizResult = useProgressStore((state) => state.getSectionQuizResult)
 
   const isCompleted =
     isHydrated && module && section ? isSectionComplete(module.id, section.id) : false
+
+  // Get quiz result for this section
+  const quizResult = isHydrated && section ? getSectionQuizResult(section.id) : null
+  const quizPassed = quizResult?.passed ?? false
+
+  // Activity tracking
+  const recordActivity = useActivityStore((s) => s.recordActivity)
+
+  // Record activity for "continue where you left off" feature
+  useEffect(() => {
+    if (!module || !section || isLoading) return
+
+    recordActivity({
+      type: 'learn',
+      path: `/learn/${module.id}/${section.id}`,
+      label: `Learning ${module.title} - ${section.title}`,
+      metadata: {
+        moduleId: module.id,
+        sectionId: section.id,
+        sectionTitle: section.title,
+      },
+    })
+  }, [module, section, isLoading, recordActivity])
 
   // Load module and section data
   useEffect(() => {
@@ -153,12 +180,18 @@ export default function SectionContentPage({ params }: SectionPageProps) {
 
       {/* Section Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           <span className="text-sm font-mono text-muted-foreground">{section.id}</span>
           {isCompleted && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
               <Check className="size-3" aria-hidden="true" />
               Completed
+            </span>
+          )}
+          {quizPassed && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+              <Trophy className="size-3" aria-hidden="true" />
+              Quiz Passed
             </span>
           )}
         </div>
@@ -185,6 +218,17 @@ export default function SectionContentPage({ params }: SectionPageProps) {
       {section.keyPoints && section.keyPoints.length > 0 && (
         <div className="mb-8">
           <KeyPoints points={section.keyPoints} />
+        </div>
+      )}
+
+      {/* Knowledge Check Quiz */}
+      {section.relatedQuestionIds && section.relatedQuestionIds.length > 0 && (
+        <div className="mb-8">
+          <KnowledgeCheck
+            sectionId={section.id}
+            relatedQuestionIds={section.relatedQuestionIds}
+            examLevel={module.examLevel}
+          />
         </div>
       )}
 

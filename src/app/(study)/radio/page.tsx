@@ -2,7 +2,16 @@
 
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Radio, Sliders, BarChart3, ChevronRight } from 'lucide-react'
+import {
+  Radio,
+  Sliders,
+  BarChart3,
+  ChevronRight,
+  Monitor,
+  Menu,
+  Waves,
+  BookOpen,
+} from 'lucide-react'
 
 export default function RadioPage() {
   return (
@@ -35,6 +44,33 @@ export default function RadioPage() {
 
       {/* Navigation cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Interactive Front Panel */}
+        <Link href="/radio/panel">
+          <Card className="h-full cursor-pointer transition-all hover:border-primary hover:shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30">
+                  <Monitor className="size-5 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Interactive Panel</CardTitle>
+                  <CardDescription>Explore the front panel visually</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Interactive diagram of the IC-7300 front panel. Click on controls to learn what they
+                do and see related exam questions.
+              </p>
+              <div className="flex items-center text-sm font-medium text-primary">
+                <span>Open interactive panel</span>
+                <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
         {/* Controls Reference */}
         <Link href="/radio/controls">
           <Card className="h-full cursor-pointer transition-all hover:border-primary hover:shadow-md">
@@ -56,6 +92,93 @@ export default function RadioPage() {
               </p>
               <div className="flex items-center text-sm font-medium text-primary">
                 <span>Explore controls</span>
+                <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Menu System */}
+        <Link href="/radio/menu">
+          <Card className="h-full cursor-pointer transition-all hover:border-primary hover:shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                  <Menu
+                    className="size-5 text-purple-600 dark:text-purple-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Menu System</CardTitle>
+                  <CardDescription>Navigate the IC-7300 menu hierarchy</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Searchable guide to the IC-7300 menu structure. Find settings quickly and see
+                recommended configurations for new operators.
+              </p>
+              <div className="flex items-center text-sm font-medium text-primary">
+                <span>Browse menu system</span>
+                <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Operating Modes */}
+        <Link href="/radio/modes">
+          <Card className="h-full cursor-pointer transition-all hover:border-primary hover:shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                  <Waves className="size-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Operating Modes</CardTitle>
+                  <CardDescription>SSB, CW, FM, Digital, and more</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Detailed guides for each operating mode. Learn setup procedures, best practices, and
+                exam-relevant information for SSB, CW, FM, and digital modes.
+              </p>
+              <div className="flex items-center text-sm font-medium text-primary">
+                <span>View mode guides</span>
+                <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Feature Guides */}
+        <Link href="/radio/guides">
+          <Card className="h-full cursor-pointer transition-all hover:border-primary hover:shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/30">
+                  <BookOpen
+                    className="size-5 text-rose-600 dark:text-rose-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Feature Guides</CardTitle>
+                  <CardDescription>Spectrum scope, filters, memory, tuner</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                In-depth tutorials for key IC-7300 features including the spectrum scope, filter
+                configuration, memory channels, and antenna tuner.
+              </p>
+              <div className="flex items-center text-sm font-medium text-primary">
+                <span>Read feature guides</span>
                 <ChevronRight className="size-4 ml-1" aria-hidden="true" />
               </div>
             </CardContent>

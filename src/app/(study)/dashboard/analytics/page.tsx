@@ -22,6 +22,7 @@ import { getExamHistory, getExamStats } from '@/lib/exam-storage'
 import { getProgressBySubelement } from '@/lib/question-scheduler'
 import { ExamHistoryChart } from '@/components/features/dashboard/exam-history-chart'
 import { StudyCalendar } from '@/components/features/dashboard/study-calendar'
+import { StudyTimeCard } from '@/components/features/dashboard/time-charts'
 import type { ExamAttempt } from '@/types'
 
 type ExamStats = Awaited<ReturnType<typeof getExamStats>>
@@ -132,6 +133,9 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Study Time Tracking Section */}
+          <StudyTimeCard />
+
           {/* Exam History Section */}
           <Card>
             <CardHeader>

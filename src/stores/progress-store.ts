@@ -3,6 +3,12 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+interface SectionQuizResult {
+  passed: boolean
+  score: number
+  attempts: number
+}
+
 interface ProgressState {
   // Study streak
   currentStreak: number
@@ -19,6 +25,10 @@ interface ProgressState {
 
   // Flagged questions for later review
   flaggedQuestions: string[] // Array of question IDs
+
+  // Section quiz results
+  // Maps sectionId -> quiz result
+  sectionQuizResults: Record<string, SectionQuizResult>
 
   // Actions
   recordStudyDay: () => void
@@ -40,6 +50,10 @@ interface ProgressState {
   isFlagged: (questionId: string) => boolean
   clearAllFlags: () => void
   getFlaggedCount: () => number
+
+  // Quiz result actions
+  recordQuizResult: (sectionId: string, passed: boolean, score: number) => void
+  getSectionQuizResult: (sectionId: string) => SectionQuizResult | null
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -52,6 +66,7 @@ export const useProgressStore = create<ProgressState>()(
       totalCorrect: 0,
       completedModules: {},
       flaggedQuestions: [],
+      sectionQuizResults: {},
 
       recordStudyDay: () => {
         const today = new Date().toISOString().split('T')[0]
@@ -90,6 +105,7 @@ export const useProgressStore = create<ProgressState>()(
           totalCorrect: 0,
           completedModules: {},
           flaggedQuestions: [],
+          sectionQuizResults: {},
         }),
 
       // Mark a section as complete
@@ -176,6 +192,29 @@ export const useProgressStore = create<ProgressState>()(
       getFlaggedCount: () => {
         const { flaggedQuestions } = get()
         return flaggedQuestions.length
+      },
+
+      // Record a quiz result for a section
+      recordQuizResult: (sectionId, passed, score) =>
+        set((state) => {
+          const existing = state.sectionQuizResults[sectionId]
+          const attempts = existing ? existing.attempts + 1 : 1
+          return {
+            sectionQuizResults: {
+              ...state.sectionQuizResults,
+              [sectionId]: {
+                passed,
+                score,
+                attempts,
+              },
+            },
+          }
+        }),
+
+      // Get quiz result for a section
+      getSectionQuizResult: (sectionId) => {
+        const { sectionQuizResults } = get()
+        return sectionQuizResults[sectionId] ?? null
       },
     }),
     {

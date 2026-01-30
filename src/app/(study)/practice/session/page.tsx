@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePracticeSession, type SessionConfig } from '@/hooks/use-practice-session'
 import { useHydration } from '@/hooks/use-hydration'
+import { useActivityStore } from '@/stores/activity-store'
 import { QuestionCard } from '@/components/features/practice/question-card'
 import { PracticeHeader } from '@/components/features/practice/practice-header'
 import { QuickStudyTimer } from '@/components/features/practice/quick-study-timer'
@@ -77,6 +78,7 @@ export default function PracticeSessionPage() {
 function PracticeSession({ config }: { config: SessionConfig }) {
   const router = useRouter()
   const [timeExpired, setTimeExpired] = useState(false)
+  const recordActivity = useActivityStore((s) => s.recordActivity)
   const {
     questions,
     currentIndex,
@@ -88,6 +90,34 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     submitAnswer,
     nextQuestion,
   } = usePracticeSession(config)
+
+  // Record activity for "continue where you left off" feature
+  useEffect(() => {
+    if (isLoading || isComplete || timeExpired || questions.length === 0) return
+
+    const isQuickStudy = config.isQuickStudy && config.durationSeconds
+    recordActivity({
+      type: 'practice',
+      path: '/practice/session',
+      label: isQuickStudy
+        ? `Quick Study - ${stats.answered + 1} questions`
+        : `Practice - Question ${currentIndex + 1} of ${questions.length}`,
+      metadata: {
+        questionIndex: currentIndex,
+        totalQuestions: questions.length,
+      },
+    })
+  }, [
+    currentIndex,
+    questions.length,
+    isLoading,
+    isComplete,
+    timeExpired,
+    config.isQuickStudy,
+    config.durationSeconds,
+    stats.answered,
+    recordActivity,
+  ])
 
   // Handle quick study timer expiration
   const handleTimeUp = useCallback(() => {
