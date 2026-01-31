@@ -1,19 +1,28 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Orbitron } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/layout/theme-provider'
 import { Header } from '@/components/layout/header'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { SkipLink } from '@/components/ui/skip-link'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
+  display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
+  display: 'swap',
+})
+
+const orbitron = Orbitron({
+  variable: '--font-orbitron',
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '700', '900'],
 })
 
 export const metadata: Metadata = {
@@ -22,7 +31,7 @@ export const metadata: Metadata = {
     template: '%s | HamForge',
   },
   description:
-    'Free amateur radio exam preparation for Technician and General class licenses. Practice questions, simulated exams, and IC-7300 reference.',
+    'Free amateur radio exam preparation for Technician and General class licenses. Practice questions, simulated exams, spectrum explorer, and IC-7300 reference. Part of the Propulse ecosystem.',
   keywords: [
     'ham radio',
     'amateur radio',
@@ -33,6 +42,9 @@ export const metadata: Metadata = {
     'amateur radio exam prep',
     'ham radio practice test',
     'FCC license study',
+    'propulse',
+    'radio propagation',
+    'spectrum allocation',
   ],
   authors: [{ name: 'HamForge' }],
   creator: 'HamForge',
@@ -41,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'HamForge - Ham Radio Exam Prep',
     description:
-      'Free amateur radio exam preparation for Technician and General class licenses. Practice questions, simulated exams, and IC-7300 reference.',
+      'Free amateur radio exam preparation for Technician and General class licenses. Part of the Propulse ecosystem for amateur radio operators.',
     type: 'website',
     locale: 'en_US',
     siteName: 'HamForge',
@@ -49,7 +61,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'HamForge - Ham Radio Exam Prep',
-    description: 'Free amateur radio exam preparation for Technician and General class licenses.',
+    description: 'Free amateur radio exam preparation. Part of the Propulse ecosystem.',
   },
   robots: {
     index: true,
@@ -78,8 +90,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a1a' },
   ],
 }
 
@@ -90,7 +102,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} ${orbitron.variable} font-sans antialiased`}
+      >
         <ThemeProvider>
           <SkipLink />
           <div className="relative flex min-h-screen flex-col">
