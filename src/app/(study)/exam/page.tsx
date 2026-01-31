@@ -75,7 +75,7 @@ export default function ExamLandingPage() {
   const examLevelLabel = selectedLevel === 'technician' ? 'Technician' : 'General'
 
   return (
-    <div className="container max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl py-6 px-4">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Practice Exam</h1>

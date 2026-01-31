@@ -44,7 +44,7 @@ export default function LearnPage() {
   }, [currentExamLevel, isHydrated])
 
   return (
-    <div className="container max-w-4xl py-6 px-4">
+    <div className="container mx-auto max-w-4xl py-6 px-4">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Learning Modules</h1>

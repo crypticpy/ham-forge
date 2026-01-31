@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
   const examLevelLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
 
   return (
-    <div className="container max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl py-6 px-4">
       {/* Header with back link */}
       <div className="mb-6">
         <Link

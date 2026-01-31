@@ -87,7 +87,7 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
   // Loading state
   if (isLoading || !isHydrated) {
     return (
-      <div className="container max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl py-6 px-4">
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Loading module...</p>
@@ -99,7 +99,7 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
   // Error state
   if (error || !module) {
     return (
-      <div className="container max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl py-6 px-4">
         <Card className="border-destructive">
           <CardContent className="py-8 text-center">
             <AlertCircle className="size-12 text-destructive mx-auto mb-4" />
@@ -120,7 +120,7 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
     module.sections.find((s) => !completedSections.includes(s.id))?.id || firstSectionId
 
   return (
-    <div className="container max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl py-6 px-4">
       {/* Back link */}
       <Link
         href="/learn"

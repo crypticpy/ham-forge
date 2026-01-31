@@ -139,7 +139,7 @@ export default function PracticePage() {
 
   if (showConfig) {
     return (
-      <div className="container max-w-2xl py-6 px-4">
+      <div className="container mx-auto max-w-2xl py-6 px-4">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Custom Session</h1>

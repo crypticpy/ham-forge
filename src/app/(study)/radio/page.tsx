@@ -15,7 +15,7 @@ import {
 
 export default function RadioPage() {
   return (
-    <div className="container max-w-4xl py-6 px-4">
+    <div className="container mx-auto max-w-4xl py-6 px-4">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">

@@ -136,7 +136,7 @@ export default function SectionContentPage({ params }: SectionPageProps) {
   // Loading state
   if (isLoading || !isHydrated) {
     return (
-      <div className="container max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl py-6 px-4">
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Loading content...</p>
@@ -148,7 +148,7 @@ export default function SectionContentPage({ params }: SectionPageProps) {
   // Error state
   if (error || !module || !section) {
     return (
-      <div className="container max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl py-6 px-4">
         <Card className="border-destructive">
           <CardContent className="py-8 text-center">
             <AlertCircle className="size-12 text-destructive mx-auto mb-4" />
@@ -164,7 +164,7 @@ export default function SectionContentPage({ params }: SectionPageProps) {
   }
 
   return (
-    <div className="container max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl py-6 px-4">
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap">
         <Link href="/learn" className="hover:text-foreground transition-colors">

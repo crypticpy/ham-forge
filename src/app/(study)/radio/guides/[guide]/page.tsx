@@ -25,7 +25,7 @@ export default function GuideDetailPage({ params }: GuideDetailPageProps) {
   }
 
   return (
-    <div className="container max-w-4xl py-6 px-4">
+    <div className="container mx-auto max-w-4xl py-6 px-4">
       {/* Back link */}
       <Link
         href="/radio/guides"
