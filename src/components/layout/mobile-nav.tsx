@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, ClipboardCheck, Layers, Radio } from 'lucide-react'
+import { Home, BookOpen, ClipboardCheck, Layers, Radio, Waves } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/practice', label: 'Practice', icon: BookOpen },
   { href: '/exam', label: 'Exam', icon: ClipboardCheck },
   { href: '/modules', label: 'Modules', icon: Layers },
+  { href: '/spectrum', label: 'Spectrum', icon: Waves },
   { href: '/radio', label: 'Radio', icon: Radio },
 ]
 

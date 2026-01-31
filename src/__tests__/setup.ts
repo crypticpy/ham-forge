@@ -9,6 +9,7 @@
  */
 
 import 'fake-indexeddb/auto'
+import '@testing-library/jest-dom/vitest'
 import { vi, beforeEach, afterEach } from 'vitest'
 
 // Mock localStorage

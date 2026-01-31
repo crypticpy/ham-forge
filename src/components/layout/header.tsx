@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/practice', label: 'Practice' },
   { href: '/exam', label: 'Exam' },
   { href: '/modules', label: 'Modules' },
+  { href: '/spectrum', label: 'Spectrum' },
   { href: '/radio', label: 'Radio' },
 ]
 

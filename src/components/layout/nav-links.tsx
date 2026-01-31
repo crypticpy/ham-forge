@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, ClipboardCheck, GraduationCap, BarChart3, Radio } from 'lucide-react'
+import { BookOpen, ClipboardCheck, GraduationCap, BarChart3, Radio, Waves } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/exam', label: 'Exam', icon: ClipboardCheck },
   { href: '/learn', label: 'Learn', icon: GraduationCap },
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/spectrum', label: 'Spectrum', icon: Waves },
   { href: '/radio', label: 'Radio', icon: Radio },
 ]
 
