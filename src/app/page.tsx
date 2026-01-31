@@ -213,7 +213,7 @@ export default function Home() {
                   style={{ animationDelay: `${(index + 2) * 100}ms` }}
                 >
                   <Card
-                    className={`h-full transition-all duration-300 glass-card dark:bg-white/[0.02] ${feature.glowColor} ${feature.borderColor}`}
+                    className={`h-full transition-all duration-300 glass-card ${feature.glowColor} ${feature.borderColor}`}
                   >
                     <CardHeader className="pb-3">
                       <div className="mb-3">

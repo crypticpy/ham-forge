@@ -105,8 +105,8 @@
 .dark {
   --background: #0a0a1a;
   --foreground: #f0f0f5;
-  --card: rgba(255, 255, 255, 0.03);
-  --card-foreground: #f0f0f5;
+  --card: #1a1a2e;
+  --card-foreground: #e2e8f0;
   --popover: #1a1a2e;
   --popover-foreground: #f0f0f5;
   --primary: #ff6b35;
@@ -114,7 +114,7 @@
   --secondary: #1a1a2e;
   --secondary-foreground: #f0f0f5;
   --muted: #16213e;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #cbd5e1;
   --accent: rgba(255, 107, 53, 0.15);
   --accent-foreground: #ff6b35;
   --destructive: #ff4455;
@@ -184,34 +184,43 @@
 /* Glass Morphism Components                 */
 /* ========================================= */
 
+/* Light mode glass card - white with subtle transparency */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 1rem;
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
 }
 
+/* Light mode glass panel */
 .glass-panel {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* Light mode glass effect */
-:root .glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(0, 0, 0, 0.08);
+/* Dark mode glass card - solid nebula blue with subtle transparency */
+.dark .glass-card {
+  background: rgba(26, 26, 46, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-:root .glass-panel {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.08);
+.dark .glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.95);
+}
+
+/* Dark mode glass panel */
+.dark .glass-panel {
+  background: rgba(10, 10, 26, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================= */
