@@ -221,7 +221,7 @@
 
 /* Dark mode glass panel */
 .dark .glass-panel {
-  background: rgba(10, 10, 26, 0.85);
+  background: rgba(10, 10, 26, 0.98);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -238,6 +238,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* Prevent backdrop-filter ghost artifacts */
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
 }
 
 .text-gradient-cosmic {
@@ -245,6 +249,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* Prevent backdrop-filter ghost artifacts */
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
 }
 
 /* ========================================= */
@@ -276,6 +284,11 @@
   50% { opacity: 0.85; filter: brightness(1.15); }
 }
 
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -293,6 +306,10 @@
 
 .animate-pulse-glow {
   animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out both;
 }
 
 .animate-fade-in-up {

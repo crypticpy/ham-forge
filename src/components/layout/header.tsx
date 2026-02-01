@@ -2,31 +2,58 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { Menu, X, ExternalLink } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Menu, X, ExternalLink, ChevronDown, MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { cn } from '@/lib/utils'
 
-const navLinks = [
-  { href: '/', label: 'Home', icon: '🏠' },
+// Primary navigation - core study features
+const primaryLinks = [
   { href: '/practice', label: 'Practice', icon: '📖' },
   { href: '/flashcards', label: 'Cards', icon: '🃏' },
   { href: '/exam', label: 'Exam', icon: '📋' },
   { href: '/learn', label: 'Learn', icon: '🎓' },
+]
+
+// Secondary navigation - tools and reference
+const toolsLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/spectrum', label: 'Spectrum', icon: '📡' },
   { href: '/radio', label: 'Radio', icon: '📻' },
 ]
 
+// All links for mobile menu
+const allLinks = [{ href: '/', label: 'Home', icon: '🏠' }, ...primaryLinks, ...toolsLinks]
+
 export function Header() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Check if current page is in tools section
+  const isToolsActive = toolsLinks.some(
+    (link) => pathname === link.href || pathname.startsWith(`${link.href}/`)
+  )
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false)
+    setToolsDropdownOpen(false)
   }, [pathname])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setToolsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Close mobile menu on Escape key press
   useEffect(() => {
@@ -35,7 +62,6 @@ export function Header() {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false)
-        // Return focus to the toggle button
         const toggleButton = document.querySelector('[aria-controls="mobile-menu"]') as HTMLElement
         toggleButton?.focus()
       }
@@ -49,7 +75,6 @@ export function Header() {
   useEffect(() => {
     if (!mobileMenuOpen) return
 
-    // Get all focusable elements in the mobile menu
     const menu = document.getElementById('mobile-menu')
     if (!menu) return
 
@@ -59,7 +84,6 @@ export function Header() {
     const firstElement = focusableElements[0] as HTMLElement
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
 
-    // Focus first element when menu opens
     firstElement?.focus()
 
     const handleTabKey = (e: KeyboardEvent) => {
@@ -100,14 +124,17 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
+          {/* Primary Links */}
+          {primaryLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              aria-current={pathname === link.href ? 'page' : undefined}
+              aria-current={
+                pathname === link.href || pathname.startsWith(`${link.href}/`) ? 'page' : undefined
+              }
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                pathname === link.href
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                pathname === link.href || pathname.startsWith(`${link.href}/`)
                   ? 'bg-plasma-orange/20 text-plasma-orange'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-white/5'
               )}
@@ -117,18 +144,65 @@ export function Header() {
             </Link>
           ))}
 
-          {/* Propulse Link */}
-          <a
-            href="https://propulse.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-plasma-orange hover:bg-plasma-orange/10 transition-colors ml-2 border border-transparent hover:border-plasma-orange/30"
-          >
-            <span className="text-sm">☀️</span>
-            <span>Propulse</span>
-            <ExternalLink className="size-3 opacity-50" aria-hidden="true" />
-            <span className="sr-only">(opens in new tab)</span>
-          </a>
+          {/* Tools Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
+              aria-expanded={toolsDropdownOpen}
+              aria-haspopup="true"
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                isToolsActive
+                  ? 'bg-plasma-orange/20 text-plasma-orange'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-white/5'
+              )}
+            >
+              <MoreHorizontal className="size-4" />
+              <span>Tools</span>
+              <ChevronDown
+                className={cn('size-3 transition-transform', toolsDropdownOpen && 'rotate-180')}
+              />
+            </button>
+
+            {/* Dropdown Menu */}
+            {toolsDropdownOpen && (
+              <div className="absolute top-full right-0 mt-2 w-48 rounded-lg border border-white/10 glass-panel shadow-lg py-2 animate-fade-in">
+                {toolsLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={pathname === link.href ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors',
+                      pathname === link.href
+                        ? 'bg-plasma-orange/20 text-plasma-orange'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                    )}
+                    onClick={() => setToolsDropdownOpen(false)}
+                  >
+                    <span className="text-base">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+
+                {/* Divider */}
+                <div className="my-2 border-t border-white/10" />
+
+                {/* Propulse Link */}
+                <a
+                  href="https://propulse.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-plasma-orange hover:bg-plasma-orange/10 transition-colors"
+                >
+                  <span className="text-base">☀️</span>
+                  <span>Propulse</span>
+                  <ExternalLink className="size-3 ml-auto opacity-50" aria-hidden="true" />
+                  <span className="sr-only">(opens in new tab)</span>
+                </a>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Right side actions */}
@@ -161,7 +235,7 @@ export function Header() {
         aria-hidden={!mobileMenuOpen}
       >
         <div className="flex flex-col gap-2">
-          {navLinks.map((link) => (
+          {allLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
