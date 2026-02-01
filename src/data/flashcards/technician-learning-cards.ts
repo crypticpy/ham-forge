@@ -686,6 +686,446 @@ export const technicianLearningCards: LearningCard[] = [
     },
     relatedQuestionIds: ['T0C04', 'T0C05'],
   },
+
+  // T4 - Amateur Practices
+  {
+    id: 'lc-t4a-01',
+    subelement: 'T4',
+    group: 'T4A',
+    front: {
+      title: 'Station Grounding',
+      prompt: 'Why is proper grounding important for an amateur station?',
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'Proper grounding protects equipment from lightning damage, reduces RF interference, and provides a safety path for electrical faults. Use heavy copper wire with short, direct runs.',
+      keyFact: 'Short, direct ground connections are best',
+      mnemonic: 'Ground = Guard (protects equipment and operator)',
+      examTip: 'Questions focus on lightning protection and RF grounding differences.',
+    },
+    relatedQuestionIds: ['T4A01', 'T4A02'],
+  },
+  {
+    id: 'lc-t4a-02',
+    subelement: 'T4',
+    group: 'T4A',
+    front: {
+      title: 'RF Interference (RFI)',
+      prompt: 'What causes RF interference to consumer electronics?',
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'RFI occurs when strong RF signals enter devices through power cords, speaker wires, or inadequate shielding. Common victims: TVs, stereos, telephones.',
+      keyFact: 'Ferrite chokes and filters can reduce RFI',
+      mnemonic: 'RFI = Radio Finds Its way In (through cables and openings)',
+      examTip: 'Ferrite cores on cables are the first solution to try.',
+    },
+    relatedQuestionIds: ['T4A03', 'T4A04'],
+  },
+  {
+    id: 'lc-t4a-03',
+    subelement: 'T4',
+    group: 'T4A',
+    front: {
+      title: 'Audio Rectification',
+      prompt: "What causes your voice to be heard through a neighbor's stereo?",
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'Audio rectification occurs when RF is detected by semiconductor junctions in audio equipment, converting your transmitted signal to audio. Speaker wires act as antennas.',
+      keyFact: 'Audio devices accidentally "detect" RF signals',
+      mnemonic: 'ARF! Audio Receives Frequencies (like a dog hearing things)',
+      examTip: 'Solution is ferrites on speaker wires and audio cables.',
+    },
+    relatedQuestionIds: ['T4A05', 'T4A06'],
+  },
+  {
+    id: 'lc-t4b-01',
+    subelement: 'T4',
+    group: 'T4B',
+    front: {
+      title: 'Microphone Gain',
+      prompt: 'How should microphone gain be set on an FM transceiver?',
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'Set microphone gain so your audio is clear without overdriving. Too high causes distortion and splatter; too low makes you hard to understand.',
+      keyFact: 'Speak normally, adjust until audio is clear',
+      mnemonic: 'GAIN: Get Audio In Nicely (not too hot, not too quiet)',
+      examTip: 'Overdriving mic = distorted audio + interference to adjacent channels.',
+    },
+    relatedQuestionIds: ['T4B01', 'T4B02'],
+  },
+  {
+    id: 'lc-t4b-02',
+    subelement: 'T4',
+    group: 'T4B',
+    front: {
+      title: 'Repeater Operation',
+      prompt: 'What is the purpose of a repeater offset?',
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'Repeaters receive on one frequency and transmit on another (offset). Common offsets: +/- 600 kHz on 2m, +/- 5 MHz on 70cm. This allows simultaneous receive/transmit.',
+      keyFact: '2m = 600 kHz offset, 70cm = 5 MHz offset',
+      mnemonic: '2m = 600 (like 2x3=6), 70cm = 5 MHz (higher band, bigger offset)',
+      examTip: 'Know standard offsets for VHF and UHF bands.',
+    },
+    relatedQuestionIds: ['T4B03', 'T4B04'],
+  },
+  {
+    id: 'lc-t4b-03',
+    subelement: 'T4',
+    group: 'T4B',
+    front: {
+      title: 'CTCSS Tones',
+      prompt: 'What is CTCSS and why is it used?',
+      category: 'Amateur Practices',
+    },
+    back: {
+      explanation:
+        'CTCSS (Continuous Tone-Coded Squelch System) sends a sub-audible tone to access repeaters. It prevents interference from other stations on the same frequency.',
+      keyFact: 'Sub-audible tone = repeater access key',
+      mnemonic: 'CTCSS = Code To Call Squelch System (your secret knock)',
+      examTip: 'Also called PL tones (Private Line, Motorola trademark).',
+    },
+    relatedQuestionIds: ['T4B05', 'T4B06'],
+  },
+
+  // T5 - Electrical Principles
+  {
+    id: 'lc-t5a-01',
+    subelement: 'T5',
+    group: 'T5A',
+    front: {
+      title: "Ohm's Law",
+      prompt: 'What is the relationship between voltage, current, and resistance?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        "Ohm's Law: V = I × R (Voltage = Current × Resistance). This fundamental formula relates the three basic electrical quantities. Rearrange to find any value.",
+      keyFact: 'V = IR, I = V/R, R = V/I',
+      mnemonic: "VIR = Very Important Rule (or use the Ohm's Law triangle)",
+      examTip: 'Memorize V=IR. Given any two values, calculate the third.',
+    },
+    relatedQuestionIds: ['T5A01', 'T5A02', 'T5A03'],
+  },
+  {
+    id: 'lc-t5a-02',
+    subelement: 'T5',
+    group: 'T5A',
+    front: {
+      title: 'Power Formula',
+      prompt: 'How do you calculate electrical power?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        'Power (watts) = Voltage × Current (P = E × I). Also: P = I²R or P = E²/R. Power is the rate of energy transfer in a circuit.',
+      keyFact: 'P = E × I (Power = Voltage × Current)',
+      mnemonic: 'PIE: Power = I times E (delicious formula)',
+      examTip: 'Know all three power formulas for different given values.',
+    },
+    relatedQuestionIds: ['T5A04', 'T5A05', 'T5A06'],
+  },
+  {
+    id: 'lc-t5b-01',
+    subelement: 'T5',
+    group: 'T5B',
+    front: {
+      title: 'Decibels (dB)',
+      prompt: 'What do decibels measure in amateur radio?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        'Decibels express power ratios logarithmically. +3 dB = double power, +10 dB = 10× power, -3 dB = half power. Used for gain, loss, and signal strength.',
+      keyFact: '+3 dB = 2× power, +10 dB = 10× power',
+      mnemonic: '3 dB = Double, 10 dB = Deca (10×)',
+      examTip: 'Memorize: 3 dB = 2×, 6 dB = 4×, 10 dB = 10×.',
+    },
+    relatedQuestionIds: ['T5B01', 'T5B02', 'T5B03'],
+  },
+  {
+    id: 'lc-t5b-02',
+    subelement: 'T5',
+    group: 'T5B',
+    front: {
+      title: 'AC vs DC',
+      prompt: 'What is the difference between AC and DC current?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        'DC (Direct Current) flows in one direction. AC (Alternating Current) reverses direction periodically. House power is 60 Hz AC; batteries provide DC.',
+      keyFact: 'AC alternates direction, DC is steady',
+      mnemonic: "AC = Alternates Constantly, DC = Doesn't Change direction",
+      examTip: 'Household power is 60 Hz AC, 120V RMS in the US.',
+    },
+    relatedQuestionIds: ['T5B04', 'T5B05'],
+  },
+  {
+    id: 'lc-t5c-01',
+    subelement: 'T5',
+    group: 'T5C',
+    front: {
+      title: 'Frequency & Wavelength',
+      prompt: 'How are frequency and wavelength related?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        'Wavelength (meters) = 300 / Frequency (MHz). Higher frequency = shorter wavelength. This relationship is key for antenna design.',
+      keyFact: 'λ = 300/f (wavelength in meters, frequency in MHz)',
+      mnemonic: '300 divided by MHz = meters (the magic 300)',
+      examTip: '2m band ≈ 146 MHz, 70cm ≈ 440 MHz — do the math!',
+    },
+    relatedQuestionIds: ['T5C01', 'T5C02', 'T5C03'],
+  },
+  {
+    id: 'lc-t5c-02',
+    subelement: 'T5',
+    group: 'T5C',
+    front: {
+      title: 'Impedance',
+      prompt: 'What is impedance and why does it matter?',
+      category: 'Electrical Principles',
+    },
+    back: {
+      explanation:
+        'Impedance is AC resistance, measured in ohms. It includes resistance plus reactance from capacitors/inductors. Matching impedance maximizes power transfer.',
+      keyFact: 'Standard amateur impedance is 50 ohms',
+      mnemonic: "Impedance = AC's Resistance (Z = R + jX)",
+      examTip: '50Ω is the standard for amateur radio equipment and coax.',
+    },
+    relatedQuestionIds: ['T5C04', 'T5C05', 'T5C06'],
+  },
+
+  // T7 - Station Equipment
+  {
+    id: 'lc-t7a-01',
+    subelement: 'T7',
+    group: 'T7A',
+    front: {
+      title: 'Transceiver Basics',
+      prompt: 'What is a transceiver and what are its main components?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'A transceiver combines transmitter and receiver in one unit. Key sections: receiver (detects signals), transmitter (generates RF), frequency control, and audio processing.',
+      keyFact: 'Transceiver = Transmitter + Receiver combined',
+      mnemonic: 'TRANS-CEIVER = TRANSmit + reCEIVER',
+      examTip: 'Know the basic block diagram sections of a transceiver.',
+    },
+    relatedQuestionIds: ['T7A01', 'T7A02', 'T7A03'],
+  },
+  {
+    id: 'lc-t7a-02',
+    subelement: 'T7',
+    group: 'T7A',
+    front: {
+      title: 'Receiver Sensitivity',
+      prompt: 'What determines how well a receiver can hear weak signals?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'Sensitivity is the minimum signal a receiver can detect, measured in microvolts. Lower number = better sensitivity. Preamps can improve sensitivity.',
+      keyFact: 'Lower microvolt rating = more sensitive receiver',
+      mnemonic: 'Sensitive receivers hear whispers (small signals)',
+      examTip: '0.25 µV is more sensitive than 1.0 µV.',
+    },
+    relatedQuestionIds: ['T7A04', 'T7A05'],
+  },
+  {
+    id: 'lc-t7b-01',
+    subelement: 'T7',
+    group: 'T7B',
+    front: {
+      title: 'SWR Meter',
+      prompt: 'What does an SWR meter measure?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'SWR (Standing Wave Ratio) meter measures antenna system match. Perfect match = 1:1. High SWR means power reflects back to transmitter, reducing efficiency.',
+      keyFact: '1:1 SWR is perfect, 2:1 or lower is acceptable',
+      mnemonic: 'SWR = Standing Wave Ratio (lower is better)',
+      examTip: 'High SWR can damage transmitter finals. Check before transmitting!',
+    },
+    relatedQuestionIds: ['T7B01', 'T7B02', 'T7B03'],
+  },
+  {
+    id: 'lc-t7b-02',
+    subelement: 'T7',
+    group: 'T7B',
+    front: {
+      title: 'Dummy Load',
+      prompt: 'What is a dummy load used for?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'A dummy load is a resistor that absorbs transmitter power without radiating. Used for testing and tuning without causing interference.',
+      keyFact: 'Dummy load = 50Ω resistor, absorbs RF, no radiation',
+      mnemonic: 'Dummy load: All the power, none of the radiation',
+      examTip: 'Always use dummy load for testing to avoid interference.',
+    },
+    relatedQuestionIds: ['T7B04', 'T7B05'],
+  },
+  {
+    id: 'lc-t7c-01',
+    subelement: 'T7',
+    group: 'T7C',
+    front: {
+      title: 'Power Supplies',
+      prompt: 'What voltage do most mobile/base amateur radios require?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'Most amateur transceivers operate on 13.8V DC (nominal 12V). Mobile installations use vehicle battery; base stations need a regulated power supply.',
+      keyFact: '13.8V DC is standard for most amateur radios',
+      mnemonic: '13.8V = 12V + a little extra (like a charging battery)',
+      examTip: 'Know current requirements: 100W radio needs ~20A at 13.8V.',
+    },
+    relatedQuestionIds: ['T7C01', 'T7C02', 'T7C03'],
+  },
+  {
+    id: 'lc-t7c-02',
+    subelement: 'T7',
+    group: 'T7C',
+    front: {
+      title: 'Computer Interfaces',
+      prompt: 'How do you connect a radio to a computer for digital modes?',
+      category: 'Station Equipment',
+    },
+    back: {
+      explanation:
+        'Digital mode interfaces connect radio audio to computer sound card. Some use USB, others use separate audio cables. Many include PTT control via CAT or VOX.',
+      keyFact: 'Sound card + PTT control = digital mode interface',
+      mnemonic: 'Computer talks to radio through audio + control',
+      examTip: 'Know about sound card interfaces and CAT control.',
+    },
+    relatedQuestionIds: ['T7C04', 'T7C05', 'T7C06'],
+  },
+
+  // T9 - Antennas & Feed Lines
+  {
+    id: 'lc-t9a-01',
+    subelement: 'T9',
+    group: 'T9A',
+    front: {
+      title: 'Dipole Antenna',
+      prompt: 'What is a dipole antenna and how long should it be?',
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'A dipole is two equal elements fed at the center. Total length is approximately half wavelength (468/freq in MHz = feet). Simple, effective, and popular.',
+      keyFact: 'Half-wave dipole: 468 ÷ frequency (MHz) = total length in feet',
+      mnemonic: '468 for feet, 143 for meters (half-wave dipole formulas)',
+      examTip: 'For 2m (146 MHz): 468/146 ≈ 3.2 feet total.',
+    },
+    relatedQuestionIds: ['T9A01', 'T9A02', 'T9A03'],
+  },
+  {
+    id: 'lc-t9a-02',
+    subelement: 'T9',
+    group: 'T9A',
+    front: {
+      title: 'Vertical Antenna',
+      prompt: 'What are the advantages of a vertical antenna?',
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'Verticals are omnidirectional (radiate equally in all directions), take less horizontal space, and work well for mobile. Require good ground plane or radials.',
+      keyFact: 'Omnidirectional pattern, low angle radiation',
+      mnemonic: 'Vertical = 360° coverage (like a lighthouse)',
+      examTip: 'Ground-mounted verticals need radials for efficiency.',
+    },
+    relatedQuestionIds: ['T9A04', 'T9A05'],
+  },
+  {
+    id: 'lc-t9a-03',
+    subelement: 'T9',
+    group: 'T9A',
+    front: {
+      title: 'Yagi Antenna',
+      prompt: 'What type of antenna provides gain and directivity?',
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'Yagi antennas have a driven element plus directors and reflectors. They focus energy in one direction, providing gain. More elements = more gain and directivity.',
+      keyFact: 'Yagi = directional beam antenna with gain',
+      mnemonic: 'Yagi points like an arrow (directors lead the way)',
+      examTip: 'Reflector is longer, behind driven element. Directors are shorter, in front.',
+    },
+    relatedQuestionIds: ['T9A06', 'T9A07', 'T9A08'],
+  },
+  {
+    id: 'lc-t9b-01',
+    subelement: 'T9',
+    group: 'T9B',
+    front: {
+      title: 'Coaxial Cable',
+      prompt: 'What is coaxial cable and why is it used?',
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'Coax has a center conductor surrounded by insulation, shield, and jacket. It carries RF with low loss and prevents radiation. Common types: RG-58, RG-8, RG-213.',
+      keyFact: 'RG-8/RG-213 = lower loss, RG-58 = thinner but more loss',
+      mnemonic: 'Coax = Conductor in Center, shield Outside',
+      examTip: 'Thicker coax = lower loss. Use RG-8 for long runs.',
+    },
+    relatedQuestionIds: ['T9B01', 'T9B02', 'T9B03'],
+  },
+  {
+    id: 'lc-t9b-02',
+    subelement: 'T9',
+    group: 'T9B',
+    front: {
+      title: 'SWR and Matching',
+      prompt: "What happens when antenna impedance doesn't match feed line?",
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'Impedance mismatch causes power to reflect back, creating standing waves. High SWR wastes power and can damage transmitter. Use antenna tuner to match.',
+      keyFact: 'Mismatch = reflected power = high SWR',
+      mnemonic: 'Mismatch = power bounces back (like sound echoing)',
+      examTip: 'SWR below 2:1 is generally acceptable for most transmitters.',
+    },
+    relatedQuestionIds: ['T9B04', 'T9B05', 'T9B06'],
+  },
+  {
+    id: 'lc-t9b-03',
+    subelement: 'T9',
+    group: 'T9B',
+    front: {
+      title: 'RF Connectors',
+      prompt: 'What are the common RF connectors used in amateur radio?',
+      category: 'Antennas & Feed Lines',
+    },
+    back: {
+      explanation:
+        'PL-259/SO-239 (UHF connector) is most common for HF/VHF. BNC is used for test equipment. N-type is weatherproof and better for UHF/microwave frequencies.',
+      keyFact: 'PL-259 = common, BNC = quick-connect, N = weatherproof',
+      mnemonic: 'PL-259 is the "standard Plug", N is Nice for outdoors',
+      examTip: 'N-type has lower loss at UHF than PL-259.',
+    },
+    relatedQuestionIds: ['T9B07', 'T9B08', 'T9B09'],
+  },
 ]
 
 export default technicianLearningCards
