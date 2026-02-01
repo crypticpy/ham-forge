@@ -84,7 +84,7 @@ export interface CategoryProgress {
 
   // Algorithm inputs
   weaknessScore: number // 0-1, higher = weaker
-  lastStudied: string // ISO date
+  lastStudied: string | null // ISO date, null if never studied
 
   // Trend detection
   trend: 'improving' | 'stable' | 'declining'

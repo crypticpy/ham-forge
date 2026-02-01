@@ -142,6 +142,40 @@ export function allocateSlots(weights: CategoryWeight[], totalSlots: number): Ma
 }
 
 /**
+ * Generate default category progress for cold start (new users)
+ * Creates entries for all unique subelements in available cards
+ */
+function generateDefaultCategoryProgress(
+  learningCards: LearningCard[],
+  questionCards: QuestionCard[]
+): CategoryProgress[] {
+  const subelements = new Set<string>()
+
+  // Collect all unique subelements from cards
+  for (const card of learningCards) {
+    subelements.add(card.subelement)
+  }
+  for (const card of questionCards) {
+    subelements.add(card.subelement)
+  }
+
+  // Create default progress for each subelement (no attempts = explore mode)
+  return Array.from(subelements).map((subelement) => ({
+    categoryId: subelement,
+    categoryType: 'subelement' as const,
+    totalAttempts: 0,
+    totalCorrect: 0,
+    recentAttempts: 0,
+    recentCorrect: 0,
+    overallAccuracy: 0,
+    recentAccuracy: 0,
+    weaknessScore: 0,
+    lastStudied: null,
+    trend: 'stable' as const,
+  }))
+}
+
+/**
  * Select cards for a session based on category weights and card progress
  */
 export function selectCards(
@@ -156,10 +190,16 @@ export function selectCards(
     focusCategories?: string[]
   }
 ): CardSelectionResult {
+  // Handle cold start: if no category progress, generate defaults from available cards
+  let effectiveCategoryProgress = categoryProgress
+  if (categoryProgress.length === 0) {
+    effectiveCategoryProgress = generateDefaultCategoryProgress(learningCards, questionCards)
+  }
+
   // Filter categories if in focus mode
-  let filteredCategoryProgress = categoryProgress
+  let filteredCategoryProgress = effectiveCategoryProgress
   if (config.mode === 'focus' && config.focusCategories?.length) {
-    filteredCategoryProgress = categoryProgress.filter((p) =>
+    filteredCategoryProgress = effectiveCategoryProgress.filter((p) =>
       config.focusCategories!.includes(p.categoryId)
     )
   }

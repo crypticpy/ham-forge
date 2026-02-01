@@ -13,8 +13,9 @@ import {
   calculateCategoryWeights,
   allocateSlots,
   measureInterleaving,
+  selectCards,
 } from '@/lib/flashcard-algorithm'
-import type { CategoryProgress } from '@/types/flashcard'
+import type { CategoryProgress, LearningCard, QuestionCard } from '@/types/flashcard'
 
 // Helper to create mock category progress
 function createCategoryProgress(overrides: Partial<CategoryProgress> = {}): CategoryProgress {
@@ -330,6 +331,150 @@ describe('Flashcard Algorithm', () => {
       const ratio = measureInterleaving(blocked)
       // Only 2 transitions out of 8 are different = 0.25
       expect(ratio).toBeLessThan(0.3)
+    })
+  })
+
+  describe('selectCards() cold start', () => {
+    // Helper to create mock learning cards
+    function createLearningCard(id: string, subelement: string): LearningCard {
+      return {
+        id,
+        subelement,
+        group: `${subelement}A`,
+        front: {
+          title: `Card ${id}`,
+          category: 'Test',
+          prompt: 'Test prompt',
+        },
+        back: {
+          explanation: 'Test explanation',
+          keyFact: 'Test fact',
+        },
+        relatedQuestionIds: [],
+      }
+    }
+
+    // Helper to create mock question cards
+    function createQuestionCard(id: string, subelement: string): QuestionCard {
+      return {
+        id,
+        questionId: `Q-${id}`,
+        subelement,
+        group: `${subelement}A`,
+        question: 'Test question?',
+        answers: ['A', 'B', 'C', 'D'],
+        correctAnswer: 0,
+        explanation: 'Test explanation',
+        relatedLearningIds: [],
+      }
+    }
+
+    it('should select cards for fresh users with no category progress', () => {
+      const learningCards = [
+        createLearningCard('lc1', 'T1'),
+        createLearningCard('lc2', 'T1'),
+        createLearningCard('lc3', 'T2'),
+        createLearningCard('lc4', 'T3'),
+      ]
+
+      const questionCards = [
+        createQuestionCard('qc1', 'T1'),
+        createQuestionCard('qc2', 'T2'),
+        createQuestionCard('qc3', 'T3'),
+      ]
+
+      // Empty progress = cold start
+      const emptyProgress = new Map()
+      const emptyCategoryProgress: CategoryProgress[] = []
+
+      const result = selectCards(
+        learningCards,
+        questionCards,
+        emptyProgress,
+        emptyCategoryProgress,
+        {
+          learningCount: 3,
+          questionCount: 2,
+          mode: 'adaptive',
+        }
+      )
+
+      // Should return cards even with no prior progress
+      expect(result.learningCards.length).toBeGreaterThan(0)
+      expect(result.questionCards.length).toBeGreaterThan(0)
+    })
+
+    it('should generate weights for all subelements in cards', () => {
+      const learningCards = [createLearningCard('lc1', 'T1'), createLearningCard('lc2', 'T5')]
+
+      const questionCards = [createQuestionCard('qc1', 'T3')]
+
+      const emptyProgress = new Map()
+      const emptyCategoryProgress: CategoryProgress[] = []
+
+      const result = selectCards(
+        learningCards,
+        questionCards,
+        emptyProgress,
+        emptyCategoryProgress,
+        {
+          learningCount: 2,
+          questionCount: 1,
+          mode: 'adaptive',
+        }
+      )
+
+      // Should have weights for all 3 unique subelements (T1, T3, T5)
+      expect(result.categoryWeights.length).toBe(3)
+    })
+
+    it('should work in all modes with empty category progress', () => {
+      const learningCards = [createLearningCard('lc1', 'T1')]
+      const questionCards = [createQuestionCard('qc1', 'T1')]
+      const emptyProgress = new Map()
+      const emptyCategoryProgress: CategoryProgress[] = []
+
+      // Test adaptive mode
+      const adaptive = selectCards(
+        learningCards,
+        questionCards,
+        emptyProgress,
+        emptyCategoryProgress,
+        {
+          learningCount: 1,
+          questionCount: 1,
+          mode: 'adaptive',
+        }
+      )
+      expect(adaptive.learningCards.length).toBe(1)
+
+      // Test explore mode
+      const explore = selectCards(
+        learningCards,
+        questionCards,
+        emptyProgress,
+        emptyCategoryProgress,
+        {
+          learningCount: 1,
+          questionCount: 1,
+          mode: 'explore',
+        }
+      )
+      expect(explore.learningCards.length).toBe(1)
+
+      // Test review mode
+      const review = selectCards(
+        learningCards,
+        questionCards,
+        emptyProgress,
+        emptyCategoryProgress,
+        {
+          learningCount: 1,
+          questionCount: 1,
+          mode: 'review',
+        }
+      )
+      expect(review.learningCards.length).toBe(1)
     })
   })
 })
