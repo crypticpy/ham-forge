@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -43,6 +43,9 @@ export default function FlashcardSessionPage() {
   const { cardProgress, getAllCategoryProgress, updateCardProgress, recordSession } =
     useFlashcardStore()
 
+  // Prevent re-loading cards during a session - cards should be fixed once loaded
+  const sessionInitialized = useRef(false)
+
   // Session state
   const [phase, setPhase] = useState<SessionPhase>('learning')
   const [isLoading, setIsLoading] = useState(true)
@@ -59,9 +62,16 @@ export default function FlashcardSessionPage() {
   const [startTime] = useState(new Date().toISOString())
   const [summary, setSummary] = useState<SessionSummary | null>(null)
 
-  // Load session config and cards
+  // Load session config and cards - runs ONCE per session
+  // Card selection happens only at session start; updating progress during the
+  // session should NOT trigger re-selection (that would cause duplicate cards)
   useEffect(() => {
     if (!isHydrated) return
+
+    // CRITICAL: Only initialize once per session to prevent duplicate cards
+    // The cardProgress dependency is captured at session start only
+    if (sessionInitialized.current) return
+    sessionInitialized.current = true
 
     const loadSession = async () => {
       setIsLoading(true)
@@ -84,13 +94,13 @@ export default function FlashcardSessionPage() {
         const questionPool = getQuestionPool(sessionConfig.examLevel)
         const allQuestionCards = convertToQuestionCards(questionPool, allLearningCards)
 
-        // Get category progress for algorithm
+        // Get category progress for algorithm (captured once at session start)
         const categoryProgress = getAllCategoryProgress()
 
-        // Build progress map
+        // Build progress map (captured once at session start)
         const progressMap = new Map(Object.entries(cardProgress).map(([id, prog]) => [id, prog]))
 
-        // Select cards using algorithm
+        // Select cards using algorithm - this happens ONCE per session
         const selection = selectCards(
           allLearningCards,
           allQuestionCards,
@@ -115,6 +125,7 @@ export default function FlashcardSessionPage() {
     }
 
     loadSession()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally capture cardProgress once at session start
   }, [isHydrated, router, getAllCategoryProgress, cardProgress])
 
   // Handle learning card result

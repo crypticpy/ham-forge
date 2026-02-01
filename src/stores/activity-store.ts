@@ -14,6 +14,11 @@ export interface LastActivity {
     // Practice context
     questionIndex?: number
     totalQuestions?: number
+    // Session completion status - true means session was finished (all questions answered or time expired)
+    // When isComplete is true, "continue" prompts should not show; recommend next activity instead
+    isComplete?: boolean
+    // Completion stats for intelligent recommendations
+    accuracy?: number
     // Module context
     moduleId?: string
     sectionId?: string

@@ -92,21 +92,43 @@ function PracticeSession({ config }: { config: SessionConfig }) {
   } = usePracticeSession(config)
 
   // Record activity for "continue where you left off" feature
+  // Tracks both in-progress sessions AND completion status
   useEffect(() => {
-    if (isLoading || isComplete || timeExpired || questions.length === 0) return
+    if (isLoading || questions.length === 0) return
 
     const isQuickStudy = config.isQuickStudy && config.durationSeconds
-    recordActivity({
-      type: 'practice',
-      path: '/practice/session',
-      label: isQuickStudy
-        ? `Quick Study - ${stats.answered + 1} questions`
-        : `Practice - Question ${currentIndex + 1} of ${questions.length}`,
-      metadata: {
-        questionIndex: currentIndex,
-        totalQuestions: questions.length,
-      },
-    })
+    const sessionComplete = isComplete || timeExpired
+
+    if (sessionComplete) {
+      // Record completion - this prevents "continue" prompt from showing
+      recordActivity({
+        type: 'practice',
+        path: '/practice',
+        label: isQuickStudy
+          ? `Completed Quick Study - ${stats.answered} questions, ${stats.accuracy}%`
+          : `Completed Practice - ${stats.correct}/${stats.totalQuestions} correct`,
+        metadata: {
+          questionIndex: currentIndex,
+          totalQuestions: questions.length,
+          isComplete: true,
+          accuracy: stats.accuracy,
+        },
+      })
+    } else {
+      // Record in-progress - enables "continue where you left off"
+      recordActivity({
+        type: 'practice',
+        path: '/practice/session',
+        label: isQuickStudy
+          ? `Quick Study - ${stats.answered + 1} questions`
+          : `Practice - Question ${currentIndex + 1} of ${questions.length}`,
+        metadata: {
+          questionIndex: currentIndex,
+          totalQuestions: questions.length,
+          isComplete: false,
+        },
+      })
+    }
   }, [
     currentIndex,
     questions.length,
@@ -116,6 +138,9 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     config.isQuickStudy,
     config.durationSeconds,
     stats.answered,
+    stats.accuracy,
+    stats.correct,
+    stats.totalQuestions,
     recordActivity,
   ])
 

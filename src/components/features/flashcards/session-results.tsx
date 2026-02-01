@@ -274,7 +274,8 @@ function CategoryBar({
 }) {
   const percentage = Math.round(accuracy * 100)
   const subelement = categoryId.slice(0, 2)
-  const group = categoryId.length > 2 ? categoryId : null
+  const groupLetter = categoryId.length > 2 ? categoryId.slice(2) : null
+  const displayName = getSubelementDisplayName(subelement)
 
   return (
     <div className="flex items-center gap-3">
@@ -289,12 +290,19 @@ function CategoryBar({
               : 'bg-muted text-muted-foreground'
         )}
       >
-        {group || subelement}
+        {subelement}
       </div>
 
-      {/* Progress bar */}
-      <div className="flex-1">
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
+      {/* Topic name and progress bar */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-muted-foreground truncate">
+            {displayName}
+            {groupLetter && <span className="opacity-60"> ({groupLetter})</span>}
+          </span>
+          <span className="text-xs text-muted-foreground ml-2">{percentage}%</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <motion.div
             className={cn(
               'h-full rounded-full',

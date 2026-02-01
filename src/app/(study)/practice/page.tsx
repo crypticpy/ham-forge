@@ -359,30 +359,49 @@ export default function PracticePage() {
       </header>
 
       <div className="container mx-auto max-w-4xl px-4 py-6">
-        {/* Continue Where You Left Off */}
-        {lastActivity && lastActivity.type === 'practice' && hasRecentActivity() && (
-          <section className="mb-6 animate-fade-in-up" aria-labelledby="continue-section-title">
-            <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex size-12 items-center justify-center rounded-full bg-primary/20">
-                  <Clock className="size-6 text-primary" aria-hidden="true" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 id="continue-section-title" className="font-semibold">
-                    Continue where you left off
-                  </h2>
-                  <p className="text-sm text-muted-foreground truncate">{lastActivity.label}</p>
-                </div>
-                <Button asChild size="sm">
-                  <Link href={lastActivity.path}>
-                    Continue
-                    <ArrowRight className="ml-2 size-4" aria-hidden="true" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </section>
-        )}
+        {/* Continue Where You Left Off - Only for INCOMPLETE sessions */}
+        {lastActivity &&
+          lastActivity.type === 'practice' &&
+          hasRecentActivity() &&
+          !lastActivity.metadata?.isComplete && (
+            <section className="mb-6 animate-fade-in-up" aria-labelledby="continue-section-title">
+              <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
+                <CardContent className="flex items-center gap-4 p-4">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-primary/20">
+                    <Clock className="size-6 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 id="continue-section-title" className="font-semibold">
+                      Continue where you left off
+                    </h2>
+                    <p className="text-sm text-muted-foreground truncate">{lastActivity.label}</p>
+                  </div>
+                  <Button asChild size="sm">
+                    <Link href={lastActivity.path}>
+                      Continue
+                      <ArrowRight className="ml-2 size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </section>
+          )}
+
+        {/* Smart Recommendation - For COMPLETED sessions, suggest next activity */}
+        {lastActivity &&
+          lastActivity.type === 'practice' &&
+          hasRecentActivity() &&
+          lastActivity.metadata?.isComplete &&
+          stats && (
+            <SmartRecommendation
+              lastAccuracy={lastActivity.metadata.accuracy}
+              dueForReview={stats.dueForReview}
+              learningQuestions={stats.learningQuestions}
+              newQuestions={stats.newQuestions}
+              weakestTopic={weakestTopic}
+              onQuickStart={handleQuickStart}
+            />
+          )}
 
         {/* Quick Stats Dashboard */}
         {!isLoadingProgress && stats && (stats.masteredCount > 0 || totalQuestionsAnswered > 0) && (
@@ -512,10 +531,10 @@ export default function PracticePage() {
                       id="weak-area-title"
                       className="font-semibold text-red-600 dark:text-red-400"
                     >
-                      Focus Area: {weakestTopic.id}
+                      Focus Area: {weakestTopic.name}
                     </h3>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {weakestTopic.name} — {Math.round(weakestTopic.accuracy * 100)}% accuracy
+                      {weakestTopic.id} — {Math.round(weakestTopic.accuracy * 100)}% accuracy
                     </p>
                     <Button
                       variant="outline"
@@ -528,7 +547,7 @@ export default function PracticePage() {
                         })
                       }
                     >
-                      Practice {weakestTopic.id}
+                      Practice This Topic
                       <ArrowRight className="ml-2 size-3" aria-hidden="true" />
                     </Button>
                   </div>
@@ -755,5 +774,149 @@ function ProgressRow({ subelement }: { subelement: SubelementProgress }) {
         />
       </div>
     </div>
+  )
+}
+
+// Smart Recommendation Component - shown after completing a session
+function SmartRecommendation({
+  lastAccuracy,
+  dueForReview,
+  learningQuestions,
+  newQuestions,
+  weakestTopic,
+  onQuickStart,
+}: {
+  lastAccuracy?: number
+  dueForReview: number
+  learningQuestions: number
+  newQuestions: number
+  weakestTopic?: SubelementProgress
+  onQuickStart: (preset: Partial<SessionConfigType>) => void
+}) {
+  // Determine the best next action based on learning progression
+  // Priority: 1) Spaced repetition (due cards), 2) Weak areas, 3) New content, 4) General practice
+  type Recommendation = {
+    title: string
+    description: string
+    icon: React.ReactNode
+    colorClass: string
+    bgClass: string
+    borderClass: string
+    action: () => void
+    reason: string
+  }
+
+  let recommendation: Recommendation
+
+  if (dueForReview >= 10) {
+    // High priority: many cards due for review
+    recommendation = {
+      title: 'Spaced Repetition',
+      description: `${dueForReview} questions due for review`,
+      icon: <Brain className="size-6" aria-hidden="true" />,
+      colorClass: 'text-purple-500',
+      bgClass: 'bg-purple-500/10',
+      borderClass: 'border-purple-500/30',
+      action: () => onQuickStart({ status: ['review'], questionCount: 20 }),
+      reason: "Reinforce what you've learned before it fades",
+    }
+  } else if (weakestTopic && weakestTopic.accuracy < 0.6 && learningQuestions > 0) {
+    // Weak area needs attention
+    recommendation = {
+      title: `Focus on ${weakestTopic.name}`,
+      description: `${Math.round(weakestTopic.accuracy * 100)}% accuracy needs work`,
+      icon: <Target className="size-6" aria-hidden="true" />,
+      colorClass: 'text-red-500',
+      bgClass: 'bg-red-500/10',
+      borderClass: 'border-red-500/30',
+      action: () => onQuickStart({ subelements: [weakestTopic.id], questionCount: 15 }),
+      reason: 'Targeted practice on your weakest area',
+    }
+  } else if (lastAccuracy !== undefined && lastAccuracy < 70 && learningQuestions > 0) {
+    // Last session was rough, focus on struggling questions
+    recommendation = {
+      title: 'Review Struggling Questions',
+      description: `${learningQuestions} questions need more practice`,
+      icon: <Target className="size-6" aria-hidden="true" />,
+      colorClass: 'text-amber-500',
+      bgClass: 'bg-amber-500/10',
+      borderClass: 'border-amber-500/30',
+      action: () => onQuickStart({ status: ['learning'], questionCount: 15 }),
+      reason: 'Reinforce concepts from your last session',
+    }
+  } else if (newQuestions > 50) {
+    // Plenty of new content to explore
+    recommendation = {
+      title: 'Explore New Questions',
+      description: `${newQuestions} questions you haven't seen`,
+      icon: <BookOpen className="size-6" aria-hidden="true" />,
+      colorClass: 'text-blue-500',
+      bgClass: 'bg-blue-500/10',
+      borderClass: 'border-blue-500/30',
+      action: () => onQuickStart({ status: ['new'], questionCount: 10 }),
+      reason: 'Expand your knowledge with fresh content',
+    }
+  } else if (dueForReview > 0) {
+    // Some cards due for review
+    recommendation = {
+      title: 'Quick Review',
+      description: `${dueForReview} questions ready for review`,
+      icon: <Brain className="size-6" aria-hidden="true" />,
+      colorClass: 'text-purple-500',
+      bgClass: 'bg-purple-500/10',
+      borderClass: 'border-purple-500/30',
+      action: () => onQuickStart({ status: ['review'], questionCount: Math.min(dueForReview, 15) }),
+      reason: 'Keep your knowledge fresh',
+    }
+  } else {
+    // Default: general mixed practice
+    recommendation = {
+      title: 'Mixed Practice',
+      description: 'Well-rounded question mix',
+      icon: <Zap className="size-6" aria-hidden="true" />,
+      colorClass: 'text-emerald-500',
+      bgClass: 'bg-emerald-500/10',
+      borderClass: 'border-emerald-500/30',
+      action: () => onQuickStart({ questionCount: 10 }),
+      reason: "You're doing great! Keep the momentum going",
+    }
+  }
+
+  return (
+    <section className="mb-6 animate-fade-in-up" aria-labelledby="recommendation-title">
+      <Card
+        className={cn('bg-gradient-to-r from-background to-muted/30', recommendation.borderClass)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            <div
+              className={cn(
+                'flex size-12 shrink-0 items-center justify-center rounded-full',
+                recommendation.bgClass
+              )}
+            >
+              <span className={recommendation.colorClass}>{recommendation.icon}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Recommended
+                </span>
+                <Sparkles className="size-3 text-amber-500" aria-hidden="true" />
+              </div>
+              <h2 id="recommendation-title" className="font-semibold">
+                {recommendation.title}
+              </h2>
+              <p className="text-sm text-muted-foreground">{recommendation.description}</p>
+              <p className="text-xs text-muted-foreground mt-1 italic">{recommendation.reason}</p>
+            </div>
+            <Button size="sm" onClick={recommendation.action} className="shrink-0">
+              Start
+              <ArrowRight className="ml-2 size-4" aria-hidden="true" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
   )
 }
