@@ -404,7 +404,7 @@ describe('Flashcard Algorithm', () => {
       expect(result.questionCards.length).toBeGreaterThan(0)
     })
 
-    it('should generate weights for all subelements in cards', () => {
+    it('should generate weights for learning card subelements only', () => {
       const learningCards = [createLearningCard('lc1', 'T1'), createLearningCard('lc2', 'T5')]
 
       const questionCards = [createQuestionCard('qc1', 'T3')]
@@ -424,8 +424,13 @@ describe('Flashcard Algorithm', () => {
         }
       )
 
-      // Should have weights for all 3 unique subelements (T1, T3, T5)
-      expect(result.categoryWeights.length).toBe(3)
+      // categoryWeights reflects learning cards only (T1, T5 = 2 subelements)
+      // Question cards use their own weights internally
+      expect(result.categoryWeights.length).toBe(2)
+      // Both learning cards should be selected
+      expect(result.learningCards.length).toBe(2)
+      // Question card from T3 should still be selected (uses its own weights)
+      expect(result.questionCards.length).toBe(1)
     })
 
     it('should work in all modes with empty category progress', () => {

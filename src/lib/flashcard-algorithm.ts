@@ -143,19 +143,12 @@ export function allocateSlots(weights: CategoryWeight[], totalSlots: number): Ma
 
 /**
  * Generate default category progress for cold start (new users)
- * Creates entries for all unique subelements in available cards
+ * Creates entries only for subelements that exist in the provided cards
  */
-function generateDefaultCategoryProgress(
-  learningCards: LearningCard[],
-  questionCards: QuestionCard[]
-): CategoryProgress[] {
+function generateDefaultCategoryProgress(cards: Array<{ subelement: string }>): CategoryProgress[] {
   const subelements = new Set<string>()
 
-  // Collect all unique subelements from cards
-  for (const card of learningCards) {
-    subelements.add(card.subelement)
-  }
-  for (const card of questionCards) {
+  for (const card of cards) {
     subelements.add(card.subelement)
   }
 
@@ -190,26 +183,39 @@ export function selectCards(
     focusCategories?: string[]
   }
 ): CardSelectionResult {
-  // Handle cold start: if no category progress, generate defaults from available cards
-  let effectiveCategoryProgress = categoryProgress
-  if (categoryProgress.length === 0) {
-    effectiveCategoryProgress = generateDefaultCategoryProgress(learningCards, questionCards)
+  // For cold start, generate separate category progress for each card type
+  // This ensures we only allocate slots to subelements that have cards of that type
+  const isColdStart = categoryProgress.length === 0
+
+  // Generate category progress for learning cards (only subelements with learning cards)
+  let learningCategoryProgress = categoryProgress
+  if (isColdStart) {
+    learningCategoryProgress = generateDefaultCategoryProgress(learningCards)
+  }
+
+  // Generate category progress for question cards (only subelements with question cards)
+  let questionCategoryProgress = categoryProgress
+  if (isColdStart) {
+    questionCategoryProgress = generateDefaultCategoryProgress(questionCards)
   }
 
   // Filter categories if in focus mode
-  let filteredCategoryProgress = effectiveCategoryProgress
   if (config.mode === 'focus' && config.focusCategories?.length) {
-    filteredCategoryProgress = effectiveCategoryProgress.filter((p) =>
+    learningCategoryProgress = learningCategoryProgress.filter((p) =>
+      config.focusCategories!.includes(p.categoryId)
+    )
+    questionCategoryProgress = questionCategoryProgress.filter((p) =>
       config.focusCategories!.includes(p.categoryId)
     )
   }
 
-  // Calculate weights
-  const weights = calculateCategoryWeights(filteredCategoryProgress, config.mode)
+  // Calculate weights separately for each card type
+  const learningWeights = calculateCategoryWeights(learningCategoryProgress, config.mode)
+  const questionWeights = calculateCategoryWeights(questionCategoryProgress, config.mode)
 
-  // Allocate slots
-  const learningSlots = allocateSlots(weights, config.learningCount)
-  const questionSlots = allocateSlots(weights, config.questionCount)
+  // Allocate slots using card-type-specific weights
+  const learningSlots = allocateSlots(learningWeights, config.learningCount)
+  const questionSlots = allocateSlots(questionWeights, config.questionCount)
 
   // Select learning cards
   const selectedLearning = selectCardsForSlots(learningCards, learningSlots, cardProgress)
@@ -220,7 +226,7 @@ export function selectCards(
   return {
     learningCards: selectedLearning,
     questionCards: selectedQuestions as QuestionCard[],
-    categoryWeights: weights,
+    categoryWeights: learningWeights, // Use learning weights for reporting
   }
 }
 
