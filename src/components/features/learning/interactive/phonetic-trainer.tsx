@@ -228,9 +228,20 @@ export function PhoneticTrainer() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Mode tabs */}
-        <div className="flex border-b">
+        <div role="tablist" aria-label="Training mode selection" className="flex border-b">
           <button
+            role="tab"
+            id="quiz-tab"
+            aria-selected={mode === 'quiz'}
+            aria-controls="quiz-panel"
+            tabIndex={mode === 'quiz' ? 0 : -1}
             onClick={() => setMode('quiz')}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault()
+                setMode(mode === 'quiz' ? 'callsign' : 'quiz')
+              }
+            }}
             className={cn(
               'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
               mode === 'quiz'
@@ -241,7 +252,18 @@ export function PhoneticTrainer() {
             Quiz Mode
           </button>
           <button
+            role="tab"
+            id="callsign-tab"
+            aria-selected={mode === 'callsign'}
+            aria-controls="callsign-panel"
+            tabIndex={mode === 'callsign' ? 0 : -1}
             onClick={() => setMode('callsign')}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault()
+                setMode(mode === 'quiz' ? 'callsign' : 'quiz')
+              }
+            }}
             className={cn(
               'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
               mode === 'callsign'
@@ -255,7 +277,7 @@ export function PhoneticTrainer() {
 
         {/* Quiz Mode */}
         {mode === 'quiz' && quiz && (
-          <div className="space-y-6">
+          <div role="tabpanel" id="quiz-panel" aria-labelledby="quiz-tab" className="space-y-6">
             {/* Letter Display */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-2">What is the phonetic for:</p>
@@ -367,7 +389,12 @@ export function PhoneticTrainer() {
 
         {/* Callsign Mode */}
         {mode === 'callsign' && (
-          <div className="space-y-6">
+          <div
+            role="tabpanel"
+            id="callsign-panel"
+            aria-labelledby="callsign-tab"
+            className="space-y-6"
+          >
             <div className="space-y-3">
               <Label htmlFor="callsign">Enter a callsign to spell phonetically:</Label>
               <div className="flex gap-2">

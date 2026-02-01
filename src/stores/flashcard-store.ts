@@ -9,6 +9,7 @@ import type {
   SkillType,
   SkillMastery,
 } from '@/types/flashcard'
+import { getLocalDateString, daysBetween } from '@/lib/date-utils'
 
 // Interval schedule (days) by box level
 const BOX_INTERVALS = [0, 1, 3, 7, 21] as const
@@ -277,8 +278,7 @@ export const useFlashcardStore = create<FlashcardState>()(
 
       recordSession: (summary) => {
         set((state) => {
-          const now = new Date()
-          const today = now.toISOString().split('T')[0]
+          const today = getLocalDateString()
           const lastDate = state.lastSessionDate
 
           let newStreak = state.currentStreak
@@ -286,31 +286,26 @@ export const useFlashcardStore = create<FlashcardState>()(
           let newLastFreezeUsed = state.lastFreezeUsed
           let tokensEarned = state.freezeTokensEarned
 
-          if (lastDate) {
-            const lastDateObj = new Date(lastDate)
-            const daysDiff = Math.floor(
-              (now.getTime() - lastDateObj.getTime()) / (1000 * 60 * 60 * 24)
-            )
+          if (lastDate && lastDate !== today) {
+            const daysDiff = daysBetween(lastDate, today)
 
             if (daysDiff === 1) {
               // Consecutive day - increment streak
               newStreak += 1
+            } else if (daysDiff === 2 && state.freezeTokens > 0) {
+              // Missed one day but have freeze token
+              newFreezeTokens -= 1
+              newLastFreezeUsed = today
+              newStreak += 1
             } else if (daysDiff > 1) {
-              // Streak would break - try to use freeze token
-              if (state.freezeTokens > 0 && daysDiff <= 2) {
-                // Use freeze token to preserve streak (only for 1 missed day)
-                newFreezeTokens -= 1
-                newLastFreezeUsed = today
-                newStreak += 1 // Still increment as if consecutive
-              } else {
-                // No freeze available or gap too large - reset streak
-                newStreak = 1
-              }
+              // Streak broken
+              newStreak = 1
             }
-            // Same day doesn't change streak
-          } else {
+          } else if (!lastDate) {
+            // First session ever
             newStreak = 1
           }
+          // If lastDate === today, streak stays the same
 
           // Check if earned a new freeze token (every 7-day milestone)
           // Only earn if not at max (2 tokens)
@@ -409,7 +404,7 @@ export const useFlashcardStore = create<FlashcardState>()(
         if (state.freezeTokens <= 0) return false
         set({
           freezeTokens: state.freezeTokens - 1,
-          lastFreezeUsed: new Date().toISOString().split('T')[0],
+          lastFreezeUsed: getLocalDateString(),
         })
         return true
       },

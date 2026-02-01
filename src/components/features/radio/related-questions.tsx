@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { HelpCircle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,52 +37,60 @@ export function RelatedQuestions({
   className,
 }: RelatedQuestionsProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [questionsWithRelevance, setQuestionsWithRelevance] = useState<QuestionWithRelevance[]>([])
 
-  // Get all mappings for this control and find the actual questions
-  const questionsWithRelevance = useMemo(() => {
-    const mappings = getMappingsForControl(controlId)
+  // Load questions asynchronously when controlId changes
+  useEffect(() => {
+    async function loadQuestions() {
+      const mappings = getMappingsForControl(controlId)
 
-    if (mappings.length === 0) {
-      return []
-    }
-
-    // Build a map of questionId -> relevance for quick lookup
-    const relevanceMap = new Map<string, 'direct' | 'related'>()
-    for (const mapping of mappings) {
-      relevanceMap.set(mapping.questionId, mapping.relevance)
-    }
-
-    // Get questions from both pools
-    const technicianPool = getQuestionPool('technician')
-    const generalPool = getQuestionPool('general')
-
-    const result: QuestionWithRelevance[] = []
-
-    // Search technician pool
-    for (const question of technicianPool) {
-      const relevance = relevanceMap.get(question.id)
-      if (relevance) {
-        result.push({ question, relevance, examLevel: 'technician' })
+      if (mappings.length === 0) {
+        setQuestionsWithRelevance([])
+        return
       }
+
+      // Build a map of questionId -> relevance for quick lookup
+      const relevanceMap = new Map<string, 'direct' | 'related'>()
+      for (const mapping of mappings) {
+        relevanceMap.set(mapping.questionId, mapping.relevance)
+      }
+
+      // Get questions from both pools
+      const [technicianPool, generalPool] = await Promise.all([
+        getQuestionPool('technician'),
+        getQuestionPool('general'),
+      ])
+
+      const result: QuestionWithRelevance[] = []
+
+      // Search technician pool
+      for (const question of technicianPool) {
+        const relevance = relevanceMap.get(question.id)
+        if (relevance) {
+          result.push({ question, relevance, examLevel: 'technician' })
+        }
+      }
+
+      // Search general pool
+      for (const question of generalPool) {
+        const relevance = relevanceMap.get(question.id)
+        if (relevance) {
+          result.push({ question, relevance, examLevel: 'general' })
+        }
+      }
+
+      // Sort: direct questions first, then by question ID
+      result.sort((a, b) => {
+        if (a.relevance !== b.relevance) {
+          return a.relevance === 'direct' ? -1 : 1
+        }
+        return a.question.id.localeCompare(b.question.id)
+      })
+
+      setQuestionsWithRelevance(result)
     }
 
-    // Search general pool
-    for (const question of generalPool) {
-      const relevance = relevanceMap.get(question.id)
-      if (relevance) {
-        result.push({ question, relevance, examLevel: 'general' })
-      }
-    }
-
-    // Sort: direct questions first, then by question ID
-    result.sort((a, b) => {
-      if (a.relevance !== b.relevance) {
-        return a.relevance === 'direct' ? -1 : 1
-      }
-      return a.question.id.localeCompare(b.question.id)
-    })
-
-    return result
+    loadQuestions()
   }, [controlId])
 
   // Don't render if no related questions

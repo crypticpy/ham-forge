@@ -13,38 +13,49 @@ import {
 import { getExplanation } from '@/data/explanations'
 import type { Question, QuestionProgress, ExamLevel } from '@/types'
 
-// Import question pools (static JSON)
-import technicianPool from '@/data/pools/technician.json'
-import generalPool from '@/data/pools/general.json'
-
 // Re-export getExplanation for convenience
 export { getExplanation } from '@/data/explanations'
 
+// Cache for dynamically loaded question pools
+const poolCache = new Map<ExamLevel, Question[]>()
+
 /**
  * Get the question pool for a given exam level
+ * Uses dynamic imports with caching for performance optimization
  * @param examLevel - The exam level to get questions for
- * @returns Array of questions for that level
+ * @returns Promise resolving to array of questions for that level
  */
-export function getQuestionPool(examLevel: ExamLevel): Question[] {
-  switch (examLevel) {
-    case 'technician':
-      return technicianPool.questions as Question[]
-    case 'general':
-      return generalPool.questions as Question[]
-    case 'extra':
-      // Extra pool not yet available - will be added in a future update
-      console.warn('Extra class exam pool is not yet available')
-      return []
+export async function getQuestionPool(examLevel: ExamLevel): Promise<Question[]> {
+  // Return cached pool if available
+  if (poolCache.has(examLevel)) {
+    return poolCache.get(examLevel)!
   }
+
+  let pool: Question[]
+
+  if (examLevel === 'technician') {
+    const module = await import('@/data/pools/technician.json')
+    pool = module.default.questions as Question[]
+  } else if (examLevel === 'general') {
+    const module = await import('@/data/pools/general.json')
+    pool = module.default.questions as Question[]
+  } else {
+    // Extra pool not yet available - will be added in a future update
+    console.warn('Extra class exam pool is not yet available')
+    return []
+  }
+
+  poolCache.set(examLevel, pool)
+  return pool
 }
 
 /**
  * Get all unique subelements for an exam level
  * @param examLevel - The exam level
- * @returns Array of unique subelement identifiers
+ * @returns Promise resolving to array of unique subelement identifiers
  */
-export function getSubelements(examLevel: ExamLevel): string[] {
-  const pool = getQuestionPool(examLevel)
+export async function getSubelements(examLevel: ExamLevel): Promise<string[]> {
+  const pool = await getQuestionPool(examLevel)
   const subelements = new Set(pool.map((q) => q.subelement))
   return Array.from(subelements).sort()
 }
@@ -60,7 +71,7 @@ export async function getDueQuestions(
   limit: number = 10
 ): Promise<Question[]> {
   const now = new Date()
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
 
   if (pool.length === 0) {
     return []
@@ -104,7 +115,7 @@ export async function getNewQuestions(
   examLevel: ExamLevel,
   limit: number = 10
 ): Promise<Question[]> {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
 
   if (pool.length === 0) {
     return []
@@ -178,7 +189,7 @@ async function getReviewQuestions(
   excludeIds: Set<string>
 ): Promise<Question[]> {
   const now = new Date()
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
   const poolIds = new Set(pool.map((q) => q.id))
 
   // Get all progress records where nextReview > now (not yet due)
@@ -213,7 +224,7 @@ export async function getQuestionsBySubelement(
   subelement: string,
   limit?: number
 ): Promise<Question[]> {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
   const filtered = pool.filter((q) => q.subelement === subelement)
   return limit ? filtered.slice(0, limit) : filtered
 }
@@ -223,14 +234,14 @@ export async function getQuestionsBySubelement(
  * @param examLevel - The exam level
  * @param subelement - The subelement (e.g., 'T1', 'G2')
  * @param group - The group letter (e.g., 'A', 'B')
- * @returns Array of questions in that group
+ * @returns Promise resolving to array of questions in that group
  */
-export function getQuestionsByGroup(
+export async function getQuestionsByGroup(
   examLevel: ExamLevel,
   subelement: string,
   group: string
-): Question[] {
-  const pool = getQuestionPool(examLevel)
+): Promise<Question[]> {
+  const pool = await getQuestionPool(examLevel)
   return pool.filter((q) => q.subelement === subelement && q.group === group)
 }
 
@@ -238,10 +249,13 @@ export function getQuestionsByGroup(
  * Get all unique groups for a subelement
  * @param examLevel - The exam level
  * @param subelement - The subelement to get groups for (e.g., 'T1')
- * @returns Array of group identifiers with full format (e.g., ['T1A', 'T1B', 'T1C'])
+ * @returns Promise resolving to array of group identifiers with full format (e.g., ['T1A', 'T1B', 'T1C'])
  */
-export function getGroupsForSubelement(examLevel: ExamLevel, subelement: string): string[] {
-  const pool = getQuestionPool(examLevel)
+export async function getGroupsForSubelement(
+  examLevel: ExamLevel,
+  subelement: string
+): Promise<string[]> {
+  const pool = await getQuestionPool(examLevel)
   const groups = new Set(
     pool.filter((q) => q.subelement === subelement).map((q) => `${q.subelement}${q.group}`)
   )
@@ -258,7 +272,7 @@ export async function getQuestionsByStatus(
   examLevel: ExamLevel,
   status: 'new' | 'learning' | 'review' | 'mastered'
 ): Promise<Question[]> {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
 
   if (status === 'new') {
     return getNewQuestions(examLevel, pool.length)
@@ -370,7 +384,7 @@ export async function getProgressStats(examLevel: ExamLevel): Promise<{
   accuracy: number
   dueCount: number
 }> {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
   const poolIds = new Set(pool.map((q) => q.id))
 
   const allProgress = await db.questionProgress.toArray()
@@ -430,7 +444,7 @@ export async function getProgressBySubelement(examLevel: ExamLevel): Promise<
     }
   >
 > {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
   const allProgress = await db.questionProgress.toArray()
   const progressMap = new Map(allProgress.map((p) => [p.questionId, p]))
 
@@ -483,7 +497,7 @@ export async function getProgressBySubelement(examLevel: ExamLevel): Promise<
  * @param examLevel - The exam level to reset
  */
 export async function resetProgress(examLevel: ExamLevel): Promise<void> {
-  const pool = getQuestionPool(examLevel)
+  const pool = await getQuestionPool(examLevel)
   const poolIds = pool.map((q) => q.id)
 
   await db.questionProgress.where('questionId').anyOf(poolIds).delete()
@@ -493,13 +507,13 @@ export async function resetProgress(examLevel: ExamLevel): Promise<void> {
  * Get a random question from the pool (for quick practice)
  * @param examLevel - The exam level
  * @param excludeIds - Optional set of IDs to exclude
- * @returns A random question or undefined if pool is empty
+ * @returns Promise resolving to a random question or undefined if pool is empty
  */
-export function getRandomQuestion(
+export async function getRandomQuestion(
   examLevel: ExamLevel,
   excludeIds?: Set<string>
-): Question | undefined {
-  const pool = getQuestionPool(examLevel)
+): Promise<Question | undefined> {
+  const pool = await getQuestionPool(examLevel)
   const filtered = excludeIds ? pool.filter((q) => !excludeIds.has(q.id)) : pool
 
   if (filtered.length === 0) {
@@ -514,13 +528,13 @@ export function getRandomQuestion(
  * Get a question with its explanation merged in
  * @param examLevel - The exam level
  * @param questionId - The question ID
- * @returns The question with explanation field populated, or undefined if not found
+ * @returns Promise resolving to the question with explanation field populated, or undefined if not found
  */
-export function getQuestionWithExplanation(
+export async function getQuestionWithExplanation(
   examLevel: ExamLevel,
   questionId: string
-): Question | undefined {
-  const pool = getQuestionPool(examLevel)
+): Promise<Question | undefined> {
+  const pool = await getQuestionPool(examLevel)
   const question = pool.find((q) => q.id === questionId)
 
   if (!question) {
@@ -539,10 +553,10 @@ export function getQuestionWithExplanation(
 /**
  * Get the question pool with explanations merged into each question
  * @param examLevel - The exam level
- * @returns Array of questions with explanation fields populated
+ * @returns Promise resolving to array of questions with explanation fields populated
  */
-export function getQuestionPoolWithExplanations(examLevel: ExamLevel): Question[] {
-  const pool = getQuestionPool(examLevel)
+export async function getQuestionPoolWithExplanations(examLevel: ExamLevel): Promise<Question[]> {
+  const pool = await getQuestionPool(examLevel)
 
   return pool.map((question) => {
     const explanation = getExplanation(question.id)

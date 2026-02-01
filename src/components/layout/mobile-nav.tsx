@@ -28,6 +28,7 @@ export function MobileNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors rounded-lg',
                 isActive ? 'text-plasma-orange' : 'text-muted-foreground hover:text-foreground'

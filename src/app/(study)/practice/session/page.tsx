@@ -17,6 +17,12 @@ import Link from 'next/link'
 let cachedConfigJson: string | null = null
 let cachedConfig: SessionConfig | null = null
 
+// Clear the module-level cache (called when session completes)
+function clearSessionCache() {
+  cachedConfigJson = null
+  cachedConfig = null
+}
+
 // Read session config from sessionStorage safely (cached to prevent infinite loops)
 function getSessionConfig(): SessionConfig | null {
   if (typeof window === 'undefined') return null
@@ -114,6 +120,10 @@ function PracticeSession({ config }: { config: SessionConfig }) {
           accuracy: stats.accuracy,
         },
       })
+
+      // Clear session config after completion so "Continue where you left off" works correctly
+      sessionStorage.removeItem('practiceConfig')
+      clearSessionCache()
     } else {
       // Record in-progress - enables "continue where you left off"
       recordActivity({

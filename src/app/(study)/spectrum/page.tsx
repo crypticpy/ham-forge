@@ -1,18 +1,49 @@
 'use client'
 
 import { useState } from 'react'
-import { Waves, Info } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { Waves, Info, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import {
-  SpectrumChart,
-  BandDetail,
-  SpectrumLegend,
-  FrequencyConverter,
-} from '@/components/features/spectrum'
 import { findBandForFrequency } from '@/data/radio/spectrum-data'
 import type { AmateurBand, LicenseClass, SpectrumFilter } from '@/types/spectrum'
+
+/**
+ * Loading fallback for spectrum components
+ */
+function SpectrumLoader() {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  )
+}
+
+/**
+ * Dynamic imports for spectrum components
+ * These are loaded on-demand to reduce initial bundle size
+ */
+const SpectrumChart = dynamic(
+  () => import('@/components/features/spectrum/spectrum-chart').then((m) => m.SpectrumChart),
+  { loading: () => <SpectrumLoader />, ssr: false }
+)
+
+const BandDetail = dynamic(
+  () => import('@/components/features/spectrum/band-detail').then((m) => m.BandDetail),
+  { loading: () => <SpectrumLoader />, ssr: false }
+)
+
+const SpectrumLegend = dynamic(
+  () => import('@/components/features/spectrum/spectrum-legend').then((m) => m.SpectrumLegend),
+  { loading: () => <SpectrumLoader />, ssr: false }
+)
+
+const FrequencyConverter = dynamic(
+  () =>
+    import('@/components/features/spectrum/frequency-converter').then((m) => m.FrequencyConverter),
+  { loading: () => <SpectrumLoader />, ssr: false }
+)
 
 /**
  * License class filter options

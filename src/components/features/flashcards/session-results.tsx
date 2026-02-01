@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Confetti } from '@/components/ui/confetti'
 import Link from 'next/link'
 import type { SessionSummary } from '@/types/flashcard'
 import { getSubelementDisplayName } from '@/data/flashcards'
@@ -80,158 +81,164 @@ export function SessionResults({ summary, onPlayAgain }: SessionResultsProps) {
   const config = levelConfig[level]
   const LevelIcon = config.icon
 
+  // Show confetti for excellent performance (90%+ accuracy)
+  const showCelebration = overallAccuracy >= 90
+
   return (
-    <motion.div
-      className="w-full max-w-2xl mx-auto space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Main result card */}
-      <Card className={cn('border-2', config.borderColor)}>
-        <CardContent className="p-8">
-          {/* Icon and message */}
-          <div className="text-center mb-8">
-            <motion.div
-              className={cn(
-                'inline-flex items-center justify-center size-20 rounded-full mb-4',
-                config.bgColor
-              )}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            >
-              <LevelIcon className={cn('size-10', config.color)} />
-            </motion.div>
-            <h2 className="text-3xl font-bold mb-2">{config.message}</h2>
-            <p className="text-muted-foreground">{config.description}</p>
-          </div>
-
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <StatBox
-              label="Overall"
-              value={`${overallAccuracy}%`}
-              icon={<Target className="size-4" />}
-              color={
-                overallAccuracy >= 75
-                  ? 'text-emerald-500'
-                  : overallAccuracy >= 50
-                    ? 'text-amber-500'
-                    : 'text-red-500'
-              }
-            />
-            <StatBox
-              label="Learning"
-              value={`${Math.round(summary.learningAccuracy * 100)}%`}
-              icon={<CheckCircle className="size-4" />}
-              color="text-blue-500"
-            />
-            <StatBox
-              label="Questions"
-              value={`${Math.round(summary.questionAccuracy * 100)}%`}
-              icon={<CheckCircle className="size-4" />}
-              color="text-purple-500"
-            />
-            <StatBox
-              label="Time"
-              value={`${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`}
-              icon={<Clock className="size-4" />}
-              color="text-muted-foreground"
-            />
-          </div>
-
-          {/* Category breakdown */}
-          {summary.categoryPerformance.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Performance by Topic
-              </h3>
-              <div className="space-y-2">
-                {summary.categoryPerformance.map((cat, index) => (
-                  <motion.div
-                    key={cat.categoryId}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    <CategoryBar
-                      categoryId={cat.categoryId}
-                      correct={cat.correct}
-                      total={cat.total}
-                      accuracy={cat.accuracy}
-                      isWeakest={cat.categoryId === summary.weakestCategory}
-                      isStrongest={cat.categoryId === summary.strongestCategory}
-                    />
-                  </motion.div>
-                ))}
-              </div>
+    <>
+      <Confetti active={showCelebration} />
+      <motion.div
+        className="w-full max-w-2xl mx-auto space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Main result card */}
+        <Card className={cn('border-2', config.borderColor)}>
+          <CardContent className="p-8">
+            {/* Icon and message */}
+            <div className="text-center mb-8">
+              <motion.div
+                className={cn(
+                  'inline-flex items-center justify-center size-20 rounded-full mb-4',
+                  config.bgColor
+                )}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+              >
+                <LevelIcon className={cn('size-10', config.color)} />
+              </motion.div>
+              <h2 className="text-3xl font-bold mb-2">{config.message}</h2>
+              <p className="text-muted-foreground">{config.description}</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Insights */}
-      {(summary.weakestCategory || summary.improvement !== undefined) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {summary.weakestCategory && (
-            <Card className="border-red-500/20 bg-red-500/5">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center size-10 rounded-full bg-red-500/10">
-                    <TrendingDown className="size-5 text-red-500" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-red-500">Focus Area</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {getSubelementDisplayName(summary.weakestCategory.slice(0, 2))}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Consider extra practice in this topic
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              <StatBox
+                label="Overall"
+                value={`${overallAccuracy}%`}
+                icon={<Target className="size-4" />}
+                color={
+                  overallAccuracy >= 75
+                    ? 'text-emerald-500'
+                    : overallAccuracy >= 50
+                      ? 'text-amber-500'
+                      : 'text-red-500'
+                }
+              />
+              <StatBox
+                label="Learning"
+                value={`${Math.round(summary.learningAccuracy * 100)}%`}
+                icon={<CheckCircle className="size-4" />}
+                color="text-blue-500"
+              />
+              <StatBox
+                label="Questions"
+                value={`${Math.round(summary.questionAccuracy * 100)}%`}
+                icon={<CheckCircle className="size-4" />}
+                color="text-purple-500"
+              />
+              <StatBox
+                label="Time"
+                value={`${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`}
+                icon={<Clock className="size-4" />}
+                color="text-muted-foreground"
+              />
+            </div>
 
-          {summary.strongestCategory && (
-            <Card className="border-emerald-500/20 bg-emerald-500/5">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center size-10 rounded-full bg-emerald-500/10">
-                    <TrendingUp className="size-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-emerald-500">Strong Area</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {getSubelementDisplayName(summary.strongestCategory.slice(0, 2))}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      You&apos;re doing great here!
-                    </p>
-                  </div>
+            {/* Category breakdown */}
+            {summary.categoryPerformance.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Performance by Topic
+                </h3>
+                <div className="space-y-2">
+                  {summary.categoryPerformance.map((cat, index) => (
+                    <motion.div
+                      key={cat.categoryId}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
+                    >
+                      <CategoryBar
+                        categoryId={cat.categoryId}
+                        correct={cat.correct}
+                        total={cat.total}
+                        accuracy={cat.accuracy}
+                        isWeakest={cat.categoryId === summary.weakestCategory}
+                        isStrongest={cat.categoryId === summary.strongestCategory}
+                      />
+                    </motion.div>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Insights */}
+        {(summary.weakestCategory || summary.improvement !== undefined) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {summary.weakestCategory && (
+              <Card className="border-red-500/20 bg-red-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center size-10 rounded-full bg-red-500/10">
+                      <TrendingDown className="size-5 text-red-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-red-500">Focus Area</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {getSubelementDisplayName(summary.weakestCategory.slice(0, 2))}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Consider extra practice in this topic
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {summary.strongestCategory && (
+              <Card className="border-emerald-500/20 bg-emerald-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center size-10 rounded-full bg-emerald-500/10">
+                      <TrendingUp className="size-5 text-emerald-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-emerald-500">Strong Area</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {getSubelementDisplayName(summary.strongestCategory.slice(0, 2))}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        You&apos;re doing great here!
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={onPlayAgain} size="lg" className="flex-1 gap-2">
+            <RotateCcw className="size-4" />
+            Study Again
+          </Button>
+          <Button variant="outline" size="lg" className="flex-1 gap-2" asChild>
+            <Link href="/flashcards">
+              <Home className="size-4" />
+              Back to Decks
+            </Link>
+          </Button>
         </div>
-      )}
-
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={onPlayAgain} size="lg" className="flex-1 gap-2">
-          <RotateCcw className="size-4" />
-          Study Again
-        </Button>
-        <Button variant="outline" size="lg" className="flex-1 gap-2" asChild>
-          <Link href="/flashcards">
-            <Home className="size-4" />
-            Back to Decks
-          </Link>
-        </Button>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }
 

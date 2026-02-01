@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { getQuestionPool, getExplanation } from '@/lib/question-scheduler'
 import type { Question, ExamLevel } from '@/types'
 
@@ -40,10 +40,13 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
- * Select and prepare questions for the knowledge check
+ * Select and prepare questions for the knowledge check (async version)
  */
-function selectQuestions(relatedQuestionIds: string[], examLevel: ExamLevel): Question[] {
-  const pool = getQuestionPool(examLevel)
+async function selectQuestionsAsync(
+  relatedQuestionIds: string[],
+  examLevel: ExamLevel
+): Promise<Question[]> {
+  const pool = await getQuestionPool(examLevel)
   const poolMap = new Map(pool.map((q) => [q.id, q]))
 
   // Get questions that exist in the pool
@@ -89,33 +92,42 @@ export function useKnowledgeCheck(
   relatedQuestionIds: string[],
   examLevel: ExamLevel
 ): UseKnowledgeCheckReturn {
-  // Initialize questions synchronously during first render
-  const [questions, setQuestions] = useState<Question[]>(() => {
-    if (relatedQuestionIds.length < MIN_QUESTIONS) {
-      return []
-    }
-    return selectQuestions(relatedQuestionIds, examLevel)
-  })
+  const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Map<string, number>>(new Map())
   const [isComplete, setIsComplete] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Track section changes and reinitialize questions
-  const [prevSectionId, setPrevSectionId] = useState(sectionId)
-  if (sectionId !== prevSectionId) {
-    setPrevSectionId(sectionId)
-    const newQuestions =
-      relatedQuestionIds.length < MIN_QUESTIONS
-        ? []
-        : selectQuestions(relatedQuestionIds, examLevel)
-    setQuestions(newQuestions)
-    setCurrentIndex(0)
-    setAnswers(new Map())
-    setIsComplete(false)
-  }
+  // Load questions when section changes
+  useEffect(() => {
+    let cancelled = false
 
-  // Loading is always false since we initialize synchronously
-  const isLoading = false
+    async function loadQuestions() {
+      setIsLoading(true)
+      if (relatedQuestionIds.length < MIN_QUESTIONS) {
+        if (!cancelled) {
+          setQuestions([])
+          setIsLoading(false)
+        }
+        return
+      }
+
+      const newQuestions = await selectQuestionsAsync(relatedQuestionIds, examLevel)
+      if (!cancelled) {
+        setQuestions(newQuestions)
+        setCurrentIndex(0)
+        setAnswers(new Map())
+        setIsComplete(false)
+        setIsLoading(false)
+      }
+    }
+
+    loadQuestions()
+
+    return () => {
+      cancelled = true
+    }
+  }, [sectionId, relatedQuestionIds, examLevel])
 
   // Calculate score and pass status
   const score = useMemo(() => calculateScore(answers, questions), [answers, questions])
@@ -147,12 +159,14 @@ export function useKnowledgeCheck(
   }, [currentIndex, questions.length])
 
   // Retry the quiz with new shuffled questions
-  const retryQuiz = useCallback(() => {
-    const newQuestions = selectQuestions(relatedQuestionIds, examLevel)
+  const retryQuiz = useCallback(async () => {
+    setIsLoading(true)
+    const newQuestions = await selectQuestionsAsync(relatedQuestionIds, examLevel)
     setQuestions(newQuestions)
     setCurrentIndex(0)
     setAnswers(new Map())
     setIsComplete(false)
+    setIsLoading(false)
   }, [relatedQuestionIds, examLevel])
 
   // Build state object

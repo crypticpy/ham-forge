@@ -122,22 +122,26 @@ export function useExamSession(examLevel: ExamLevel) {
     }
 
     // Generate new exam
-    try {
-      const exam = generateExam(examLevel)
-      setState((prev) => ({
-        ...prev,
-        exam,
-        isLoading: false,
-        startTime: new Date(),
-        timeRemaining: EXAM_TIME_LIMIT,
-      }))
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to generate exam',
-      }))
+    async function loadExam() {
+      try {
+        const exam = await generateExam(examLevel)
+        setState((prev) => ({
+          ...prev,
+          exam,
+          isLoading: false,
+          startTime: new Date(),
+          timeRemaining: EXAM_TIME_LIMIT,
+        }))
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Failed to generate exam',
+        }))
+      }
     }
+
+    loadExam()
   }, [examLevel])
 
   // Timer effect
@@ -163,69 +167,7 @@ export function useExamSession(examLevel: ExamLevel) {
     }
   }, [state.isComplete, state.isLoading, state.exam])
 
-  // Auto-submit when time runs out
-  useEffect(() => {
-    if (state.timeRemaining === 0 && !state.isComplete && !isSubmittingRef.current) {
-      submitExam()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.timeRemaining, state.isComplete])
-
-  // Select an answer for current question
-  const selectAnswer = useCallback((answerIndex: number) => {
-    setState((prev) => {
-      if (!prev.exam || prev.isComplete) return prev
-
-      const currentQuestion = prev.exam.questions[prev.currentIndex]
-      if (!currentQuestion) return prev
-
-      const newAnswers = new Map(prev.answers)
-      newAnswers.set(currentQuestion.id, answerIndex)
-
-      return { ...prev, answers: newAnswers }
-    })
-  }, [])
-
-  // Toggle flag for current question
-  const toggleFlag = useCallback(() => {
-    setState((prev) => {
-      const newFlagged = new Set(prev.flaggedQuestions)
-      if (newFlagged.has(prev.currentIndex)) {
-        newFlagged.delete(prev.currentIndex)
-      } else {
-        newFlagged.add(prev.currentIndex)
-      }
-      return { ...prev, flaggedQuestions: newFlagged }
-    })
-  }, [])
-
-  // Navigation
-  const goToQuestion = useCallback((index: number) => {
-    setState((prev) => {
-      if (!prev.exam) return prev
-      const maxIndex = prev.exam.questions.length - 1
-      const newIndex = Math.max(0, Math.min(index, maxIndex))
-      return { ...prev, currentIndex: newIndex }
-    })
-  }, [])
-
-  const nextQuestion = useCallback(() => {
-    setState((prev) => {
-      if (!prev.exam) return prev
-      const maxIndex = prev.exam.questions.length - 1
-      if (prev.currentIndex >= maxIndex) return prev
-      return { ...prev, currentIndex: prev.currentIndex + 1 }
-    })
-  }, [])
-
-  const prevQuestion = useCallback(() => {
-    setState((prev) => {
-      if (prev.currentIndex <= 0) return prev
-      return { ...prev, currentIndex: prev.currentIndex - 1 }
-    })
-  }, [])
-
-  // Submit exam
+  // Submit exam - defined before auto-submit effect so it can be used as dependency
   const submitExam = useCallback(async () => {
     if (isSubmittingRef.current) return
     isSubmittingRef.current = true
@@ -302,6 +244,67 @@ export function useExamSession(examLevel: ExamLevel) {
       }
     })
   }, [examLevel])
+
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (state.timeRemaining === 0 && !state.isComplete && !isSubmittingRef.current) {
+      submitExam()
+    }
+  }, [state.timeRemaining, state.isComplete, submitExam])
+
+  // Select an answer for current question
+  const selectAnswer = useCallback((answerIndex: number) => {
+    setState((prev) => {
+      if (!prev.exam || prev.isComplete) return prev
+
+      const currentQuestion = prev.exam.questions[prev.currentIndex]
+      if (!currentQuestion) return prev
+
+      const newAnswers = new Map(prev.answers)
+      newAnswers.set(currentQuestion.id, answerIndex)
+
+      return { ...prev, answers: newAnswers }
+    })
+  }, [])
+
+  // Toggle flag for current question
+  const toggleFlag = useCallback(() => {
+    setState((prev) => {
+      const newFlagged = new Set(prev.flaggedQuestions)
+      if (newFlagged.has(prev.currentIndex)) {
+        newFlagged.delete(prev.currentIndex)
+      } else {
+        newFlagged.add(prev.currentIndex)
+      }
+      return { ...prev, flaggedQuestions: newFlagged }
+    })
+  }, [])
+
+  // Navigation
+  const goToQuestion = useCallback((index: number) => {
+    setState((prev) => {
+      if (!prev.exam) return prev
+      const maxIndex = prev.exam.questions.length - 1
+      const newIndex = Math.max(0, Math.min(index, maxIndex))
+      return { ...prev, currentIndex: newIndex }
+    })
+  }, [])
+
+  const nextQuestion = useCallback(() => {
+    setState((prev) => {
+      if (!prev.exam) return prev
+      const maxIndex = prev.exam.questions.length - 1
+      if (prev.currentIndex >= maxIndex) return prev
+      return { ...prev, currentIndex: prev.currentIndex + 1 }
+    })
+  }, [])
+
+  const prevQuestion = useCallback(() => {
+    setState((prev) => {
+      if (prev.currentIndex <= 0) return prev
+      return { ...prev, currentIndex: prev.currentIndex - 1 }
+    })
+  }, [])
 
   // Get current question
   const currentQuestion = state.exam?.questions[state.currentIndex] ?? null

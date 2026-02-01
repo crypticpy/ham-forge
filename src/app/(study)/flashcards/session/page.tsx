@@ -91,7 +91,7 @@ export default function FlashcardSessionPage() {
         const allLearningCards = getLearningCards(sessionConfig.examLevel)
 
         // Load question pool
-        const questionPool = getQuestionPool(sessionConfig.examLevel)
+        const questionPool = await getQuestionPool(sessionConfig.examLevel)
         const allQuestionCards = convertToQuestionCards(questionPool, allLearningCards)
 
         // Get category progress for algorithm (captured once at session start)

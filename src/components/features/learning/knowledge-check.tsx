@@ -17,7 +17,7 @@ interface KnowledgeCheckProps {
 }
 
 const ANSWER_LABELS = ['A', 'B', 'C', 'D'] as const
-const AUTO_ADVANCE_DELAY = 1500 // 1.5 seconds
+const AUTO_ADVANCE_DELAY = 2000 // 2 seconds - gives users more time to read feedback
 
 // Internal: Intro screen before starting the quiz
 function KnowledgeCheckIntro({
@@ -86,6 +86,9 @@ function KnowledgeCheckQuestion({
   isRevealed,
   onSelectAnswer,
   onNext,
+  autoAdvanceEnabled,
+  onToggleAutoAdvance,
+  countdown,
 }: {
   question: Question
   questionNumber: number
@@ -94,6 +97,9 @@ function KnowledgeCheckQuestion({
   isRevealed: boolean
   onSelectAnswer: (index: number) => void
   onNext: () => void
+  autoAdvanceEnabled: boolean
+  onToggleAutoAdvance: () => void
+  countdown: number | null
 }) {
   const isCorrect =
     isRevealed && selectedAnswer !== null && selectedAnswer === question.correctAnswer
@@ -213,10 +219,25 @@ function KnowledgeCheckQuestion({
                 </>
               )}
             </div>
-            <Button onClick={onNext} className="w-full sm:w-auto">
-              {questionNumber < totalQuestions ? 'Next Question' : 'See Results'}
-              <ChevronRight className="size-4 ml-1" aria-hidden="true" />
-            </Button>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <Button onClick={onNext} className="w-full sm:w-auto">
+                {questionNumber < totalQuestions ? 'Next Question' : 'See Results'}
+                <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+                {autoAdvanceEnabled && countdown !== null && (
+                  <span className="ml-1 text-xs opacity-75">({countdown}s)</span>
+                )}
+              </Button>
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoAdvanceEnabled}
+                  onChange={onToggleAutoAdvance}
+                  className="size-4 rounded border-muted-foreground/30"
+                  aria-label="Enable auto-advance to next question"
+                />
+                Auto-advance
+              </label>
+            </div>
           </div>
         )}
       </CardContent>
@@ -311,6 +332,8 @@ export function KnowledgeCheck({
   const [hasStarted, setHasStarted] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isRevealed, setIsRevealed] = useState(false)
+  const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState(true)
+  const [countdown, setCountdown] = useState<number | null>(null)
 
   const { state, currentQuestion, submitAnswer, nextQuestion, retryQuiz, isLoading } =
     useKnowledgeCheck(sectionId, relatedQuestionIds, examLevel)
@@ -345,16 +368,37 @@ export function KnowledgeCheck({
     setIsRevealed(false)
   }, [retryQuiz])
 
-  // Auto-advance after revealing answer
+  // Auto-advance after revealing answer with countdown display
   useEffect(() => {
-    if (!isRevealed) return
+    // Only run auto-advance when both conditions are met
+    if (!isRevealed || !autoAdvanceEnabled) {
+      return
+    }
+
+    // Update countdown display every second
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => (prev !== null && prev > 1 ? prev - 1 : prev))
+    }, 1000)
 
     const timer = setTimeout(() => {
       handleNext()
     }, AUTO_ADVANCE_DELAY)
 
-    return () => clearTimeout(timer)
-  }, [isRevealed, handleNext])
+    return () => {
+      clearTimeout(timer)
+      clearInterval(countdownInterval)
+    }
+  }, [isRevealed, autoAdvanceEnabled, handleNext])
+
+  // Reset countdown when answer is revealed or when auto-advance is toggled
+  useEffect(() => {
+    if (isRevealed && autoAdvanceEnabled) {
+      const initialCountdown = Math.ceil(AUTO_ADVANCE_DELAY / 1000)
+      setCountdown(initialCountdown)
+    } else {
+      setCountdown(null)
+    }
+  }, [isRevealed, autoAdvanceEnabled])
 
   // Record quiz result when complete
   useEffect(() => {
@@ -419,6 +463,9 @@ export function KnowledgeCheck({
         isRevealed={isRevealed}
         onSelectAnswer={handleSelectAnswer}
         onNext={handleNext}
+        autoAdvanceEnabled={autoAdvanceEnabled}
+        onToggleAutoAdvance={() => setAutoAdvanceEnabled((prev) => !prev)}
+        countdown={countdown}
       />
     )
   }

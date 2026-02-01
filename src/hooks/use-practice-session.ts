@@ -22,6 +22,7 @@ export interface SessionConfig {
   showExplanations: boolean
   isQuickStudy?: boolean
   durationSeconds?: number
+  questionIds?: string[] // Specific question IDs to practice (e.g., from weak areas review)
 }
 
 export interface SessionState {
@@ -135,6 +136,12 @@ export function usePracticeSession(config: SessionConfig) {
           const { flaggedQuestions } = useProgressStore.getState()
           const flaggedSet = new Set(flaggedQuestions)
           questions = questions.filter((q) => flaggedSet.has(q.id))
+        }
+
+        // Filter by specific question IDs if provided
+        if (config.questionIds && config.questionIds.length > 0) {
+          const idSet = new Set(config.questionIds)
+          questions = questions.filter((q) => idSet.has(q.id))
         }
 
         // Shuffle the questions for variety

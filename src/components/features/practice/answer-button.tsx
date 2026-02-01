@@ -71,12 +71,18 @@ export function AnswerButton({
       aria-pressed={isSelected}
       aria-label={`Answer ${label}: ${text}${isRevealed && isCorrect ? ' (Correct answer)' : ''}`}
       className={cn(
-        'w-full flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all',
+        'relative w-full flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed',
         getVariantStyles()
       )}
     >
+      {/* Success burst animation for correct answer */}
+      {isRevealed && isCorrect && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 animate-success-burst rounded-lg border-2 border-green-500/50" />
+        </div>
+      )}
       <span
         className={cn(
           'flex items-center justify-center size-8 rounded-full text-sm font-semibold shrink-0',

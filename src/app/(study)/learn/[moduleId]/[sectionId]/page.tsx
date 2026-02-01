@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,23 +22,114 @@ import { useActivityStore } from '@/stores/activity-store'
 import { PaginatedContent } from '@/components/features/learning/paginated-content'
 import { KeyPoints } from '@/components/features/learning/key-points'
 import { KnowledgeCheck } from '@/components/features/learning/knowledge-check'
-import {
-  OhmsLawCalculator,
-  IonosphereVisualizer,
-  PhoneticTrainer,
-  BandPlanExplorer,
-  DecibelCalculator,
-  FrequencyWavelengthConverter,
-  QCodeReference,
-  PowerCalculator,
-  ModulationDemo,
-  CircuitIdentifier,
-  RSTTrainer,
-  QSOTrainer,
-} from '@/components/features/learning/interactive'
 import { getModuleById } from '@/lib/learning-modules'
 import type { LearningModule, LearningSection, InteractiveComponentType } from '@/types/learning'
 import type { ExamLevel } from '@/types'
+
+/**
+ * Loading fallback for interactive components
+ */
+function InteractiveLoader() {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  )
+}
+
+/**
+ * Dynamic imports for interactive components
+ * These are loaded on-demand to reduce initial bundle size
+ */
+const OhmsLawCalculator = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/ohms-law-calculator').then(
+      (m) => m.OhmsLawCalculator
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const IonosphereVisualizer = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/ionosphere-visualizer').then(
+      (m) => m.IonosphereVisualizer
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const PhoneticTrainer = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/phonetic-trainer').then(
+      (m) => m.PhoneticTrainer
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const BandPlanExplorer = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/band-plan-explorer').then(
+      (m) => m.BandPlanExplorer
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const DecibelCalculator = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/decibel-calculator').then(
+      (m) => m.DecibelCalculator
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const FrequencyWavelengthConverter = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/frequency-wavelength-converter').then(
+      (m) => m.FrequencyWavelengthConverter
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const QCodeReference = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/q-code-reference').then(
+      (m) => m.QCodeReference
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const PowerCalculator = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/power-calculator').then(
+      (m) => m.PowerCalculator
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const ModulationDemo = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/modulation-demo').then(
+      (m) => m.ModulationDemo
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const CircuitIdentifier = dynamic(
+  () =>
+    import('@/components/features/learning/interactive/circuit-identifier').then(
+      (m) => m.CircuitIdentifier
+    ),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const RSTTrainer = dynamic(
+  () => import('@/components/features/learning/interactive/rst-trainer').then((m) => m.RSTTrainer),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
+
+const QSOTrainer = dynamic(
+  () => import('@/components/features/learning/interactive/qso-trainer').then((m) => m.QSOTrainer),
+  { loading: () => <InteractiveLoader />, ssr: false }
+)
 
 interface SectionPageProps {
   params: Promise<{ moduleId: string; sectionId: string }>

@@ -193,7 +193,8 @@
   border-radius: 1rem;
 }
 
-.glass-card:hover {
+.glass-card:hover,
+.glass-card:active {
   border-color: rgba(0, 0, 0, 0.15);
   background: rgba(255, 255, 255, 0.95);
 }
@@ -212,7 +213,8 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-.dark .glass-card:hover {
+.dark .glass-card:hover,
+.dark .glass-card:active {
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(26, 26, 46, 0.95);
 }
@@ -314,10 +316,29 @@
 
 /* Staggered entrance delays */
 .animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-150 { animation-delay: 150ms; }
 .animate-delay-200 { animation-delay: 200ms; }
 .animate-delay-300 { animation-delay: 300ms; }
 .animate-delay-400 { animation-delay: 400ms; }
 .animate-delay-500 { animation-delay: 500ms; }
+
+/* Animation delay utility classes for ping animations */
+.animation-delay-150 { animation-delay: 150ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+
+/* Confetti animation */
+@keyframes confetti {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.animate-confetti { animation: confetti 3s ease-out forwards; }
+
+/* Success burst animation for correct answers */
+@keyframes success-burst {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0; }
+}
+.animate-success-burst { animation: success-burst 0.5s ease-out forwards; }
 
 /* ========================================= */
 /* Custom Scrollbar (Dark Mode)              */
@@ -371,7 +392,9 @@
   .animate-pulse-glow,
   .animate-fade-in-up,
   .animate-shimmer,
-  .animate-live-pulse {
+  .animate-live-pulse,
+  .animate-confetti,
+  .animate-success-burst {
     animation: none !important;
   }
 
@@ -379,4 +402,31 @@
   progress {
     transition: none !important;
   }
+}
+
+/* ========================================= */
+/* Safe Area Utilities (Notched Devices)     */
+/* ========================================= */
+
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-area-pl {
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+.safe-area-pr {
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
 }

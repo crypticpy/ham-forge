@@ -29,10 +29,10 @@ export interface GeneratedExam {
 /**
  * Get all unique groups for an exam level
  * Groups are like T1A, T1B, T2A, etc.
- * @returns Array of group identifiers sorted in order
+ * @returns Promise resolving to array of group identifiers sorted in order
  */
-export function getExamGroups(examLevel: ExamLevel): string[] {
-  const pool = getQuestionPool(examLevel)
+export async function getExamGroups(examLevel: ExamLevel): Promise<string[]> {
+  const pool = await getQuestionPool(examLevel)
   const groups = new Set<string>()
 
   for (const question of pool) {
@@ -47,24 +47,27 @@ export function getExamGroups(examLevel: ExamLevel): string[] {
 /**
  * Get questions for a specific group
  */
-export function getQuestionsForGroup(examLevel: ExamLevel, group: string): Question[] {
-  const pool = getQuestionPool(examLevel)
+export async function getQuestionsForGroup(
+  examLevel: ExamLevel,
+  group: string
+): Promise<Question[]> {
+  const pool = await getQuestionPool(examLevel)
   return pool.filter((q) => q.subelement + q.group === group)
 }
 
 /**
  * Generate a practice exam with one question from each group
  * @param examLevel - technician or general
- * @returns A complete exam with 35 questions
+ * @returns Promise resolving to a complete exam with 35 questions
  */
-export function generateExam(examLevel: ExamLevel): GeneratedExam {
-  const groups = getExamGroups(examLevel)
+export async function generateExam(examLevel: ExamLevel): Promise<GeneratedExam> {
+  const groups = await getExamGroups(examLevel)
   const questions: ExamQuestion[] = []
 
   // Select one random question from each group
   for (let i = 0; i < groups.length; i++) {
     const group = groups[i]
-    const groupQuestions = getQuestionsForGroup(examLevel, group)
+    const groupQuestions = await getQuestionsForGroup(examLevel, group)
 
     if (groupQuestions.length > 0) {
       // Random selection
@@ -151,14 +154,14 @@ export function calculateExamResult(
 /**
  * Get exam configuration for an exam level
  */
-export function getExamConfig(examLevel: ExamLevel): {
+export async function getExamConfig(examLevel: ExamLevel): Promise<{
   totalQuestions: number
   passingScore: number
   passingPercentage: number
   timeLimit: number
   groups: string[]
-} {
-  const groups = getExamGroups(examLevel)
+}> {
+  const groups = await getExamGroups(examLevel)
 
   return {
     totalQuestions: groups.length, // Should be 35

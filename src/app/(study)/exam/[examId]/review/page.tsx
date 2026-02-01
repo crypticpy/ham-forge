@@ -65,7 +65,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
         setAttempt(examAttempt)
 
         // Load questions from pool
-        const pool = getQuestionPool(examAttempt.examLevel)
+        const pool = await getQuestionPool(examAttempt.examLevel)
         const poolMap = new Map(pool.map((q) => [q.id, q]))
 
         const questions: ReviewQuestion[] = examAttempt.answers
@@ -103,13 +103,18 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
     // Get incorrect question IDs
     const incorrectIds = attempt.answers.filter((a) => !a.correct).map((a) => a.questionId)
 
+    // Get unique subelements from incorrect questions
+    const incorrectSubelements = [...new Set(incorrectIds.map((id) => id.substring(0, 2)))]
+
     // Store in session storage for practice mode
     sessionStorage.setItem(
       'practiceConfig',
       JSON.stringify({
         examLevel: attempt.examLevel,
         questionCount: incorrectIds.length,
-        questionIds: incorrectIds, // Custom filter
+        subelements: incorrectSubelements, // Required field
+        status: ['new', 'learning', 'review', 'mastered'], // Required field - include all
+        questionIds: incorrectIds, // Specific questions to practice
         shuffleAnswers: true,
         showExplanations: true,
       })

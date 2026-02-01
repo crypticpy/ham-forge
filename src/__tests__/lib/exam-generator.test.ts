@@ -18,27 +18,27 @@ import { createMockQuestion, createMockExamAnswers } from '../utils'
 
 describe('exam-generator', () => {
   describe('getExamGroups()', () => {
-    it('returns 35 groups for technician exam', () => {
-      const groups = getExamGroups('technician')
+    it('returns 35 groups for technician exam', async () => {
+      const groups = await getExamGroups('technician')
 
       expect(groups).toHaveLength(35)
     })
 
-    it('returns 35 groups for general exam', () => {
-      const groups = getExamGroups('general')
+    it('returns 35 groups for general exam', async () => {
+      const groups = await getExamGroups('general')
 
       expect(groups).toHaveLength(35)
     })
 
-    it('returns groups sorted alphabetically', () => {
-      const groups = getExamGroups('technician')
+    it('returns groups sorted alphabetically', async () => {
+      const groups = await getExamGroups('technician')
       const sortedGroups = [...groups].sort()
 
       expect(groups).toEqual(sortedGroups)
     })
 
-    it('returns groups in correct format (subelement + group letter)', () => {
-      const groups = getExamGroups('technician')
+    it('returns groups in correct format (subelement + group letter)', async () => {
+      const groups = await getExamGroups('technician')
 
       // Technician groups start with T
       for (const group of groups) {
@@ -46,8 +46,8 @@ describe('exam-generator', () => {
       }
     })
 
-    it('returns groups starting with G for general exam', () => {
-      const groups = getExamGroups('general')
+    it('returns groups starting with G for general exam', async () => {
+      const groups = await getExamGroups('general')
 
       // General groups start with G
       for (const group of groups) {
@@ -55,15 +55,15 @@ describe('exam-generator', () => {
       }
     })
 
-    it('returns empty array for extra exam (not yet implemented)', () => {
+    it('returns empty array for extra exam (not yet implemented)', async () => {
       // Extra pool not yet available
-      const groups = getExamGroups('extra')
+      const groups = await getExamGroups('extra')
 
       expect(groups).toHaveLength(0)
     })
 
-    it('returns unique groups with no duplicates', () => {
-      const groups = getExamGroups('technician')
+    it('returns unique groups with no duplicates', async () => {
+      const groups = await getExamGroups('technician')
       const uniqueGroups = new Set(groups)
 
       expect(uniqueGroups.size).toBe(groups.length)
@@ -71,8 +71,8 @@ describe('exam-generator', () => {
   })
 
   describe('getQuestionsForGroup()', () => {
-    it('returns questions matching the specified group', () => {
-      const questions = getQuestionsForGroup('technician', 'T1A')
+    it('returns questions matching the specified group', async () => {
+      const questions = await getQuestionsForGroup('technician', 'T1A')
 
       expect(questions.length).toBeGreaterThan(0)
 
@@ -82,20 +82,20 @@ describe('exam-generator', () => {
       }
     })
 
-    it('returns empty array for invalid group', () => {
-      const questions = getQuestionsForGroup('technician', 'INVALID')
+    it('returns empty array for invalid group', async () => {
+      const questions = await getQuestionsForGroup('technician', 'INVALID')
 
       expect(questions).toEqual([])
     })
 
-    it('returns empty array for non-existent group in valid format', () => {
-      const questions = getQuestionsForGroup('technician', 'T9Z')
+    it('returns empty array for non-existent group in valid format', async () => {
+      const questions = await getQuestionsForGroup('technician', 'T9Z')
 
       expect(questions).toEqual([])
     })
 
-    it('returns questions with correct structure', () => {
-      const questions = getQuestionsForGroup('technician', 'T1A')
+    it('returns questions with correct structure', async () => {
+      const questions = await getQuestionsForGroup('technician', 'T1A')
 
       expect(questions.length).toBeGreaterThan(0)
 
@@ -108,8 +108,8 @@ describe('exam-generator', () => {
       expect(question).toHaveProperty('correctAnswer')
     })
 
-    it('returns questions for general exam groups', () => {
-      const questions = getQuestionsForGroup('general', 'G1A')
+    it('returns questions for general exam groups', async () => {
+      const questions = await getQuestionsForGroup('general', 'G1A')
 
       expect(questions.length).toBeGreaterThan(0)
 
@@ -119,28 +119,28 @@ describe('exam-generator', () => {
       }
     })
 
-    it('returns empty array for extra exam (pool not available)', () => {
-      const questions = getQuestionsForGroup('extra', 'E1A')
+    it('returns empty array for extra exam (pool not available)', async () => {
+      const questions = await getQuestionsForGroup('extra', 'E1A')
 
       expect(questions).toEqual([])
     })
   })
 
   describe('generateExam()', () => {
-    it('generates exactly 35 questions for technician exam', () => {
-      const exam = generateExam('technician')
+    it('generates exactly 35 questions for technician exam', async () => {
+      const exam = await generateExam('technician')
 
       expect(exam.questions).toHaveLength(35)
     })
 
-    it('generates exactly 35 questions for general exam', () => {
-      const exam = generateExam('general')
+    it('generates exactly 35 questions for general exam', async () => {
+      const exam = await generateExam('general')
 
       expect(exam.questions).toHaveLength(35)
     })
 
-    it('assigns unique examIndex from 1 to 35 to each question', () => {
-      const exam = generateExam('technician')
+    it('assigns unique examIndex from 1 to 35 to each question', async () => {
+      const exam = await generateExam('technician')
       const indices = exam.questions.map((q) => q.examIndex)
 
       // Check all indices are present (1-35)
@@ -150,8 +150,8 @@ describe('exam-generator', () => {
       expect(sortedIndices).toEqual(expectedIndices)
     })
 
-    it('selects questions from different groups', () => {
-      const exam = generateExam('technician')
+    it('selects questions from different groups', async () => {
+      const exam = await generateExam('technician')
       const groups = exam.questions.map((q) => q.subelement + q.group)
       const uniqueGroups = new Set(groups)
 
@@ -159,22 +159,22 @@ describe('exam-generator', () => {
       expect(uniqueGroups.size).toBe(35)
     })
 
-    it('generates a valid exam id', () => {
-      const exam = generateExam('technician')
+    it('generates a valid exam id', async () => {
+      const exam = await generateExam('technician')
 
       expect(exam.id).toMatch(/^exam-technician-\d+-[a-z0-9]+$/)
     })
 
-    it('generates unique exam ids on multiple calls', () => {
-      const exam1 = generateExam('technician')
-      const exam2 = generateExam('technician')
+    it('generates unique exam ids on multiple calls', async () => {
+      const exam1 = await generateExam('technician')
+      const exam2 = await generateExam('technician')
 
       expect(exam1.id).not.toBe(exam2.id)
     })
 
-    it('includes createdAt timestamp as Date object', () => {
+    it('includes createdAt timestamp as Date object', async () => {
       const before = new Date()
-      const exam = generateExam('technician')
+      const exam = await generateExam('technician')
       const after = new Date()
 
       expect(exam.createdAt).toBeInstanceOf(Date)
@@ -182,29 +182,29 @@ describe('exam-generator', () => {
       expect(exam.createdAt.getTime()).toBeLessThanOrEqual(after.getTime())
     })
 
-    it('sets timeLimit to 60 minutes', () => {
-      const exam = generateExam('technician')
+    it('sets timeLimit to 60 minutes', async () => {
+      const exam = await generateExam('technician')
 
       expect(exam.timeLimit).toBe(60)
     })
 
-    it('sets passingScore to 26', () => {
-      const exam = generateExam('technician')
+    it('sets passingScore to 26', async () => {
+      const exam = await generateExam('technician')
 
       expect(exam.passingScore).toBe(26)
     })
 
-    it('includes correct examLevel in generated exam', () => {
-      const techExam = generateExam('technician')
-      const generalExam = generateExam('general')
+    it('includes correct examLevel in generated exam', async () => {
+      const techExam = await generateExam('technician')
+      const generalExam = await generateExam('general')
 
       expect(techExam.examLevel).toBe('technician')
       expect(generalExam.examLevel).toBe('general')
     })
 
-    it('generates different questions on subsequent calls (randomness)', () => {
+    it('generates different questions on subsequent calls (randomness)', async () => {
       // Generate multiple exams and check that they're not all identical
-      const exams = Array.from({ length: 5 }, () => generateExam('technician'))
+      const exams = await Promise.all(Array.from({ length: 5 }, () => generateExam('technician')))
       const questionIdSets = exams.map((e) => e.questions.map((q) => q.id).join(','))
       const uniqueSets = new Set(questionIdSets)
 
@@ -213,8 +213,8 @@ describe('exam-generator', () => {
       expect(uniqueSets.size).toBeGreaterThanOrEqual(1)
     })
 
-    it('each question has all required ExamQuestion properties', () => {
-      const exam = generateExam('technician')
+    it('each question has all required ExamQuestion properties', async () => {
+      const exam = await generateExam('technician')
 
       for (const question of exam.questions) {
         expect(question).toHaveProperty('id')
@@ -467,53 +467,53 @@ describe('exam-generator', () => {
   })
 
   describe('getExamConfig()', () => {
-    it('returns correct totalQuestions of 35 for technician', () => {
-      const config = getExamConfig('technician')
+    it('returns correct totalQuestions of 35 for technician', async () => {
+      const config = await getExamConfig('technician')
 
       expect(config.totalQuestions).toBe(35)
     })
 
-    it('returns correct totalQuestions of 35 for general', () => {
-      const config = getExamConfig('general')
+    it('returns correct totalQuestions of 35 for general', async () => {
+      const config = await getExamConfig('general')
 
       expect(config.totalQuestions).toBe(35)
     })
 
-    it('returns correct passingScore of 26', () => {
-      const config = getExamConfig('technician')
+    it('returns correct passingScore of 26', async () => {
+      const config = await getExamConfig('technician')
 
       expect(config.passingScore).toBe(26)
     })
 
-    it('returns correct passingPercentage of 74', () => {
-      const config = getExamConfig('technician')
+    it('returns correct passingPercentage of 74', async () => {
+      const config = await getExamConfig('technician')
 
       expect(config.passingPercentage).toBe(74)
     })
 
-    it('returns correct timeLimit of 60 minutes', () => {
-      const config = getExamConfig('technician')
+    it('returns correct timeLimit of 60 minutes', async () => {
+      const config = await getExamConfig('technician')
 
       expect(config.timeLimit).toBe(60)
     })
 
-    it('includes groups array with 35 groups for technician', () => {
-      const config = getExamConfig('technician')
+    it('includes groups array with 35 groups for technician', async () => {
+      const config = await getExamConfig('technician')
 
       expect(config.groups).toHaveLength(35)
       expect(Array.isArray(config.groups)).toBe(true)
     })
 
-    it('includes groups array with 35 groups for general', () => {
-      const config = getExamConfig('general')
+    it('includes groups array with 35 groups for general', async () => {
+      const config = await getExamConfig('general')
 
       expect(config.groups).toHaveLength(35)
       expect(Array.isArray(config.groups)).toBe(true)
     })
 
-    it('returns consistent config values across multiple calls', () => {
-      const config1 = getExamConfig('technician')
-      const config2 = getExamConfig('technician')
+    it('returns consistent config values across multiple calls', async () => {
+      const config1 = await getExamConfig('technician')
+      const config2 = await getExamConfig('technician')
 
       expect(config1.totalQuestions).toBe(config2.totalQuestions)
       expect(config1.passingScore).toBe(config2.passingScore)
@@ -522,25 +522,25 @@ describe('exam-generator', () => {
       expect(config1.groups).toEqual(config2.groups)
     })
 
-    it('returns 0 totalQuestions for extra exam (not yet available)', () => {
-      const config = getExamConfig('extra')
+    it('returns 0 totalQuestions for extra exam (not yet available)', async () => {
+      const config = await getExamConfig('extra')
 
       expect(config.totalQuestions).toBe(0)
       expect(config.groups).toHaveLength(0)
     })
 
-    it('groups match what getExamGroups returns', () => {
-      const config = getExamConfig('technician')
-      const groups = getExamGroups('technician')
+    it('groups match what getExamGroups returns', async () => {
+      const config = await getExamConfig('technician')
+      const groups = await getExamGroups('technician')
 
       expect(config.groups).toEqual(groups)
     })
   })
 
   describe('integration scenarios', () => {
-    it('complete exam flow: generate, answer, calculate results', () => {
+    it('complete exam flow: generate, answer, calculate results', async () => {
       // Generate an exam
-      const exam = generateExam('technician')
+      const exam = await generateExam('technician')
       expect(exam.questions).toHaveLength(35)
 
       // Simulate answering all questions correctly
@@ -557,8 +557,8 @@ describe('exam-generator', () => {
       expect(result.correctCount).toBe(35)
     })
 
-    it('generates valid exam with real question pool data', () => {
-      const exam = generateExam('technician')
+    it('generates valid exam with real question pool data', async () => {
+      const exam = await generateExam('technician')
 
       // Verify all questions have valid structure
       for (const question of exam.questions) {
@@ -570,9 +570,9 @@ describe('exam-generator', () => {
       }
     })
 
-    it('config matches generated exam properties', () => {
-      const config = getExamConfig('technician')
-      const exam = generateExam('technician')
+    it('config matches generated exam properties', async () => {
+      const config = await getExamConfig('technician')
+      const exam = await generateExam('technician')
 
       expect(exam.questions.length).toBe(config.totalQuestions)
       expect(exam.passingScore).toBe(config.passingScore)

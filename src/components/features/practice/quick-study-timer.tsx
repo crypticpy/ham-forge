@@ -75,6 +75,10 @@ export function QuickStudyTimer({
 
   return (
     <div
+      role="timer"
+      aria-label={`Time remaining: ${formatTime(remainingSeconds)}`}
+      aria-live={isCritical ? 'assertive' : 'off'}
+      aria-atomic="true"
       className={cn(
         'flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
         isNormal && 'bg-muted text-muted-foreground',

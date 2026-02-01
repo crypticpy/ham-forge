@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { getLocalDateString, getYesterdayDateString } from '@/lib/date-utils'
 
 interface SectionQuizResult {
   passed: boolean
@@ -69,24 +70,27 @@ export const useProgressStore = create<ProgressState>()(
       sectionQuizResults: {},
 
       recordStudyDay: () => {
-        const today = new Date().toISOString().split('T')[0]
+        const today = getLocalDateString()
         const { lastStudyDate, currentStreak, longestStreak } = get()
 
-        if (lastStudyDate === today) return // Already recorded today
+        // Already studied today
+        if (lastStudyDate === today) return
 
-        const yesterday = new Date()
-        yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayStr = yesterday.toISOString().split('T')[0]
+        const yesterday = getYesterdayDateString()
 
-        let newStreak = 1
-        if (lastStudyDate === yesterdayStr) {
+        let newStreak: number
+        if (lastStudyDate === yesterday) {
+          // Continuing streak
           newStreak = currentStreak + 1
+        } else {
+          // Streak broken or first day
+          newStreak = 1
         }
 
         set({
-          currentStreak: newStreak,
-          longestStreak: Math.max(newStreak, longestStreak),
           lastStudyDate: today,
+          currentStreak: newStreak,
+          longestStreak: Math.max(longestStreak, newStreak),
         })
       },
 

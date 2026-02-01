@@ -42,6 +42,7 @@ export function NavLinks({ className, onLinkClick }: NavLinksProps) {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
               isActive
@@ -65,7 +66,8 @@ export function NavLinks({ className, onLinkClick }: NavLinksProps) {
       >
         <span className="text-sm">☀️</span>
         <span>Propulse</span>
-        <ExternalLink className="size-3 opacity-50" />
+        <ExternalLink className="size-3 opacity-50" aria-hidden="true" />
+        <span className="sr-only">(opens in new tab)</span>
       </a>
     </nav>
   )
@@ -84,6 +86,7 @@ export function NavLinksMobile({ className, onLinkClick }: NavLinksProps) {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
               'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
               isActive
@@ -108,7 +111,8 @@ export function NavLinksMobile({ className, onLinkClick }: NavLinksProps) {
         >
           <span className="text-lg">☀️</span>
           <span>Open Propulse Dashboard</span>
-          <ExternalLink className="size-4 ml-auto" />
+          <ExternalLink className="size-4 ml-auto" aria-hidden="true" />
+          <span className="sr-only">(opens in new tab)</span>
         </a>
       </div>
     </nav>

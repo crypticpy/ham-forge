@@ -79,7 +79,7 @@ export function SubelementHeatmap({ examLevel, onSubelementClick }: SubelementHe
   const loadData = useCallback(async () => {
     setIsLoading(true)
     try {
-      const subelements = getSubelements(examLevel)
+      const subelements = await getSubelements(examLevel)
       const progressMap = await getProgressBySubelement(examLevel)
 
       const subelementData: SubelementData[] = subelements.map((code) => {

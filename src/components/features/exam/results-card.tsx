@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Confetti } from '@/components/ui/confetti'
 import { Trophy, XCircle, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -58,83 +59,92 @@ export function ExamResultsCard({
   const roundedScore = Math.round(score)
 
   return (
-    <Card
-      className={cn('w-full max-w-md mx-auto overflow-hidden', {
-        'border-green-500 dark:border-green-600': passed,
-        'border-red-500 dark:border-red-600': !passed,
-      })}
-    >
-      {/* Header with pass/fail indicator */}
-      <div
-        className={cn('py-6 text-center', {
-          'bg-green-50 dark:bg-green-950/30': passed,
-          'bg-red-50 dark:bg-red-950/30': !passed,
+    <>
+      <Confetti active={passed} />
+      <Card
+        className={cn('w-full max-w-md mx-auto overflow-hidden', {
+          'border-green-500 dark:border-green-600': passed,
+          'border-red-500 dark:border-red-600': !passed,
         })}
       >
-        {passed ? (
-          <Trophy
-            className="mx-auto size-16 text-green-600 dark:text-green-500"
-            aria-hidden="true"
-          />
-        ) : (
-          <XCircle className="mx-auto size-16 text-red-600 dark:text-red-500" aria-hidden="true" />
-        )}
-        <h2
-          className={cn('mt-3 text-2xl font-bold', {
-            'text-green-800 dark:text-green-400': passed,
-            'text-red-800 dark:text-red-400': !passed,
+        {/* Header with pass/fail indicator */}
+        <div
+          className={cn('py-6 text-center', {
+            'bg-green-50 dark:bg-green-950/30': passed,
+            'bg-red-50 dark:bg-red-950/30': !passed,
           })}
         >
-          {passed ? 'PASSED!' : 'Not Quite Yet'}
-        </h2>
-      </div>
-
-      <CardHeader className="text-center pb-2">
-        <CardTitle className="text-5xl font-bold tabular-nums">{roundedScore}%</CardTitle>
-        <CardDescription className="text-base">
-          {passed ? getPassedMessage(roundedScore) : getFailedMessage(roundedScore, passingScore)}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* Score breakdown */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 rounded-lg bg-green-50 dark:bg-green-950/20 p-3">
-            <CheckCircle className="size-5 text-green-600 dark:text-green-500" aria-hidden="true" />
-            <div>
-              <div className="text-lg font-semibold text-green-800 dark:text-green-400">
-                {correctCount}
-              </div>
-              <div className="text-xs text-green-700 dark:text-green-500">Correct</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg bg-red-50 dark:bg-red-950/20 p-3">
-            <XCircle className="size-5 text-red-600 dark:text-red-500" aria-hidden="true" />
-            <div>
-              <div className="text-lg font-semibold text-red-800 dark:text-red-400">
-                {incorrectCount}
-              </div>
-              <div className="text-xs text-red-700 dark:text-red-500">Incorrect</div>
-            </div>
-          </div>
+          {passed ? (
+            <Trophy
+              className="mx-auto size-16 text-green-600 dark:text-green-500"
+              aria-hidden="true"
+            />
+          ) : (
+            <XCircle
+              className="mx-auto size-16 text-red-600 dark:text-red-500"
+              aria-hidden="true"
+            />
+          )}
+          <h2
+            className={cn('mt-3 text-2xl font-bold', {
+              'text-green-800 dark:text-green-400': passed,
+              'text-red-800 dark:text-red-400': !passed,
+            })}
+          >
+            {passed ? 'PASSED!' : 'Not Quite Yet'}
+          </h2>
         </div>
 
-        {/* Passing requirement info */}
-        <div className="rounded-lg bg-muted p-3 text-center text-sm">
-          <span className="text-muted-foreground">Passing requires </span>
-          <span className="font-medium">
-            {passingScore}/{totalQuestions}
-          </span>
-          <span className="text-muted-foreground"> correct answers</span>
-        </div>
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="text-5xl font-bold tabular-nums">{roundedScore}%</CardTitle>
+          <CardDescription className="text-base">
+            {passed ? getPassedMessage(roundedScore) : getFailedMessage(roundedScore, passingScore)}
+          </CardDescription>
+        </CardHeader>
 
-        {/* Time taken */}
-        {timeTaken !== undefined && (
-          <div className="text-center text-sm text-muted-foreground">
-            Time taken: <span className="font-medium">{formatTime(timeTaken)}</span>
+        <CardContent className="space-y-4">
+          {/* Score breakdown */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 rounded-lg bg-green-50 dark:bg-green-950/20 p-3">
+              <CheckCircle
+                className="size-5 text-green-600 dark:text-green-500"
+                aria-hidden="true"
+              />
+              <div>
+                <div className="text-lg font-semibold text-green-800 dark:text-green-400">
+                  {correctCount}
+                </div>
+                <div className="text-xs text-green-700 dark:text-green-500">Correct</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg bg-red-50 dark:bg-red-950/20 p-3">
+              <XCircle className="size-5 text-red-600 dark:text-red-500" aria-hidden="true" />
+              <div>
+                <div className="text-lg font-semibold text-red-800 dark:text-red-400">
+                  {incorrectCount}
+                </div>
+                <div className="text-xs text-red-700 dark:text-red-500">Incorrect</div>
+              </div>
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Passing requirement info */}
+          <div className="rounded-lg bg-muted p-3 text-center text-sm">
+            <span className="text-muted-foreground">Passing requires </span>
+            <span className="font-medium">
+              {passingScore}/{totalQuestions}
+            </span>
+            <span className="text-muted-foreground"> correct answers</span>
+          </div>
+
+          {/* Time taken */}
+          {timeTaken !== undefined && (
+            <div className="text-center text-sm text-muted-foreground">
+              Time taken: <span className="font-medium">{formatTime(timeTaken)}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </>
   )
 }

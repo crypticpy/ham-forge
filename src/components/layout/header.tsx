@@ -35,11 +35,51 @@ export function Header() {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false)
+        // Return focus to the toggle button
+        const toggleButton = document.querySelector('[aria-controls="mobile-menu"]') as HTMLElement
+        toggleButton?.focus()
       }
     }
 
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
+  }, [mobileMenuOpen])
+
+  // Focus trap when mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+
+    // Get all focusable elements in the mobile menu
+    const menu = document.getElementById('mobile-menu')
+    if (!menu) return
+
+    const focusableElements = menu.querySelectorAll(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    const firstElement = focusableElements[0] as HTMLElement
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+
+    // Focus first element when menu opens
+    firstElement?.focus()
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleTabKey)
+    return () => document.removeEventListener('keydown', handleTabKey)
   }, [mobileMenuOpen])
 
   return (
@@ -64,6 +104,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 pathname === link.href
@@ -85,7 +126,8 @@ export function Header() {
           >
             <span className="text-sm">☀️</span>
             <span>Propulse</span>
-            <ExternalLink className="size-3 opacity-50" />
+            <ExternalLink className="size-3 opacity-50" aria-hidden="true" />
+            <span className="sr-only">(opens in new tab)</span>
           </a>
         </nav>
 
@@ -123,6 +165,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
                 pathname === link.href
@@ -146,7 +189,8 @@ export function Header() {
             >
               <span className="text-lg">☀️</span>
               <span>Open Propulse Dashboard</span>
-              <ExternalLink className="size-4 ml-auto" />
+              <ExternalLink className="size-4 ml-auto" aria-hidden="true" />
+              <span className="sr-only">(opens in new tab)</span>
             </a>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -111,28 +111,59 @@ export function FilterPanel({
   onFlaggedOnlyChange,
 }: FilterPanelProps) {
   const subelements = examLevel === 'technician' ? TECHNICIAN_SUBELEMENTS : GENERAL_SUBELEMENTS
+  const [availableGroups, setAvailableGroups] = useState<string[]>([])
+  const [groupsCache, setGroupsCache] = useState<Map<string, string[]>>(new Map())
 
-  // Get available groups for selected subelements
-  const availableGroups = useMemo(() => {
-    if (selectedSubelements.length === 0) return []
-    const groups: string[] = []
-    for (const sub of selectedSubelements) {
-      groups.push(...getGroupsForSubelement(examLevel, sub))
-    }
-    return groups.sort()
-  }, [examLevel, selectedSubelements])
+  // Load available groups when selected subelements change
+  useEffect(() => {
+    async function loadGroups() {
+      if (selectedSubelements.length === 0) {
+        setAvailableGroups([])
+        return
+      }
 
-  const toggleSubelement = (id: string) => {
-    if (selectedSubelements.includes(id)) {
-      // When removing a subelement, also remove its groups from selection
-      const groupsToRemove = getGroupsForSubelement(examLevel, id)
-      const newGroups = selectedGroups.filter((g) => !groupsToRemove.includes(g))
-      onGroupsChange(newGroups)
-      onSubelementsChange(selectedSubelements.filter((s) => s !== id))
-    } else {
-      onSubelementsChange([...selectedSubelements, id])
+      const allGroups: string[] = []
+      const newCache = new Map(groupsCache)
+
+      for (const sub of selectedSubelements) {
+        // Use cached groups if available
+        if (newCache.has(sub)) {
+          allGroups.push(...newCache.get(sub)!)
+        } else {
+          const groups = await getGroupsForSubelement(examLevel, sub)
+          newCache.set(sub, groups)
+          allGroups.push(...groups)
+        }
+      }
+
+      setGroupsCache(newCache)
+      setAvailableGroups(allGroups.sort())
     }
-  }
+
+    loadGroups()
+  }, [examLevel, selectedSubelements, groupsCache])
+
+  const toggleSubelement = useCallback(
+    async (id: string) => {
+      if (selectedSubelements.includes(id)) {
+        // When removing a subelement, also remove its groups from selection
+        const groupsToRemove = groupsCache.get(id) || (await getGroupsForSubelement(examLevel, id))
+        const newGroups = selectedGroups.filter((g) => !groupsToRemove.includes(g))
+        onGroupsChange(newGroups)
+        onSubelementsChange(selectedSubelements.filter((s) => s !== id))
+      } else {
+        onSubelementsChange([...selectedSubelements, id])
+      }
+    },
+    [
+      selectedSubelements,
+      selectedGroups,
+      groupsCache,
+      examLevel,
+      onGroupsChange,
+      onSubelementsChange,
+    ]
+  )
 
   const toggleGroup = (groupId: string) => {
     if (selectedGroups.includes(groupId)) {
@@ -198,8 +229,9 @@ export function FilterPanel({
               <button
                 key={sub.id}
                 onClick={() => toggleSubelement(sub.id)}
+                aria-pressed={selectedSubelements.includes(sub.id)}
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                  'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors touch-manipulation min-h-[44px]',
                   'border hover:bg-accent',
                   selectedSubelements.includes(sub.id)
                     ? 'border-primary bg-primary/10 text-primary'
@@ -236,8 +268,9 @@ export function FilterPanel({
                 <button
                   key={groupId}
                   onClick={() => toggleGroup(groupId)}
+                  aria-pressed={selectedGroups.includes(groupId)}
                   className={cn(
-                    'inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                    'inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-colors touch-manipulation min-h-[44px]',
                     'border hover:bg-accent',
                     selectedGroups.includes(groupId)
                       ? 'border-primary bg-primary/10 text-primary'
@@ -278,8 +311,9 @@ export function FilterPanel({
               <button
                 key={status.id}
                 onClick={() => toggleStatus(status.id)}
+                aria-pressed={selectedStatus.includes(status.id)}
                 className={cn(
-                  'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                  'inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors touch-manipulation min-h-[44px]',
                   'border hover:bg-accent',
                   selectedStatus.includes(status.id)
                     ? 'border-primary bg-primary/10 text-primary'

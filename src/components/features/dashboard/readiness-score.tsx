@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Info, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -77,6 +78,7 @@ function getExamLevelLabel(examLevel: ExamLevel): string {
 }
 
 export function ReadinessScore({ examLevel, stats }: ReadinessScoreProps) {
+  const [showTooltip, setShowTooltip] = useState(false)
   const score = calculateReadinessScore(stats)
   const status = getReadinessStatus(score)
 
@@ -96,16 +98,28 @@ export function ReadinessScore({ examLevel, stats }: ReadinessScoreProps) {
             <Target className="size-4" aria-hidden="true" />
             Exam Readiness
           </CardTitle>
-          <div className="group relative">
+          <div className="relative">
             <button
               type="button"
               className="rounded-full p-1 hover:bg-muted transition-colors"
               aria-label="How is readiness calculated?"
+              aria-describedby="readiness-tooltip"
+              onFocus={() => setShowTooltip(true)}
+              onBlur={() => setShowTooltip(false)}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
             >
               <Info className="size-4 text-muted-foreground" aria-hidden="true" />
             </button>
             {/* Tooltip */}
-            <div className="absolute right-0 top-full mt-2 z-10 hidden group-hover:block w-64 rounded-lg bg-popover border p-3 text-xs text-popover-foreground shadow-lg">
+            <div
+              id="readiness-tooltip"
+              role="tooltip"
+              className={cn(
+                'absolute right-0 top-full mt-2 z-10 w-64 rounded-lg bg-popover border p-3 text-xs text-popover-foreground shadow-lg',
+                showTooltip ? 'block' : 'hidden'
+              )}
+            >
               <p className="font-medium mb-2">Readiness Score Calculation:</p>
               <ul className="space-y-1 text-muted-foreground">
                 <li>

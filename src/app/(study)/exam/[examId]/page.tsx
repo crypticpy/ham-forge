@@ -179,11 +179,7 @@ export default function ExamSessionPage() {
     <div className="container mx-auto max-w-3xl py-4 px-4">
       {/* Top bar: Timer and Progress */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <ExamTimer
-          initialMinutes={Math.ceil(timeRemaining / 60)}
-          onTimeUp={handleTimeUp}
-          showControls={false}
-        />
+        <ExamTimer timeRemaining={timeRemaining} onTimeUp={handleTimeUp} />
         <div className="flex-1 max-w-md">
           <ExamProgress
             current={currentIndex + 1}
