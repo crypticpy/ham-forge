@@ -16,13 +16,77 @@ export const radioWavePropagationModule: LearningModule = {
     {
       id: 'T3A',
       title: 'Propagation Characteristics',
-      content: `Understanding how VHF and UHF signals propagate is essential for effective amateur radio communication. Unlike HF signals, which can bounce off the ionosphere for long-distance contacts, VHF and UHF signals typically travel in straight lines and are limited to line-of-sight distances. However, various atmospheric and environmental factors can significantly affect signal quality and range.
+      content: `# VHF/UHF Propagation Characteristics
 
-One of the most common phenomena affecting VHF signals is multipath propagation. When a signal travels from transmitter to receiver via multiple paths (direct, reflected off buildings, bounced off terrain), these signals can arrive at slightly different times and phases. When they combine at the receiver, they may either reinforce each other (making the signal stronger) or cancel each other out (causing signal loss). This is why VHF signal strengths can vary dramatically when you move your antenna just a few feet. Mobile operators experience this as "picket fencing"—a rapid flutter in signal strength as the vehicle moves through alternating zones of reinforcement and cancellation.
+Understanding how VHF and UHF signals propagate is essential for effective amateur radio communication.
 
-Environmental factors also play a significant role in VHF and UHF propagation. Vegetation absorbs UHF and microwave signals, reducing range in wooded areas. Rain and precipitation can decrease range at microwave frequencies through absorption. However, fog and rain have little effect on signals in the 10-meter and 6-meter bands. When direct line-of-sight paths are blocked by buildings or terrain, operators can sometimes find alternative paths by reflecting signals off nearby structures—a technique that requires experimentation with directional antennas.
+:::info Key Concept
+Unlike HF signals that bounce off the ionosphere for long-distance contacts, **VHF and UHF signals typically travel in straight lines** and are limited to line-of-sight distances.
+:::
 
-Antenna polarization is another critical consideration for VHF and UHF communications. For long-distance CW and SSB contacts (weak signal work), horizontal polarization is standard because it typically experiences less man-made noise. When antennas at opposite ends of a link use different polarizations, received signal strength is significantly reduced—potentially by 20 dB or more. For FM operations through repeaters, vertical polarization is the norm. The ionosphere can affect polarization as well: signals that travel through the ionosphere become elliptically polarized, meaning either vertically or horizontally polarized antennas can be used effectively for reception.`,
+---
+
+## Multipath Propagation
+
+When a signal travels from transmitter to receiver via multiple paths, the signals can arrive at different times and phases.
+
+| Path Type | Description |
+|-----------|-------------|
+| **Direct** | Straight line from transmitter to receiver |
+| **Reflected** | Bounced off buildings or structures |
+| **Ground Bounce** | Reflected from terrain or ground |
+
+### Signal Combination Effects
+
+- **Reinforcement**: Signals arrive in phase, making the signal stronger
+- **Cancellation**: Signals arrive out of phase, causing signal loss
+
+:::tip Practical Tip
+Moving your antenna just a few feet can dramatically change signal strength due to multipath effects.
+:::
+
+---
+
+## Picket Fencing Effect
+
+:::definition Picket Fencing
+A rapid flutter in signal strength experienced by mobile operators as the vehicle moves through alternating zones of signal reinforcement and cancellation caused by multipath propagation.
+:::
+
+---
+
+## Environmental Factors
+
+| Factor | Effect on Signals |
+|--------|-------------------|
+| **Vegetation** | Absorbs UHF and microwave signals, reducing range in wooded areas |
+| **Rain/Precipitation** | Decreases range at microwave frequencies through absorption |
+| **Fog** | Little effect on 10-meter and 6-meter bands |
+| **Buildings/Terrain** | Block direct paths; may allow reflection paths |
+
+:::warning Important
+When direct line-of-sight paths are blocked, try reflecting signals off nearby structures using directional antennas.
+:::
+
+---
+
+## Antenna Polarization
+
+Polarization matching between transmit and receive antennas is critical for VHF/UHF communications.
+
+| Application | Standard Polarization | Reason |
+|-------------|----------------------|--------|
+| **Weak Signal (CW/SSB)** | Horizontal | Less man-made noise |
+| **FM Repeaters** | Vertical | Mobile convenience |
+| **Satellite** | Circular | Overcomes ionospheric effects |
+
+:::radio Polarization Mismatch
+When antennas at opposite ends use different polarizations, received signal strength can be reduced by **20 dB or more**.
+:::
+
+### Ionospheric Polarization Effects
+
+Signals traveling through the ionosphere become **elliptically polarized**, meaning either vertically or horizontally polarized antennas can be used effectively for reception.`,
       keyPoints: [
         'VHF/UHF signals are primarily line-of-sight; range limited by horizon',
         'Multipath propagation causes signal variations—moving antenna a few feet can dramatically change signal strength',
@@ -48,13 +112,83 @@ Antenna polarization is another critical consideration for VHF and UHF communica
     {
       id: 'T3B',
       title: 'Radio Wave Characteristics',
-      content: `Radio waves are a form of electromagnetic radiation, consisting of two components: electric and magnetic fields. These fields are perpendicular to each other (at right angles) and both are perpendicular to the direction the wave travels. Understanding these fundamental properties helps operators make better decisions about antennas, frequencies, and operating techniques.
+      content: `# Radio Wave Characteristics
 
-Radio waves travel through free space at the speed of light—approximately 300,000,000 meters per second (or about 186,000 miles per second). This velocity is constant for all radio frequencies in a vacuum, though waves slow slightly when passing through the atmosphere or other media. The relationship between a wave's frequency and wavelength is inverse: as frequency increases, wavelength gets shorter. This relationship is expressed by a simple formula: wavelength in meters equals 300 divided by frequency in megahertz. For example, the 2-meter band has a center frequency around 146 MHz (300/146 = approximately 2 meters).
+Radio waves are a form of electromagnetic radiation with unique properties that every amateur radio operator should understand.
 
-The polarization of a radio wave is defined by the orientation of its electric field. A vertically polarized wave has its electric field oriented vertically, while a horizontally polarized wave has its electric field oriented horizontally. Circular polarization (both right-hand and left-hand) involves the electric field rotating as the wave propagates, commonly used in satellite communications to overcome polarization changes. Amateur radio bands are often identified by their approximate wavelength in meters—hence names like the 2-meter band (144-148 MHz), 70-centimeter band (420-450 MHz), and 10-meter band (28-29.7 MHz).
+---
 
-Understanding frequency ranges is fundamental to amateur radio. The High Frequency (HF) range spans 3 to 30 MHz and is known for long-distance ionospheric propagation. Very High Frequency (VHF) covers 30 to 300 MHz and includes popular bands like 6 meters and 2 meters. Ultra High Frequency (UHF) spans 300 to 3000 MHz and includes the 70-centimeter band. Generally, lower frequencies have longer wavelengths and better ability to follow the Earth's curvature or reflect from the ionosphere, while higher frequencies provide more bandwidth but typically require line-of-sight paths.`,
+## Electromagnetic Wave Structure
+
+:::definition Electromagnetic Waves
+Radio waves consist of two perpendicular components: **electric** and **magnetic** fields. Both fields are also perpendicular to the direction of wave travel.
+:::
+
+| Component | Orientation |
+|-----------|-------------|
+| Electric Field | Perpendicular to magnetic field |
+| Magnetic Field | Perpendicular to electric field |
+| Wave Direction | Perpendicular to both fields |
+
+---
+
+## Speed of Radio Waves
+
+:::info Speed of Light
+Radio waves travel through free space at the **speed of light**:
+- **300,000,000 meters per second**
+- Approximately 186,000 miles per second
+:::
+
+This velocity is constant for all radio frequencies in a vacuum, though waves slow slightly when passing through the atmosphere.
+
+---
+
+## Wavelength and Frequency Relationship
+
+The relationship between frequency and wavelength is **inverse**: as frequency increases, wavelength gets shorter.
+
+:::tip Formula to Remember
+**Wavelength (meters) = 300 ÷ Frequency (MHz)**
+:::
+
+### Common Amateur Band Examples
+
+| Band Name | Frequency Range | Approximate Wavelength |
+|-----------|----------------|----------------------|
+| 10 meters | 28-29.7 MHz | ~10 meters |
+| 6 meters | 50-54 MHz | ~6 meters |
+| 2 meters | 144-148 MHz | ~2 meters |
+| 70 cm | 420-450 MHz | ~70 centimeters |
+
+---
+
+## Wave Polarization
+
+:::definition Polarization
+The polarization of a radio wave is defined by the **orientation of its electric field**.
+:::
+
+| Polarization Type | Electric Field Orientation | Common Use |
+|-------------------|---------------------------|------------|
+| **Vertical** | Up and down | FM mobile/portable |
+| **Horizontal** | Side to side | Weak signal work |
+| **Circular (RHCP/LHCP)** | Rotating as wave propagates | Satellite communications |
+
+---
+
+## Frequency Range Classifications
+
+| Range | Abbreviation | Frequency Span | Characteristics |
+|-------|--------------|----------------|-----------------|
+| **High Frequency** | HF | 3-30 MHz | Long-distance ionospheric propagation |
+| **Very High Frequency** | VHF | 30-300 MHz | Line-of-sight, includes 6m and 2m bands |
+| **Ultra High Frequency** | UHF | 300-3000 MHz | Line-of-sight, includes 70cm band |
+
+:::radio General Rule
+- **Lower frequencies** = longer wavelengths, better at following Earth's curvature or reflecting from ionosphere
+- **Higher frequencies** = more bandwidth available, typically require line-of-sight paths
+:::`,
       keyPoints: [
         'Radio waves have electric and magnetic fields at right angles to each other',
         'Radio waves travel at the speed of light: 300,000,000 meters per second',
@@ -75,17 +209,126 @@ Understanding frequency ranges is fundamental to amateur radio. The High Frequen
         'T3B10',
         'T3B11',
       ],
+      interactiveComponents: ['frequency-wavelength-converter'],
     },
     {
       id: 'T3C',
       title: 'Propagation Modes',
-      content: `While VHF and UHF signals are typically limited to line-of-sight distances, several propagation modes can extend their range dramatically under the right conditions. Understanding these modes helps operators recognize opportunities for long-distance contacts and explains why signals sometimes travel much farther than expected.
+      content: `# Propagation Modes
 
-The ionosphere—a layer of the atmosphere ionized by solar radiation—is the key to long-distance HF propagation. The ionosphere can refract (bend) HF and VHF radio waves back toward Earth, allowing signals to skip over the horizon. This is why HF communication differs fundamentally from VHF/UHF: long-distance ionospheric propagation is far more common on HF. During periods of high sunspot activity, even 6-meter and 10-meter signals can propagate via the ionosphere's F region, with the best conditions occurring from dawn to shortly after sunset. However, UHF signals are generally not refracted by the ionosphere, which is why simplex UHF signals are rarely heard beyond the radio horizon.
+While VHF and UHF signals are typically limited to line-of-sight distances, several propagation modes can extend their range dramatically under the right conditions.
 
-Sporadic E (Es) propagation is one of the most exciting modes for VHF operators. This occurs when patches of intense ionization form in the E layer of the ionosphere, typically during late spring and early summer. Sporadic E can produce strong signals on 10, 6, and 2 meters from stations hundreds or even thousands of miles away. Unlike normal F-layer propagation, sporadic E can occur regardless of the sunspot cycle and often appears suddenly. Meteor scatter is another fascinating mode, where radio signals bounce off the ionized trails left by meteors entering the atmosphere. The 6-meter band is best suited for meteor scatter communication because signals at this frequency reflect well from meteor trails while still having reasonable antenna sizes.
+---
 
-Tropospheric ducting occurs when temperature inversions in the lower atmosphere create a "duct" that can channel VHF and UHF signals over distances of 300 miles or more on a regular basis. This is the most common mode for extended-range VHF/UHF contacts. The radio horizon for VHF and UHF signals is actually more distant than the visual horizon because the atmosphere slightly refracts radio waves. Knife-edge diffraction allows signals to bend around sharp obstacles like mountain ridges or building edges, enabling communication when there's no direct line-of-sight path. Auroral backscatter provides another propagation mode, though signals received via this path are typically distorted with considerable variation in signal strength.`,
+## Ionospheric Propagation
+
+:::definition The Ionosphere
+A layer of the atmosphere ionized by solar radiation that can refract (bend) radio waves back toward Earth, allowing signals to skip over the horizon.
+:::
+
+### HF vs VHF/UHF Ionospheric Behavior
+
+| Frequency Range | Ionospheric Effect |
+|-----------------|-------------------|
+| **HF (3-30 MHz)** | Regular long-distance propagation via ionosphere |
+| **VHF (6m, 10m)** | Possible during high sunspot activity |
+| **UHF** | Generally passes through without reflection |
+
+:::info Best Conditions
+F-region ionospheric propagation on 6m and 10m works best from **dawn to shortly after sunset** during periods of high sunspot activity.
+:::
+
+:::warning UHF Limitation
+Simplex UHF signals are rarely heard beyond the radio horizon because UHF waves are generally not refracted by the ionosphere.
+:::
+
+---
+
+## Sporadic E Propagation
+
+:::radio Sporadic E (Es)
+One of the most exciting VHF propagation modes! Patches of intense ionization form in the E layer, typically during **late spring and early summer**.
+:::
+
+### Sporadic E Characteristics
+
+- Produces strong signals on **10, 6, and 2 meters**
+- Signals can travel hundreds or thousands of miles
+- Can occur regardless of sunspot cycle
+- Often appears suddenly and unpredictably
+
+---
+
+## Meteor Scatter
+
+:::definition Meteor Scatter
+Radio signals bounce off the **ionized trails** left by meteors entering the atmosphere, enabling brief communication windows.
+:::
+
+| Aspect | Details |
+|--------|---------|
+| **Best Band** | 6 meters |
+| **Why 6m?** | Signals reflect well from meteor trails while maintaining reasonable antenna sizes |
+| **Contact Duration** | Brief bursts (seconds to minutes) |
+
+---
+
+## Tropospheric Ducting
+
+:::tip Most Common Extended-Range Mode
+Tropospheric ducting is the most common mode for extended-range VHF/UHF contacts.
+:::
+
+### How It Works
+
+Temperature inversions in the lower atmosphere create a "duct" that channels VHF and UHF signals.
+
+| Feature | Value |
+|---------|-------|
+| **Typical Range** | 300+ miles on a regular basis |
+| **Cause** | Temperature inversions |
+| **Affected Bands** | VHF and UHF |
+
+---
+
+## Radio Horizon vs Visual Horizon
+
+:::info Extended Radio Horizon
+The radio horizon for VHF and UHF signals extends **beyond the visual horizon** because the atmosphere slightly refracts radio waves.
+:::
+
+---
+
+## Other Propagation Modes
+
+### Knife-Edge Diffraction
+
+Allows signals to bend around sharp obstacles like:
+- Mountain ridges
+- Building edges
+
+This enables communication when there's no direct line-of-sight path.
+
+### Auroral Backscatter
+
+| Characteristic | Description |
+|----------------|-------------|
+| **Signal Quality** | Typically distorted |
+| **Signal Strength** | Considerable variation |
+| **When It Occurs** | During auroral events |
+
+---
+
+## Propagation Mode Summary
+
+| Mode | Best Bands | Typical Distance | Predictability |
+|------|-----------|------------------|----------------|
+| **Line-of-Sight** | VHF/UHF | To horizon | Very reliable |
+| **Tropospheric Ducting** | VHF/UHF | 300+ miles | Moderate |
+| **Sporadic E** | 10m, 6m, 2m | 500-1500 miles | Unpredictable |
+| **Meteor Scatter** | 6m | 500-1400 miles | Predictable during showers |
+| **Ionospheric (F-layer)** | 10m, 6m | Worldwide | Solar cycle dependent |
+| **Auroral** | VHF | Variable | During auroral events |`,
       keyPoints: [
         'Ionosphere refracts HF and VHF waves; UHF signals pass through without reflection',
         'Sporadic E produces strong signals on 10, 6, and 2 meters from beyond the horizon',
@@ -106,6 +349,7 @@ Tropospheric ducting occurs when temperature inversions in the lower atmosphere 
         'T3C10',
         'T3C11',
       ],
+      interactiveComponents: ['ionosphere-visualizer'],
     },
   ],
 }

@@ -25,6 +25,23 @@ export interface LearningModule {
 }
 
 /**
+ * Interactive component types available for learning sections
+ */
+export type InteractiveComponentType =
+  | 'ohms-law-calculator'
+  | 'ionosphere-visualizer'
+  | 'phonetic-trainer'
+  | 'band-plan-explorer'
+  | 'decibel-calculator'
+  | 'frequency-wavelength-converter'
+  | 'q-code-reference'
+  | 'power-calculator'
+  | 'modulation-demo'
+  | 'circuit-identifier'
+  | 'rst-trainer'
+  | 'qso-trainer'
+
+/**
  * A learning section corresponds to an exam group (e.g., T1A, T1B)
  * and contains focused educational content on a specific topic
  */
@@ -39,4 +56,6 @@ export interface LearningSection {
   keyPoints: string[]
   /** Optional links to related question IDs in the pool */
   relatedQuestionIds?: string[]
+  /** Optional interactive components to display for this section */
+  interactiveComponents?: InteractiveComponentType[]
 }

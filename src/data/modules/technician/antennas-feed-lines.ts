@@ -16,13 +16,85 @@ export const antennasFeedLinesModule: LearningModule = {
     {
       id: 'T9A',
       title: 'Antenna Fundamentals',
-      content: `Antennas are the critical interface between your radio and the electromagnetic spectrum. The most fundamental antenna is the dipole, which consists of two quarter-wavelength elements fed at the center. A dipole oriented parallel to the Earth's surface is horizontally polarized, while a vertical antenna produces vertically polarized signals. Polarization matching between transmitting and receiving antennas is important for maximum signal transfer, especially at VHF and UHF frequencies.
+      content: `# Antenna Fundamentals
 
-A dipole radiates strongest broadside to the antenna (perpendicular to the wire), not off the ends. The length of a dipole determines its resonant frequency—shortening the antenna increases the resonant frequency, while lengthening it decreases the frequency. For a half-wavelength 6-meter dipole, the approximate length is 112 inches. A quarter-wavelength vertical antenna for 146 MHz is approximately 19 inches long.
+Antennas are the critical interface between your radio and the electromagnetic spectrum. Understanding how they work is essential for effective amateur radio operation.
 
-Beam antennas, such as the Yagi, concentrate signals in one direction rather than radiating equally in all directions. This directional property is called antenna gain—the increase in signal strength in a specified direction compared to a reference antenna. The Yagi offers the greatest gain among common amateur antennas, making it popular for weak-signal work and DXing. A 5/8-wavelength whip antenna for VHF/UHF mobile service has more gain than a 1/4-wavelength antenna because it concentrates radiation at lower angles toward the horizon.
+---
 
-Antenna loading is a technique for electrically lengthening an antenna that is physically too short for its intended frequency. This is accomplished by inserting inductors (coils) in the radiating elements. The short, flexible "rubber duck" antennas supplied with handheld transceivers have low efficiency compared to full-sized quarter-wave antennas due to their heavily loaded design and small size. Using a handheld transceiver with a flexible antenna inside a vehicle further reduces signal strength because the metal body acts as a shield.`,
+## The Dipole Antenna
+
+:::definition
+**Dipole Antenna**: The most fundamental antenna type, consisting of two quarter-wavelength elements fed at the center.
+:::
+
+**Polarization** depends on orientation:
+- **Horizontal polarization** — dipole parallel to Earth's surface
+- **Vertical polarization** — dipole perpendicular to Earth (vertical antenna)
+
+:::info
+**Polarization Matching**: For maximum signal transfer, especially at VHF/UHF frequencies, transmitting and receiving antennas should have the same polarization.
+:::
+
+---
+
+## Dipole Radiation Pattern
+
+:::radio
+A dipole radiates **strongest broadside** to the antenna (perpendicular to the wire), **not off the ends**. This creates a figure-8 radiation pattern when viewed from above.
+:::
+
+**Frequency and Length Relationship**:
+
+| Action | Effect on Resonant Frequency |
+|--------|------------------------------|
+| Shorten the antenna | Frequency **increases** |
+| Lengthen the antenna | Frequency **decreases** |
+
+---
+
+## Common Antenna Lengths
+
+:::tip
+**Quick Reference Lengths**:
+- **Half-wave 6-meter dipole**: approximately **112 inches**
+- **Quarter-wave vertical for 146 MHz**: approximately **19 inches**
+:::
+
+---
+
+## Beam Antennas and Gain
+
+:::definition
+**Antenna Gain**: The increase in signal strength in a specified direction compared to a reference antenna. Measured in dB (decibels).
+:::
+
+**Yagi Antenna Characteristics**:
+- Concentrates signals in one direction (directional)
+- Offers the **greatest gain** among common amateur antennas
+- Popular for weak-signal work and DXing
+- Consists of a driven element, reflector, and one or more directors
+
+:::info
+A **5/8-wavelength whip antenna** for VHF/UHF mobile service has more gain than a 1/4-wavelength antenna because it concentrates radiation at lower angles toward the horizon.
+:::
+
+---
+
+## Antenna Loading
+
+:::definition
+**Antenna Loading**: A technique for electrically lengthening an antenna that is physically too short for its intended frequency, accomplished by inserting inductors (coils) in the radiating elements.
+:::
+
+**"Rubber Duck" Antenna Limitations**:
+- Short, flexible antennas supplied with handheld transceivers
+- **Low efficiency** compared to full-sized quarter-wave antennas
+- Heavily loaded design and small size reduce performance
+
+:::warning
+Using a handheld transceiver with a flexible antenna **inside a vehicle** further reduces signal strength because the metal body acts as a shield.
+:::`,
       keyPoints: [
         'Dipoles radiate strongest broadside to the antenna, not off the ends',
         'Shortening a dipole increases its resonant frequency; lengthening decreases it',
@@ -48,13 +120,103 @@ Antenna loading is a technique for electrically lengthening an antenna that is p
     {
       id: 'T9B',
       title: 'Feed Lines and SWR',
-      content: `Feed lines carry RF energy between your transceiver and antenna. Coaxial cable is the most common feed line for amateur radio because it is easy to use and requires few special installation considerations. The most common impedance for coaxial cables in amateur radio is 50 ohms, which matches the output impedance of most transceivers and the feedpoint impedance of many antennas.
+      content: `# Feed Lines and SWR
 
-Standing Wave Ratio (SWR) is a measure of how well the load (antenna) is matched to the transmission line. When the antenna impedance matches the feed line impedance, all power flows to the antenna with minimal reflection. A low SWR (close to 1:1) means reduced signal loss and efficient power transfer. Erratic changes in SWR often indicate a loose connection in the antenna or feed line system. An antenna tuner (also called an antenna coupler) matches the antenna system impedance to the transceiver's output impedance, allowing operation even when the antenna is not perfectly matched.
+Feed lines carry RF energy between your transceiver and antenna. Choosing the right feed line and understanding SWR are essential for efficient station operation.
 
-Feed line loss increases as signal frequency increases. RG-213 cable has less loss than RG-58 at a given frequency, making it better suited for longer runs or higher frequencies. Air-insulated hardline has the lowest loss at VHF and UHF frequencies but is more expensive and difficult to install. Sources of loss in coaxial feed lines include water intrusion into connectors, high SWR, and multiple connectors in the line—all of which should be minimized for best performance.
+---
 
-RF connectors must be appropriate for the frequencies in use. PL-259 (also called UHF connectors, paired with SO-239 chassis connectors) are commonly used at HF and VHF frequencies due to their availability and ease of installation. However, for frequencies above 400 MHz, Type N connectors are more suitable because they maintain consistent impedance and lower loss at higher frequencies. Properly weatherproofing outdoor connections prevents water intrusion, which is a major cause of feed line degradation.`,
+## Coaxial Cable Basics
+
+:::definition
+**Coaxial Cable**: The most common feed line for amateur radio, consisting of a center conductor surrounded by insulation, a shield, and an outer jacket.
+:::
+
+**Why Coax is Popular**:
+- Easy to use and install
+- Requires few special installation considerations
+- Self-shielding design reduces interference
+
+:::info
+**Standard Impedance**: Most amateur coaxial cables are **50 ohms**, which matches the output impedance of most transceivers and the feedpoint impedance of many antennas.
+:::
+
+---
+
+## Understanding SWR
+
+:::definition
+**Standing Wave Ratio (SWR)**: A measure of how well the load (antenna) is matched to the transmission line. Expressed as a ratio (e.g., 1.5:1).
+:::
+
+| SWR Value | Meaning |
+|-----------|---------|
+| **1:1** | Perfect match — all power reaches antenna |
+| **1.5:1** | Excellent — minimal reflected power |
+| **2:1** | Acceptable — most power reaches antenna |
+| **3:1+** | Poor — significant power reflected back |
+
+:::tip
+**Low SWR** (close to 1:1) means reduced signal loss and efficient power transfer.
+:::
+
+:::warning
+**Erratic SWR Changes**: Often indicate a **loose connection** in the antenna or feed line system. Check all connections if SWR readings are unstable.
+:::
+
+---
+
+## Antenna Tuners
+
+:::definition
+**Antenna Tuner (Antenna Coupler)**: A device that matches the antenna system impedance to the transceiver's output impedance, allowing operation even when the antenna is not perfectly matched.
+:::
+
+**Key Points**:
+- Does NOT make the antenna more efficient
+- Presents an acceptable load to the transceiver
+- Allows use of antennas outside their optimal frequency range
+
+---
+
+## Feed Line Loss
+
+:::radio
+**Feed line loss increases as signal frequency increases.** Use lower-loss cable for VHF/UHF and longer cable runs.
+:::
+
+**Cable Loss Comparison** (lower is better):
+
+| Cable Type | Relative Loss | Best Use |
+|------------|---------------|----------|
+| **RG-58** | Higher loss | Short runs at HF |
+| **RG-213** | Lower loss | Longer runs, HF through VHF |
+| **Air-insulated hardline** | Lowest loss | VHF/UHF, commercial installations |
+
+**Sources of Feed Line Loss**:
+- Water intrusion into connectors
+- High SWR conditions
+- Multiple connectors in the line
+- Poor-quality or damaged cable
+
+---
+
+## RF Connectors
+
+| Connector Type | Also Known As | Best For |
+|----------------|---------------|----------|
+| **PL-259** | UHF connector (mates with SO-239) | HF and VHF frequencies |
+| **Type N** | N connector | Frequencies **above 400 MHz** |
+| **BNC** | Bayonet Neill-Concelman | Quick-connect VHF/UHF |
+| **SMA** | SubMiniature version A | Handheld radios, compact equipment |
+
+:::tip
+**Type N connectors** are preferred above 400 MHz because they maintain consistent impedance and lower loss at higher frequencies.
+:::
+
+:::warning
+**Weatherproofing**: Always weatherproof outdoor connections to prevent water intrusion, which is a major cause of feed line degradation. Use self-fusing silicone tape or commercial weatherproofing kits.
+:::`,
       keyPoints: [
         'SWR measures how well the antenna matches the feed line; low SWR means less signal loss',
         'Most amateur coaxial cable is 50 ohms impedance',

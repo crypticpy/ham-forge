@@ -16,13 +16,117 @@ export const amateurPracticesModule: LearningModule = {
     {
       id: 'T4A',
       title: 'Station Setup',
-      content: `Setting up an amateur radio station properly is essential for reliable operation and equipment longevity. A critical first consideration is power supply selection. For a typical 50-watt mobile FM transceiver, you need a power supply rated at 13.8 volts DC at approximately 12 amperes. The 13.8-volt standard matches automotive electrical systems, while the 12-amp rating provides adequate current headroom for transmitting. Using an undersized power supply leads to voltage sag during transmission, potentially causing audio distortion or transmitter shutdown.
+      content: `# Station Setup
 
-Power wiring deserves careful attention. Short, heavy-gauge wires should be used for DC power connections to minimize voltage drop when transmitting. During transmission, current draw increases dramatically, and thin or long wires create resistance that drops voltage at the radio. For mobile installations, the negative power return should connect directly to the 12-volt battery chassis ground rather than to random metal points on the vehicle. This ensures a clean, low-resistance ground path and reduces the chance of ground loops causing noise or interference.
+Setting up an amateur radio station properly is essential for reliable operation and equipment longevity. This section covers power supplies, wiring, test equipment, and digital mode connections.
 
-Test equipment is vital for maintaining your station. An SWR (Standing Wave Ratio) meter measures how well your antenna system is matched to your transmission line. When selecting an SWR meter, consider the frequency range and power level at which you will make measurements, as meters are designed for specific bands and power ranges. RF power meters should be installed in the feed line between the transmitter and antenna to accurately measure forward and reflected power. For RF bonding between equipment and ground systems, flat copper strap is preferred over round wire because it has lower inductance at radio frequencies.
+---
 
-Digital mode operation requires connecting your transceiver to a computer. For modes like FT8, the transceiver's audio input and output connect to a computer running WSJT-X software. A computer-radio interface handles three signals: receive audio (from radio to computer), transmit audio (from computer to radio), and transmitter keying (PTT control). When connecting audio, the computer's "line in" connects to the transceiver's speaker or audio output connector. Digital mode hot spots allow communication using digital voice or data systems via the internet, enabling access to DMR, D-STAR, and other networks without a local repeater. An electronic keyer is a device that assists in manual sending of Morse code by generating properly timed dots and dashes from paddle inputs. Battery operation runtime can be calculated by dividing the battery's ampere-hour rating by the average current draw of the equipment.`,
+## Power Supply Requirements
+
+:::definition
+**Power Supply Rating**: The voltage and current capacity a power supply can deliver continuously under load.
+:::
+
+For a typical **50-watt mobile FM transceiver**, you need:
+
+| Parameter | Requirement | Reason |
+|-----------|-------------|--------|
+| Voltage | 13.8 volts DC | Matches automotive electrical systems |
+| Current | ~12 amperes | Provides headroom for transmitting |
+
+:::warning
+Using an undersized power supply leads to **voltage sag** during transmission, potentially causing:
+- Audio distortion
+- Transmitter shutdown
+- Equipment damage over time
+:::
+
+---
+
+## Power Wiring Best Practices
+
+Proper power wiring is critical for reliable operation:
+
+- **Use short, heavy-gauge wires** for DC power connections to minimize voltage drop
+- During transmission, current draw increases dramatically
+- Thin or long wires create resistance that drops voltage at the radio
+
+:::tip
+For mobile installations, connect the negative power return **directly to the 12-volt battery chassis ground** rather than to random metal points on the vehicle. This ensures:
+- Clean, low-resistance ground path
+- Reduced ground loops
+- Less noise and interference
+:::
+
+---
+
+## Test Equipment
+
+### SWR Meters
+
+:::definition
+**SWR (Standing Wave Ratio)**: A measurement of how well your antenna system is matched to your transmission line. Lower is better (1:1 is perfect).
+:::
+
+When selecting an SWR meter, consider:
+- **Frequency range** - must cover your operating bands
+- **Power level** - meters are designed for specific power ranges
+
+### RF Power Meters
+
+:::info
+RF power meters should be installed **in the feed line between the transmitter and antenna** to accurately measure forward and reflected power.
+:::
+
+### RF Bonding
+
+| Material | Use Case | Why? |
+|----------|----------|------|
+| Flat copper strap | RF bonding | Lower inductance at radio frequencies |
+| Round wire | DC connections | Higher inductance, not ideal for RF |
+
+:::radio
+**Flat copper strap is preferred** over round wire for RF bonding because it has lower inductance at radio frequencies.
+:::
+
+---
+
+## Digital Mode Operation
+
+Digital modes like FT8 require connecting your transceiver to a computer.
+
+### Computer-Radio Interface Signals
+
+A computer-radio interface handles three essential signals:
+
+| Signal | Direction | Purpose |
+|--------|-----------|---------|
+| Receive audio | Radio → Computer | Decode incoming signals |
+| Transmit audio | Computer → Radio | Send modulated data |
+| PTT control | Computer → Radio | Key the transmitter |
+
+:::tip
+When connecting audio, the computer's **"line in"** connects to the transceiver's speaker or audio output connector.
+:::
+
+### Digital Hot Spots
+
+:::definition
+**Digital Hot Spot**: A device that allows communication using digital voice or data systems via the internet, enabling access to DMR, D-STAR, and other networks without a local repeater.
+:::
+
+### Other Digital Equipment
+
+- **Electronic Keyer**: Assists in manual sending of Morse code by generating properly timed dots and dashes from paddle inputs
+
+### Battery Operation
+
+:::info
+**Runtime Calculation**: Divide the battery's ampere-hour (Ah) rating by the average current draw of the equipment.
+
+Example: 20 Ah battery ÷ 2 A draw = 10 hours of operation
+:::`,
       keyPoints: [
         'A 50-watt mobile FM transceiver requires approximately 13.8 volts at 12 amperes',
         'Short, heavy-gauge wires minimize voltage drop during transmission',
@@ -48,13 +152,112 @@ Digital mode operation requires connecting your transceiver to a computer. For m
     {
       id: 'T4B',
       title: 'Operating Controls',
-      content: `Understanding your transceiver's operating controls is fundamental to effective amateur radio communication. Frequency selection can be accomplished using either the VFO (Variable Frequency Oscillator) knob for smooth tuning or the keypad for direct frequency entry. Most modern transceivers allow you to store frequently used frequencies in memory channels for quick access. The scanning function tunes through a range of frequencies or memory channels to check for activity, automatically stopping when it detects a signal.
+      content: `# Operating Controls
 
-Squelch control is essential for comfortable FM operation. The squelch circuit mutes receiver audio when no signal is present, eliminating the annoying hiss of an open receiver. To hear weak FM signals that might not break the squelch, you need to set the squelch threshold so that receiver output audio is on all the time (fully open squelch). However, if an FM receiver is tuned above or below a signal's frequency, the result is distortion of the signal's audio, not a change in pitch as you might experience with SSB.
+Understanding your transceiver's operating controls is fundamental to effective amateur radio communication. This section covers frequency selection, squelch, SSB controls, and digital mode programming.
 
-For SSB (Single Sideband) operation, additional controls become important. The RIT (Receiver Incremental Tuning), also called a Clarifier, adjusts the receive frequency slightly without changing the transmit frequency. This is useful when the voice pitch of a single-sideband signal seems too high or low, typically because the other station is slightly off frequency. Excessive microphone gain on SSB transmissions causes distorted transmitted audio, so proper adjustment is important. Multimode transceivers offer multiple receive bandwidth choices, which permit noise or interference reduction by selecting a bandwidth matching the mode. For SSB reception, a 2400 Hz filter bandwidth provides the best signal-to-noise ratio, as it matches the audio bandwidth of voice while rejecting adjacent interference.
+---
 
-Digital voice modes like DMR (Digital Mobile Radio) and D-STAR have specific programming requirements. A DMR "code plug" contains access information for repeaters and talkgroups, essentially a configuration file that tells your radio how to communicate on the DMR network. To select a specific group of stations on a digital voice transceiver, you enter the group's identification code. D-STAR transceivers must have your call sign programmed before transmitting, as the call sign is embedded in the digital data stream for identification purposes.`,
+## Frequency Selection Methods
+
+Modern transceivers offer multiple ways to select frequencies:
+
+| Method | Use Case | Description |
+|--------|----------|-------------|
+| VFO knob | Smooth tuning | Variable Frequency Oscillator for continuous adjustment |
+| Keypad | Direct entry | Enter exact frequency numerically |
+| Memory channels | Quick access | Store frequently used frequencies |
+| Scanning | Find activity | Automatically tune through frequencies/channels |
+
+:::definition
+**Scanning Function**: Tunes through a range of frequencies or memory channels to check for activity, automatically stopping when it detects a signal.
+:::
+
+---
+
+## Squelch Control
+
+:::info
+The **squelch circuit** mutes receiver audio when no signal is present, eliminating the annoying hiss of an open receiver.
+:::
+
+### Setting Squelch for Weak Signals
+
+:::tip
+To hear weak FM signals that might not break the squelch, **set the squelch threshold so that receiver output audio is on all the time** (fully open squelch).
+:::
+
+### FM Tuning Behavior
+
+:::warning
+If an FM receiver is tuned above or below a signal's frequency, the result is **distortion of the signal's audio** — not a change in pitch as you might experience with SSB.
+:::
+
+---
+
+## SSB (Single Sideband) Controls
+
+SSB operation requires understanding additional controls not used in FM.
+
+### RIT (Receiver Incremental Tuning)
+
+:::definition
+**RIT (Clarifier)**: Adjusts the receive frequency slightly **without changing the transmit frequency**.
+:::
+
+Use RIT when:
+- The voice pitch of an SSB signal seems too high or low
+- The other station is slightly off frequency
+- You need to fine-tune reception without moving your transmit frequency
+
+### Microphone Gain
+
+:::warning
+**Excessive microphone gain** on SSB transmissions causes distorted transmitted audio. Always set gain properly for clean audio.
+:::
+
+### Bandwidth Selection
+
+Multimode transceivers offer multiple receive bandwidth choices for noise and interference reduction:
+
+| Mode | Optimal Bandwidth | Reason |
+|------|-------------------|--------|
+| SSB | **2400 Hz** | Matches voice audio bandwidth, rejects adjacent interference |
+| CW | 250-500 Hz | Narrower for single-tone signals |
+| FM | 12-15 kHz | Wide for full-fidelity audio |
+
+:::radio
+For SSB reception, a **2400 Hz filter bandwidth** provides the best signal-to-noise ratio, as it matches the audio bandwidth of voice while rejecting adjacent interference.
+:::
+
+---
+
+## Digital Voice Modes
+
+Digital modes like DMR and D-STAR have specific programming requirements.
+
+### DMR (Digital Mobile Radio)
+
+:::definition
+**DMR Code Plug**: A configuration file containing access information for repeaters and talkgroups that tells your radio how to communicate on the DMR network.
+:::
+
+To select a specific group of stations on a digital voice transceiver:
+- Enter the group's **identification code** (talkgroup ID)
+
+### D-STAR
+
+:::warning
+D-STAR transceivers **must have your call sign programmed before transmitting**, as the call sign is embedded in the digital data stream for identification purposes.
+:::
+
+### Digital Mode Summary
+
+| Mode | Key Requirement | Purpose |
+|------|-----------------|---------|
+| DMR | Code plug with talkgroups | Network access configuration |
+| D-STAR | Call sign programmed | Digital identification |
+| Both | Group ID selection | Join specific conversations |`,
       keyPoints: [
         'VFO knob or keypad can enter operating frequency; memory channels store favorites',
         'Open the squelch fully to hear weak FM signals that do not break squelch',

@@ -9,12 +9,14 @@ import {
   BarChart3,
   Radio,
   Waves,
+  Layers,
   ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/practice', label: 'Practice', icon: BookOpen },
+  { href: '/flashcards', label: 'Cards', icon: Layers },
   { href: '/exam', label: 'Exam', icon: ClipboardCheck },
   { href: '/learn', label: 'Learn', icon: GraduationCap },
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },

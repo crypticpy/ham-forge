@@ -808,7 +808,7 @@ describe('Spaced Repetition Algorithm', () => {
 
     it('should reset progress on incorrect answer after progression', () => {
       // Build up progress
-      let progress = {
+      const progress = {
         easeFactor: 2.6,
         interval: 15,
         attempts: 5,

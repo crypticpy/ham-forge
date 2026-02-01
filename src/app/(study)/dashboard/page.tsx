@@ -13,6 +13,7 @@ import { ReadinessScore } from '@/components/features/dashboard/readiness-score'
 import { StreakTracker } from '@/components/features/dashboard/streak-tracker'
 import { CoverageStats } from '@/components/features/dashboard/coverage-stats'
 import { ContinueCard } from '@/components/features/dashboard/continue-card'
+import { SkillTracker } from '@/components/features/dashboard/skill-tracker'
 import type { ExamLevel } from '@/types'
 
 interface ProgressStats {
@@ -250,6 +251,12 @@ export default function DashboardPage() {
           />
         </div>
       )}
+
+      {/* Skill Mastery */}
+      <div className="mb-6">
+        <h2 className="mb-4 text-lg font-semibold">Skill Mastery</h2>
+        <SkillTracker />
+      </div>
 
       {/* Subelement Heatmap */}
       <div className="mb-6">

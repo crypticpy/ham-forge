@@ -16,13 +16,66 @@ export const stationEquipmentModule: LearningModule = {
     {
       id: 'T7A',
       title: 'Transceivers, Receivers, and Transmitters',
-      content: `A transceiver is a device that combines both a receiver and a transmitter into a single unit, which is the most common type of amateur radio equipment today. Modern transceivers include sophisticated circuitry that allows seamless switching between transmitting and receiving. The PTT (Push-To-Talk) input is what controls this switching—when grounded, it switches the transceiver from receive mode to transmit mode, allowing you to speak into the microphone.
+      content: `# Transceivers, Receivers, and Transmitters
 
-Inside a transceiver, several key circuits work together. An oscillator generates a signal at a specific frequency, which serves as the basis for both receiving and transmitting. A mixer is used to convert signals from one frequency to another, which is essential for superheterodyne receivers that convert incoming signals to an intermediate frequency for easier processing. When you want to add voice to your RF carrier signal, this process is called modulation—combining speech with the RF carrier to create the transmitted signal.
+Your amateur radio station centers around the **transceiver**—the heart of your communications system. Understanding how these devices work helps you operate more effectively and troubleshoot problems.
 
-Receiver performance is characterized by two important specifications: sensitivity and selectivity. Sensitivity describes the receiver's ability to detect weak signals—a more sensitive receiver can hear weaker stations. Selectivity describes the receiver's ability to discriminate between multiple signals that are close in frequency, rejecting unwanted adjacent signals while passing the desired one. Both characteristics are crucial for effective amateur radio operation.
+---
 
-Additional equipment can enhance your station's capabilities. An RF power amplifier increases the transmitted output power from a transceiver when you need more signal strength. A transverter converts the RF input and output of a transceiver to another band, allowing you to use your existing radio on frequencies it wasn't originally designed for. An RF preamplifier is installed between the antenna and receiver to boost weak signals before they reach the receiver, improving reception of distant stations. VHF power amplifiers often have an SSB/CW-FM switch that sets the amplifier for proper operation in the selected mode, since different modes have different duty cycle and linearity requirements.`,
+## What is a Transceiver?
+
+:::definition
+**Transceiver** = A device that combines both a **receiver** and a **transmitter** into a single unit, sharing common circuitry for both functions.
+:::
+
+Modern transceivers include sophisticated circuitry that allows seamless switching between transmitting and receiving modes. This is the most common type of amateur radio equipment today.
+
+:::radio
+**PTT (Push-To-Talk)**: When grounded, the PTT input switches the transceiver from receive mode to transmit mode, allowing you to speak into the microphone.
+:::
+
+---
+
+## Key Internal Circuits
+
+Inside a transceiver, several circuits work together:
+
+| Circuit | Function |
+|---------|----------|
+| **Oscillator** | Generates a signal at a specific frequency—the basis for both receiving and transmitting |
+| **Mixer** | Converts signals from one frequency to another (essential for superheterodyne receivers) |
+| **Modulator** | Combines speech with the RF carrier to create the transmitted signal |
+
+:::info
+**Modulation** is the process of adding voice (or data) to your RF carrier signal. This is how your audio gets "encoded" onto the radio wave.
+:::
+
+---
+
+## Receiver Performance: Two Critical Specifications
+
+| Specification | What It Measures | Why It Matters |
+|---------------|------------------|----------------|
+| **Sensitivity** | Ability to detect weak signals | A more sensitive receiver can hear weaker stations |
+| **Selectivity** | Ability to discriminate between signals close in frequency | Rejects unwanted adjacent signals while passing the desired one |
+
+:::tip
+Both sensitivity and selectivity are crucial for effective amateur radio operation—you need to hear weak signals AND filter out nearby interference.
+:::
+
+---
+
+## Station Accessories and Their Functions
+
+| Equipment | Purpose | Where It Goes |
+|-----------|---------|---------------|
+| **RF Power Amplifier** | Increases transmitted output power | After the transceiver, before antenna |
+| **RF Preamplifier** | Boosts weak received signals | Between antenna and receiver |
+| **Transverter** | Converts RF to another band | Allows operation on bands the radio wasn't designed for |
+
+:::warning
+**VHF Power Amplifier SSB/CW-FM Switch**: This switch sets the amplifier for proper operation in the selected mode. Different modes have different duty cycle and linearity requirements—using the wrong setting can damage equipment or produce poor signal quality.
+:::`,
       keyPoints: [
         'A transceiver combines a receiver and transmitter in one unit',
         'PTT (Push-To-Talk) switches from receive to transmit when grounded',
@@ -47,13 +100,66 @@ Additional equipment can enhance your station's capabilities. An RF power amplif
     {
       id: 'T7B',
       title: 'Troubleshooting and Interference',
-      content: `Radio frequency interference (RFI) can come from many sources and affect both amateur stations and consumer electronics. The three main causes of RFI are fundamental overload (when a strong signal overwhelms a receiver's front end), harmonics (unwanted signals at multiples of the transmitted frequency), and spurious emissions (unwanted signals generated by transmitter imperfections). Understanding these causes helps you diagnose and solve interference problems.
+      content: `# Troubleshooting and Interference
 
-When your amateur transmissions interfere with a neighbor's radio or TV, the first step is to make sure your own station is functioning properly and doesn't cause interference to your own equipment tuned to the same channel. Fundamental overload of consumer receivers—where the amateur signal is simply too strong for the receiver to handle—can be reduced by installing a filter at the antenna input of the affected receiver to block the amateur frequencies. For cable TV interference, the first step should be ensuring all coaxial connectors are properly installed, as loose connections are a common cause of signal leakage.
+Radio frequency interference (RFI) is one of the most common challenges amateur operators face. Understanding the causes and solutions helps you maintain good relations with neighbors while enjoying your hobby.
 
-Your station can also experience interference from outside sources. If a nearby commercial FM station is overloading your VHF transceiver, installing a band-reject filter can attenuate the interfering signal while passing your desired frequencies. When something in a neighbor's home causes interference to your station, work cooperatively with them to identify the offending device, politely inform them that FCC rules prohibit devices that cause harmful interference, and ensure your station meets good amateur practice standards.
+---
 
-Common on-air problems have identifiable causes and solutions. If you're told your FM signal is over-deviating (too much frequency swing), talk farther away from the microphone to reduce audio input. Distorted or unintelligible audio through a repeater could be caused by being slightly off frequency, low batteries, or being in a poor location with multipath or weak signal. RF feedback in a transmitter causes garbled, distorted, or unintelligible voice transmissions and typically results from RF energy getting back into audio circuits. Distorted audio caused by RF current on microphone cable shields can be cured with a ferrite choke, which blocks the RF while passing audio signals.`,
+## Three Main Causes of RFI
+
+| Cause | Description | Example |
+|-------|-------------|---------|
+| **Fundamental Overload** | Strong signal overwhelms a receiver's front end | Your 100W signal overloads a nearby TV receiver |
+| **Harmonics** | Unwanted signals at multiples of transmitted frequency | Your 7 MHz signal produces interference at 14 MHz, 21 MHz, etc. |
+| **Spurious Emissions** | Unwanted signals from transmitter imperfections | Mixer products, oscillator leakage |
+
+:::definition
+**Fundamental Overload**: When a receiver picks up your signal on YOUR frequency because the signal is simply too strong for the receiver to handle—even though you're operating properly.
+:::
+
+---
+
+## Interference TO Your Neighbors
+
+:::warning
+**First Step When You Cause Interference**: Make sure your own station is functioning properly and doesn't cause interference to your own equipment tuned to the same channel.
+:::
+
+### Solutions for Different Scenarios
+
+| Problem | Solution |
+|---------|----------|
+| Neighbor's radio/TV overloaded | Install a filter at the **affected receiver's** antenna input |
+| Cable TV interference | Ensure all coaxial connectors are properly installed (loose connections cause signal leakage) |
+
+:::tip
+For fundamental overload problems, the filter goes at **their** equipment, not yours—you're operating properly, but their receiver can't handle strong nearby signals.
+:::
+
+---
+
+## Interference FROM Outside Sources
+
+| Problem | Solution |
+|---------|----------|
+| Nearby FM broadcast station overloading your transceiver | Install a **band-reject filter** to attenuate the interfering signal |
+| Neighbor's device interfering with your station | Work cooperatively to identify the device; FCC rules prohibit devices that cause harmful interference |
+
+---
+
+## Common On-Air Problems and Solutions
+
+| Symptom | Likely Cause | Solution |
+|---------|--------------|----------|
+| **Over-deviation on FM** | Speaking too close to mic | Talk farther away from the microphone |
+| **Distorted audio through repeater** | Off frequency, low batteries, weak signal, or multipath | Check frequency, replace batteries, improve location |
+| **Garbled/unintelligible voice** | RF feedback in transmitter | RF energy getting back into audio circuits—check grounding and shielding |
+| **Distorted audio from RF on mic cable** | RF current on cable shield | Install a **ferrite choke** on the microphone cable |
+
+:::radio
+**Ferrite Chokes**: These small devices block RF while passing audio signals. They're an essential tool for curing RF interference problems in audio cables.
+:::`,
       keyPoints: [
         'RFI causes: fundamental overload, harmonics, and spurious emissions',
         'For interference to neighbors: first verify your own station works properly on that channel',
@@ -78,13 +184,73 @@ Common on-air problems have identifiable causes and solutions. If you're told yo
     {
       id: 'T7C',
       title: 'Test Equipment - Dummy Loads, Antenna Analyzers, and SWR',
-      content: `A dummy load is an essential piece of test equipment that allows you to test your transmitter without radiating a signal over the air. It consists of a non-inductive resistor mounted on a heat sink, designed to safely absorb and dissipate the RF power as heat. Dummy loads are typically 50 ohms to match standard amateur radio equipment impedance. Using a dummy load during testing prevents interference to other stations and allows you to troubleshoot transmitter problems without broadcasting.
+      content: `# Test Equipment: Dummy Loads, Antenna Analyzers, and SWR
 
-Standing Wave Ratio (SWR) is a critical measurement that indicates how well your antenna system is matched to your feed line and transmitter. A perfect impedance match produces an SWR reading of 1:1, meaning all the power is being delivered to the antenna with no reflections. An SWR reading of 4:1 indicates a significant impedance mismatch, which means power is being reflected back toward the transmitter instead of being radiated. Most solid-state transmitters include protection circuitry that automatically reduces output power as SWR increases to protect the output amplifier transistors from damage caused by reflected power.
+Proper test equipment helps you tune your station for optimal performance, troubleshoot problems, and avoid interfering with other stations during testing.
 
-SWR can be measured using a directional wattmeter (also called an SWR meter or SWR bridge). An antenna analyzer is a more sophisticated instrument that can determine if an antenna is resonant at the desired operating frequency and provide additional information about impedance. These tools are invaluable for antenna installation and troubleshooting.
+---
 
-Coaxial cable is a critical part of your antenna system, and its condition affects performance. Power lost in a feed line is converted into heat, reducing the power delivered to your antenna. Moisture contamination is a leading cause of coaxial cable failure—water intrusion increases losses dramatically and can cause complete cable failure. The outer jacket of coaxial cable should be resistant to ultraviolet light because UV exposure can damage the jacket and allow water to enter. Air core coaxial cable, while having lower loss than solid dielectric types, requires special techniques to prevent moisture from entering the cable, making it more challenging to install and maintain in outdoor applications.`,
+## Dummy Loads: Test Without Transmitting
+
+:::definition
+**Dummy Load** = A non-inductive resistor mounted on a heat sink that absorbs and dissipates RF power as heat, allowing transmitter testing without radiating a signal.
+:::
+
+| Characteristic | Specification |
+|----------------|---------------|
+| Impedance | Typically **50 ohms** (matches standard amateur equipment) |
+| Construction | Non-inductive resistor + heat sink |
+| Purpose | Safely absorb transmitted power during testing |
+
+:::tip
+Always use a dummy load when testing or troubleshooting your transmitter—it prevents interference to other stations and lets you focus on finding problems.
+:::
+
+---
+
+## Understanding SWR (Standing Wave Ratio)
+
+SWR indicates how well your antenna system is matched to your feed line and transmitter.
+
+| SWR Reading | What It Means |
+|-------------|---------------|
+| **1:1** | Perfect match—all power delivered to antenna, no reflections |
+| **1.5:1** | Very good match—typical for a well-tuned antenna |
+| **2:1** | Acceptable—most transmitters handle this fine |
+| **4:1** | Significant mismatch—power being reflected back toward transmitter |
+
+:::warning
+**Transmitter Protection**: Most solid-state transmitters include protection circuitry that automatically reduces output power as SWR increases. This protects the output amplifier transistors from damage caused by reflected power.
+:::
+
+### Measuring SWR
+
+| Instrument | Function |
+|------------|----------|
+| **Directional Wattmeter** (SWR meter/bridge) | Measures forward and reflected power to calculate SWR |
+| **Antenna Analyzer** | Determines if antenna is resonant at desired frequency; provides impedance information |
+
+---
+
+## Coaxial Cable: The Critical Link
+
+Your feed line connects everything together—its condition directly affects station performance.
+
+:::info
+**Power lost in a feed line is converted into heat**, reducing the power delivered to your antenna. Lower-loss cable means more power reaches your antenna.
+:::
+
+### Common Coaxial Cable Problems
+
+| Problem | Cause | Prevention |
+|---------|-------|------------|
+| **Moisture contamination** | Water intrusion through damaged jacket | Use weatherproofing tape; inspect regularly |
+| **UV damage** | Sunlight degrades outer jacket | Use UV-resistant cable jacket |
+| **Connector failure** | Poor installation or corrosion | Use quality connectors; weatherproof outdoor connections |
+
+:::warning
+**Moisture is the #1 enemy of coaxial cable.** Water intrusion increases losses dramatically and can cause complete cable failure. Air-core coaxial cable requires special techniques to prevent moisture entry.
+:::`,
       keyPoints: [
         'Dummy load = non-inductive resistor on heat sink; prevents on-air transmission during testing',
         'SWR of 1:1 = perfect match; SWR of 4:1 = significant mismatch',
@@ -109,13 +275,96 @@ Coaxial cable is a critical part of your antenna system, and its condition affec
     {
       id: 'T7D',
       title: 'Practical Measurements and Soldering',
-      content: `A multimeter is the most versatile piece of test equipment in any amateur's toolkit, capable of measuring voltage, resistance, and current. Understanding how to connect the meter properly is essential for accurate measurements and safety. A voltmeter (or multimeter set to voltage mode) measures electric potential and must be connected in parallel with the component being measured. An ammeter (or multimeter set to current mode) measures electric current and must be connected in series with the circuit so that current flows through the meter.
+      content: `# Practical Measurements and Soldering
 
-Proper use of a multimeter requires understanding its limitations and potential hazards. One common mistake that can damage a multimeter is attempting to measure voltage when the meter is set to the resistance (ohms) setting—this can destroy the meter's internal circuitry. When measuring in-circuit resistance with an ohmmeter, always ensure that the circuit is not powered, as applying external voltage to a meter in resistance mode can damage it. A multimeter can measure voltage and resistance directly; specialized equipment is needed for measurements like signal strength, noise, impedance, and reactance.
+A multimeter and soldering iron are the two most essential tools in any amateur's toolkit. Knowing how to use them properly ensures accurate measurements and reliable connections.
 
-An interesting test you can perform with an ohmmeter is checking a capacitor. When connected across a large, discharged capacitor, the ohmmeter reading will show increasing resistance with time as the capacitor charges from the meter's internal battery. This behavior can help verify that a capacitor is functional.
+---
 
-Soldering is a fundamental skill for building and repairing amateur radio equipment. For radio and electronic applications, you should use rosin-core solder, not acid-core solder. Acid-core solder is designed for plumbing and other non-electronic applications—its corrosive flux will damage electronic components and create unreliable connections over time. Good solder joints have a bright, shiny appearance. A cold solder joint, which indicates an unreliable connection, has a characteristic rough or lumpy surface appearance. Cold joints occur when the components weren't heated sufficiently or when movement occurred during cooling, and they should be reheated and reflowed to create a proper connection.`,
+## The Multimeter: Your Most Versatile Tool
+
+:::definition
+**Multimeter** = A test instrument capable of measuring voltage, resistance, and current—often in a single handheld device.
+:::
+
+### Connecting the Meter Correctly
+
+| Measurement | Connection Method | Why |
+|-------------|-------------------|-----|
+| **Voltage** | In **parallel** with component | Measures potential difference across the component |
+| **Current** | In **series** with circuit | Current must flow through the meter to be measured |
+| **Resistance** | Across component (circuit OFF) | Meter applies small voltage to measure resistance |
+
+:::warning
+**Critical Safety Rule**: Never measure voltage when the meter is set to the resistance (ohms) setting—this can destroy the meter's internal circuitry!
+:::
+
+---
+
+## Common Measurement Mistakes to Avoid
+
+| Mistake | Consequence | Prevention |
+|---------|-------------|------------|
+| Measuring voltage on ohms setting | Can destroy the meter | Always verify meter setting before connecting |
+| Measuring resistance in powered circuit | Inaccurate reading; may damage meter | Always ensure circuit is unpowered first |
+| Wrong range selected | No reading or meter damage | Start with highest range, work down |
+
+---
+
+## Testing a Capacitor with an Ohmmeter
+
+:::tip
+**Capacitor Test**: When an ohmmeter is connected across a large, discharged capacitor, the reading will show **increasing resistance with time** as the capacitor charges from the meter's internal battery. This behavior confirms the capacitor is functional.
+:::
+
+---
+
+## What a Multimeter CAN and CANNOT Measure
+
+| Can Measure Directly | Requires Specialized Equipment |
+|---------------------|-------------------------------|
+| Voltage | Signal strength |
+| Current | Noise level |
+| Resistance | Impedance |
+| | Reactance |
+
+---
+
+## Soldering Fundamentals
+
+Soldering is essential for building and repairing amateur radio equipment. Using the right materials and techniques ensures reliable connections.
+
+### Choosing the Right Solder
+
+| Solder Type | Use For | Never Use For |
+|-------------|---------|---------------|
+| **Rosin-core** | Electronics, radio equipment | — |
+| **Acid-core** | Plumbing | Electronics (corrosive flux damages components!) |
+
+:::warning
+**Never use acid-core solder for electronics!** The corrosive flux will damage electronic components and create unreliable connections over time.
+:::
+
+---
+
+## Recognizing Good vs. Bad Solder Joints
+
+| Joint Quality | Appearance | Action Required |
+|---------------|------------|-----------------|
+| **Good joint** | Bright, shiny, smooth | None—connection is reliable |
+| **Cold joint** | Rough, lumpy, dull | Reheat and reflow the solder |
+
+:::definition
+**Cold Solder Joint**: A faulty connection that occurs when components weren't heated sufficiently or when movement occurred during cooling. These joints are unreliable and must be reworked.
+:::
+
+### Tips for Good Solder Joints
+
+- Heat the joint, not the solder—let the joint melt the solder
+- Use adequate heat—insufficient heat causes cold joints
+- Keep components still while solder cools
+- Use the right size soldering iron tip for the job
+- Keep your soldering iron tip clean and tinned`,
       keyPoints: [
         'Voltmeter connects in parallel; ammeter connects in series',
         'Measuring voltage on resistance setting can damage a multimeter',

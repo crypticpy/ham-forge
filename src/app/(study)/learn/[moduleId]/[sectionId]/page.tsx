@@ -18,15 +18,55 @@ import {
 import { useHydration } from '@/hooks/use-hydration'
 import { useProgressStore } from '@/stores/progress-store'
 import { useActivityStore } from '@/stores/activity-store'
-import { MarkdownRenderer } from '@/components/features/learning/markdown-renderer'
+import { PaginatedContent } from '@/components/features/learning/paginated-content'
 import { KeyPoints } from '@/components/features/learning/key-points'
 import { KnowledgeCheck } from '@/components/features/learning/knowledge-check'
+import {
+  OhmsLawCalculator,
+  IonosphereVisualizer,
+  PhoneticTrainer,
+  BandPlanExplorer,
+  DecibelCalculator,
+  FrequencyWavelengthConverter,
+  QCodeReference,
+  PowerCalculator,
+  ModulationDemo,
+  CircuitIdentifier,
+  RSTTrainer,
+  QSOTrainer,
+} from '@/components/features/learning/interactive'
 import { getModuleById } from '@/lib/learning-modules'
-import type { LearningModule, LearningSection } from '@/types/learning'
+import type { LearningModule, LearningSection, InteractiveComponentType } from '@/types/learning'
 import type { ExamLevel } from '@/types'
 
 interface SectionPageProps {
   params: Promise<{ moduleId: string; sectionId: string }>
+}
+
+/**
+ * Map of interactive component types to their React components
+ */
+const interactiveComponentMap: Record<InteractiveComponentType, React.ComponentType> = {
+  'ohms-law-calculator': OhmsLawCalculator,
+  'ionosphere-visualizer': IonosphereVisualizer,
+  'phonetic-trainer': PhoneticTrainer,
+  'band-plan-explorer': BandPlanExplorer,
+  'decibel-calculator': DecibelCalculator,
+  'frequency-wavelength-converter': FrequencyWavelengthConverter,
+  'q-code-reference': QCodeReference,
+  'power-calculator': PowerCalculator,
+  'modulation-demo': ModulationDemo,
+  'circuit-identifier': CircuitIdentifier,
+  'rst-trainer': RSTTrainer,
+  'qso-trainer': QSOTrainer,
+}
+
+/**
+ * Renders an interactive component by its type
+ */
+function renderInteractiveComponent(type: InteractiveComponentType): React.ReactNode {
+  const Component = interactiveComponentMap[type]
+  return Component ? <Component key={type} /> : null
 }
 
 /**
@@ -201,7 +241,7 @@ export default function SectionContentPage({ params }: SectionPageProps) {
       {/* Main Content */}
       <div className="mb-8">
         {section.content ? (
-          <MarkdownRenderer content={section.content} />
+          <PaginatedContent content={section.content} sectionId={section.id} wordsPerPage={280} />
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
@@ -213,6 +253,19 @@ export default function SectionContentPage({ params }: SectionPageProps) {
           </Card>
         )}
       </div>
+
+      {/* Interactive Components */}
+      {section.interactiveComponents && section.interactiveComponents.length > 0 && (
+        <div className="mb-8 space-y-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-2xl" aria-hidden="true">
+              🧪
+            </span>
+            Try It Yourself
+          </h2>
+          {section.interactiveComponents.map(renderInteractiveComponent)}
+        </div>
+      )}
 
       {/* Key Points */}
       {section.keyPoints && section.keyPoints.length > 0 && (
