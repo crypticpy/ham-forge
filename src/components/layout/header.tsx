@@ -11,8 +11,10 @@ import { cn } from '@/lib/utils'
 const navLinks = [
   { href: '/', label: 'Home', icon: '🏠' },
   { href: '/practice', label: 'Practice', icon: '📖' },
+  { href: '/flashcards', label: 'Cards', icon: '🃏' },
   { href: '/exam', label: 'Exam', icon: '📋' },
   { href: '/learn', label: 'Learn', icon: '🎓' },
+  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/spectrum', label: 'Spectrum', icon: '📡' },
   { href: '/radio', label: 'Radio', icon: '📻' },
 ]

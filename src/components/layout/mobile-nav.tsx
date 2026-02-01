@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, ClipboardCheck, GraduationCap, Radio, Waves } from 'lucide-react'
+import { BookOpen, ClipboardCheck, GraduationCap, Radio, Layers, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/', label: 'Home', icon: Home },
   { href: '/practice', label: 'Practice', icon: BookOpen },
+  { href: '/flashcards', label: 'Cards', icon: Layers },
   { href: '/exam', label: 'Exam', icon: ClipboardCheck },
   { href: '/learn', label: 'Learn', icon: GraduationCap },
-  { href: '/spectrum', label: 'Spectrum', icon: Waves },
+  { href: '/dashboard', label: 'Stats', icon: BarChart3 },
   { href: '/radio', label: 'Radio', icon: Radio },
 ]
 
