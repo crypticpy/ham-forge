@@ -346,8 +346,9 @@ export function KnowledgeCheck({
       if (isRevealed) return
       setSelectedAnswer(index)
       setIsRevealed(true)
+      setCountdown(autoAdvanceEnabled ? Math.ceil(AUTO_ADVANCE_DELAY / 1000) : null)
     },
-    [isRevealed]
+    [isRevealed, autoAdvanceEnabled]
   )
 
   // Handle moving to next question
@@ -358,6 +359,7 @@ export function KnowledgeCheck({
     nextQuestion()
     setSelectedAnswer(null)
     setIsRevealed(false)
+    setCountdown(null)
   }, [selectedAnswer, submitAnswer, nextQuestion])
 
   // Handle retry
@@ -366,7 +368,16 @@ export function KnowledgeCheck({
     setHasStarted(true)
     setSelectedAnswer(null)
     setIsRevealed(false)
+    setCountdown(null)
   }, [retryQuiz])
+
+  const handleToggleAutoAdvance = useCallback(() => {
+    setAutoAdvanceEnabled((prev) => {
+      const next = !prev
+      setCountdown(isRevealed && next ? Math.ceil(AUTO_ADVANCE_DELAY / 1000) : null)
+      return next
+    })
+  }, [isRevealed])
 
   // Auto-advance after revealing answer with countdown display
   useEffect(() => {
@@ -389,16 +400,6 @@ export function KnowledgeCheck({
       clearInterval(countdownInterval)
     }
   }, [isRevealed, autoAdvanceEnabled, handleNext])
-
-  // Reset countdown when answer is revealed or when auto-advance is toggled
-  useEffect(() => {
-    if (isRevealed && autoAdvanceEnabled) {
-      const initialCountdown = Math.ceil(AUTO_ADVANCE_DELAY / 1000)
-      setCountdown(initialCountdown)
-    } else {
-      setCountdown(null)
-    }
-  }, [isRevealed, autoAdvanceEnabled])
 
   // Record quiz result when complete
   useEffect(() => {
@@ -464,7 +465,7 @@ export function KnowledgeCheck({
         onSelectAnswer={handleSelectAnswer}
         onNext={handleNext}
         autoAdvanceEnabled={autoAdvanceEnabled}
-        onToggleAutoAdvance={() => setAutoAdvanceEnabled((prev) => !prev)}
+        onToggleAutoAdvance={handleToggleAutoAdvance}
         countdown={countdown}
       />
     )

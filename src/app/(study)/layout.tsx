@@ -1,4 +1,5 @@
 import { SiteHeader } from '@/components/layout/site-header'
+import { StudyDelightFooter } from '@/components/layout/study-delight-footer'
 import { TimeTrackingProvider } from '@/providers/time-tracking-provider'
 
 /**
@@ -23,10 +24,16 @@ export default function StudyLayout({ children }: { children: React.ReactNode })
       <main
         id="main-content"
         tabIndex={-1}
-        className="pt-14 outline-none focus:outline-none"
+        className="pt-safe-header outline-none focus:outline-none relative overflow-x-clip"
         aria-label="Main content"
       >
-        {children}
+        <div className="pointer-events-none absolute inset-0 -z-10 hidden dark:block" aria-hidden="true">
+          <div className="study-ambient study-ambient-one" />
+          <div className="study-ambient study-ambient-two" />
+          <div className="study-ambient study-ambient-three" />
+        </div>
+        <div className="animate-fade-in">{children}</div>
+        <StudyDelightFooter />
       </main>
     </TimeTrackingProvider>
   )

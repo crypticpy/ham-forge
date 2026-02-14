@@ -127,7 +127,7 @@ export default function FlashcardsPage() {
 
       {/* Hero Header */}
       <header className="border-b bg-gradient-to-b from-purple-500/5 to-background">
-        <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="container mx-auto max-w-4xl px-3 py-6 sm:px-4 sm:py-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">

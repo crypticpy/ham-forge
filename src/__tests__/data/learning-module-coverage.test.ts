@@ -23,10 +23,10 @@ describe('Learning modules cover the full question pool by group', () => {
 
     for (const [groupId, groupQuestionIds] of idsByGroup) {
       const moduleId = groupId.slice(0, 2) // e.g., T1
-      const module = modulesById.get(moduleId)
-      expect(module, `Missing module for ${moduleId}`).toBeDefined()
+      const moduleEntry = modulesById.get(moduleId)
+      expect(moduleEntry, `Missing module for ${moduleId}`).toBeDefined()
 
-      const section = module!.sections.find((s) => s.id === groupId)
+      const section = moduleEntry!.sections.find((s) => s.id === groupId)
       expect(section, `Missing section ${groupId} in module ${moduleId}`).toBeDefined()
 
       expect(section!.content.trim().length, `Empty content for section ${groupId}`).toBeGreaterThan(
@@ -57,10 +57,10 @@ describe('Learning modules cover the full question pool by group', () => {
 
     for (const [groupId, groupQuestionIds] of idsByGroup) {
       const moduleId = groupId.slice(0, 2) // e.g., G1
-      const module = modulesById.get(moduleId)
-      expect(module, `Missing module for ${moduleId}`).toBeDefined()
+      const moduleEntry = modulesById.get(moduleId)
+      expect(moduleEntry, `Missing module for ${moduleId}`).toBeDefined()
 
-      const section = module!.sections.find((s) => s.id === groupId)
+      const section = moduleEntry!.sections.find((s) => s.id === groupId)
       expect(section, `Missing section ${groupId} in module ${moduleId}`).toBeDefined()
 
       expect(section!.content.trim().length, `Empty content for section ${groupId}`).toBeGreaterThan(
@@ -91,10 +91,10 @@ describe('Learning modules cover the full question pool by group', () => {
 
     for (const [groupId, groupQuestionIds] of idsByGroup) {
       const moduleId = groupId.slice(0, 2) // e.g., E1
-      const module = modulesById.get(moduleId)
-      expect(module, `Missing module for ${moduleId}`).toBeDefined()
+      const moduleEntry = modulesById.get(moduleId)
+      expect(moduleEntry, `Missing module for ${moduleId}`).toBeDefined()
 
-      const section = module!.sections.find((s) => s.id === groupId)
+      const section = moduleEntry!.sections.find((s) => s.id === groupId)
       expect(section, `Missing section ${groupId} in module ${moduleId}`).toBeDefined()
 
       expect(section!.content.trim().length, `Empty content for section ${groupId}`).toBeGreaterThan(

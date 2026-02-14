@@ -37,7 +37,7 @@ export function PaginatedContent({
   onPageChange,
   className,
 }: PaginatedContentProps) {
-  const [currentPage, setCurrentPage] = useState(0)
+  const [manualPages, setManualPages] = useState<Record<string, number>>({})
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   // Split content into pages
@@ -47,16 +47,29 @@ export function PaginatedContent({
 
   const totalPages = pages.length
 
-  // Load saved reading position on mount
-  useEffect(() => {
+  const savedPage = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return 0
+    }
     const saved = sessionStorage.getItem(`reading-position-${sectionId}`)
     if (saved) {
-      const savedPage = parseInt(saved, 10)
-      if (savedPage >= 0 && savedPage < totalPages) {
-        setCurrentPage(savedPage)
+      const parsedPage = parseInt(saved, 10)
+      if (parsedPage >= 0 && parsedPage < totalPages) {
+        return parsedPage
       }
     }
+    return 0
   }, [sectionId, totalPages])
+
+  const rawPage = manualPages[sectionId] ?? savedPage
+  const currentPage = Math.min(Math.max(rawPage, 0), Math.max(totalPages - 1, 0))
+
+  const setCurrentPage = useCallback(
+    (page: number) => {
+      setManualPages((prev) => ({ ...prev, [sectionId]: page }))
+    },
+    [sectionId]
+  )
 
   // Save reading position when page changes
   useEffect(() => {
@@ -64,10 +77,46 @@ export function PaginatedContent({
     onPageChange?.(currentPage, totalPages)
   }, [currentPage, sectionId, totalPages, onPageChange])
 
+  const goToNextPage = useCallback(() => {
+    if (currentPage < totalPages - 1) {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentPage(currentPage + 1)
+        setIsTransitioning(false)
+        // Smooth scroll to top of content
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 150)
+    }
+  }, [currentPage, totalPages, setCurrentPage])
+
+  const goToPrevPage = useCallback(() => {
+    if (currentPage > 0) {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentPage(currentPage - 1)
+        setIsTransitioning(false)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 150)
+    }
+  }, [currentPage, setCurrentPage])
+
+  const goToPage = useCallback(
+    (page: number) => {
+      if (page >= 0 && page < totalPages && page !== currentPage) {
+        setIsTransitioning(true)
+        setTimeout(() => {
+          setCurrentPage(page)
+          setIsTransitioning(false)
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }, 150)
+      }
+    },
+    [currentPage, totalPages, setCurrentPage]
+  )
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if not in an input field
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return
       }
@@ -83,44 +132,7 @@ export function PaginatedContent({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentPage, totalPages])
-
-  const goToNextPage = useCallback(() => {
-    if (currentPage < totalPages - 1) {
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setCurrentPage((prev) => prev + 1)
-        setIsTransitioning(false)
-        // Smooth scroll to top of content
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }, 150)
-    }
-  }, [currentPage, totalPages])
-
-  const goToPrevPage = useCallback(() => {
-    if (currentPage > 0) {
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setCurrentPage((prev) => prev - 1)
-        setIsTransitioning(false)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }, 150)
-    }
-  }, [currentPage])
-
-  const goToPage = useCallback(
-    (page: number) => {
-      if (page >= 0 && page < totalPages && page !== currentPage) {
-        setIsTransitioning(true)
-        setTimeout(() => {
-          setCurrentPage(page)
-          setIsTransitioning(false)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }, 150)
-      }
-    },
-    [currentPage, totalPages]
-  )
+  }, [goToNextPage, goToPrevPage])
 
   // If content fits in one page, just render it
   if (totalPages <= 1) {

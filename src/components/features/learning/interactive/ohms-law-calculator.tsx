@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,14 +30,11 @@ export function OhmsLawCalculator() {
   const [voltage, setVoltage] = useState<string>('')
   const [current, setCurrent] = useState<string>('')
   const [resistance, setResistance] = useState<string>('')
-  const [solveFor, setSolveFor] = useState<SolveFor>(null)
-  const [result, setResult] = useState<CalculationResult | null>(null)
   const [activeSection, setActiveSection] = useState<'voltage' | 'current' | 'resistance' | null>(
     null
   )
 
-  // Calculate when we have exactly 2 values
-  const calculate = useCallback(() => {
+  const calculation = useMemo((): { solveFor: SolveFor; result: CalculationResult } | null => {
     const v = parseFloat(voltage)
     const i = parseFloat(current)
     const r = parseFloat(resistance)
@@ -50,50 +47,54 @@ export function OhmsLawCalculator() {
     const valueCount = [hasVoltage, hasCurrent, hasResistance].filter(Boolean).length
 
     if (valueCount !== 2) {
-      setResult(null)
-      setSolveFor(null)
-      return
+      return null
     }
 
     // Calculate the missing value
     if (!hasVoltage && hasCurrent && hasResistance) {
       const calculated = i * r
-      setSolveFor('voltage')
-      setResult({
-        value: calculated,
-        formula: 'E = I × R',
-        steps: `E = ${i} A × ${r} Ω = ${calculated.toFixed(2)} V`,
-      })
-    } else if (hasVoltage && !hasCurrent && hasResistance) {
-      const calculated = v / r
-      setSolveFor('current')
-      setResult({
-        value: calculated,
-        formula: 'I = E ÷ R',
-        steps: `I = ${v} V ÷ ${r} Ω = ${calculated.toFixed(3)} A`,
-      })
-    } else if (hasVoltage && hasCurrent && !hasResistance) {
-      const calculated = v / i
-      setSolveFor('resistance')
-      setResult({
-        value: calculated,
-        formula: 'R = E ÷ I',
-        steps: `R = ${v} V ÷ ${i} A = ${calculated.toFixed(2)} Ω`,
-      })
+      return {
+        solveFor: 'voltage',
+        result: {
+          value: calculated,
+          formula: 'E = I × R',
+          steps: `E = ${i} A × ${r} Ω = ${calculated.toFixed(2)} V`,
+        },
+      }
     }
+    if (hasVoltage && !hasCurrent && hasResistance) {
+      const calculated = v / r
+      return {
+        solveFor: 'current',
+        result: {
+          value: calculated,
+          formula: 'I = E ÷ R',
+          steps: `I = ${v} V ÷ ${r} Ω = ${calculated.toFixed(3)} A`,
+        },
+      }
+    }
+    if (hasVoltage && hasCurrent && !hasResistance) {
+      const calculated = v / i
+      return {
+        solveFor: 'resistance',
+        result: {
+          value: calculated,
+          formula: 'R = E ÷ I',
+          steps: `R = ${v} V ÷ ${i} A = ${calculated.toFixed(2)} Ω`,
+        },
+      }
+    }
+
+    return null
   }, [voltage, current, resistance])
 
-  // Auto-calculate on value changes
-  useEffect(() => {
-    calculate()
-  }, [calculate])
+  const solveFor = calculation?.solveFor ?? null
+  const result = calculation?.result ?? null
 
   const handleReset = () => {
     setVoltage('')
     setCurrent('')
     setResistance('')
-    setResult(null)
-    setSolveFor(null)
     setActiveSection(null)
   }
 
@@ -118,7 +119,7 @@ export function OhmsLawCalculator() {
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Calculator className="size-5 text-primary" aria-hidden="true" />
-          Ohm's Law Calculator
+          Ohm&apos;s Law Calculator
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -126,7 +127,7 @@ export function OhmsLawCalculator() {
         <div
           className="flex justify-center"
           role="img"
-          aria-label="Ohm's Law triangle showing E at top, I and R at bottom"
+          aria-label="Ohm&apos;s Law triangle showing E at top, I and R at bottom"
         >
           <svg viewBox="0 0 200 180" className="w-full max-w-[280px] h-auto" aria-hidden="true">
             {/* Triangle outline */}

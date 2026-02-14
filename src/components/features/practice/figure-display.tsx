@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 
 interface FigureDisplayProps {
@@ -8,21 +8,17 @@ interface FigureDisplayProps {
 }
 
 export function FigureDisplay({ figure }: FigureDisplayProps) {
-  const [hasError, setHasError] = useState(false)
-  const [srcIndex, setSrcIndex] = useState(0)
+  const [failedCountByFigure, setFailedCountByFigure] = useState<Record<string, number>>({})
 
   const extensions = useMemo(() => {
     // Extra figures are stored as PNGs; Tech/General figures are currently JPGs.
     return figure.startsWith('E') ? (['png', 'jpg'] as const) : (['jpg', 'png'] as const)
   }, [figure])
 
-  // Reset when figure changes
-  useEffect(() => {
-    setHasError(false)
-    setSrcIndex(0)
-  }, [figure])
-
-  const imagePath = `/figures/${figure}.${extensions[srcIndex]}`
+  const srcIndex = failedCountByFigure[figure] ?? 0
+  const hasError = srcIndex >= extensions.length
+  const safeIndex = Math.min(srcIndex, extensions.length - 1)
+  const imagePath = `/figures/${figure}.${extensions[safeIndex]}`
 
   if (hasError) {
     return (
@@ -48,11 +44,10 @@ export function FigureDisplay({ figure }: FigureDisplayProps) {
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 448px"
             className="object-contain rounded"
             onError={() => {
-              if (srcIndex < extensions.length - 1) {
-                setSrcIndex(srcIndex + 1)
-              } else {
-                setHasError(true)
-              }
+              setFailedCountByFigure((prev) => ({
+                ...prev,
+                [figure]: (prev[figure] ?? 0) + 1,
+              }))
             }}
             loading="lazy"
           />

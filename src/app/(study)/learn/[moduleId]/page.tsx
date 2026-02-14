@@ -149,7 +149,8 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
                   ? 'General'
                   : 'Extra'}
             </span>
-            <h1 className="text-2xl font-bold">{module.title}</h1>
+            <h1 className="text-2xl font-bold">Module Overview</h1>
+            <p className="text-lg font-semibold text-foreground/90 mt-1">{module.title}</p>
           </div>
           {isModuleComplete && (
             <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo, useRef, useEffect, KeyboardEvent } from 'react'
+import { useState, useCallback, useMemo, useRef, KeyboardEvent } from 'react'
 import {
   ChevronRight,
   ChevronDown,
@@ -115,24 +115,18 @@ export function MenuTreeItem({
   searchQuery,
   defaultExpanded = false,
 }: MenuTreeItemProps) {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
+  const [manualExpanded, setManualExpanded] = useState(defaultExpanded)
   const itemRef = useRef<HTMLDivElement>(null)
   const hasChildren = item.children && item.children.length > 0
   const isLeafNode = !hasChildren
-
-  // Auto-expand when search query matches this item or its descendants
-  useEffect(() => {
-    if (searchQuery && searchQuery.trim().length > 0) {
-      const matchesSearch = itemMatchesSearch(item, searchQuery)
-      if (matchesSearch) {
-        setIsExpanded(true)
-      }
-    }
-  }, [searchQuery, item])
+  const normalizedSearchQuery = searchQuery?.trim() ?? ''
+  const searchMatches =
+    normalizedSearchQuery.length > 0 ? itemMatchesSearch(item, normalizedSearchQuery) : false
+  const isExpanded = manualExpanded || searchMatches
 
   const handleToggle = useCallback(() => {
     if (hasChildren) {
-      setIsExpanded((prev) => !prev)
+      setManualExpanded((prev) => !prev)
     }
   }, [hasChildren])
 
@@ -147,13 +141,13 @@ export function MenuTreeItem({
         case 'ArrowRight':
           if (hasChildren && !isExpanded) {
             e.preventDefault()
-            setIsExpanded(true)
+            setManualExpanded(true)
           }
           break
         case 'ArrowLeft':
           if (hasChildren && isExpanded) {
             e.preventDefault()
-            setIsExpanded(false)
+            setManualExpanded(false)
           }
           break
       }
@@ -164,7 +158,12 @@ export function MenuTreeItem({
   const paddingLeft = level * 20
 
   return (
-    <div className="w-full" role="treeitem" aria-expanded={hasChildren ? isExpanded : undefined}>
+    <div
+      className="w-full"
+      role="treeitem"
+      aria-expanded={hasChildren ? isExpanded : undefined}
+      aria-selected={false}
+    >
       {/* Item header row */}
       <div
         ref={itemRef}

@@ -26,12 +26,12 @@ function ConfirmSubmitDialog({ isOpen, unansweredCount, onConfirm, onCancel }: C
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 safe-area-inset">
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/50" onClick={onCancel} />
 
       {/* Dialog */}
-      <div className="relative z-10 w-full max-w-md mx-4 bg-background rounded-lg border shadow-lg p-6">
+      <div className="relative z-10 w-full max-w-md bg-background rounded-lg border shadow-lg p-5 sm:p-6">
         <div className="flex items-start gap-4 mb-4">
           <div className="flex-shrink-0 size-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
             <AlertTriangle className="size-6 text-amber-600 dark:text-amber-400" />

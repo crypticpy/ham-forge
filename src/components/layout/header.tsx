@@ -18,7 +18,7 @@ const primaryLinks = [
 
 // Secondary navigation - tools and reference
 const toolsLinks = [
-  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/dashboard', label: 'Stats', icon: '📊' },
   { href: '/spectrum', label: 'Spectrum', icon: '📡' },
   { href: '/radio', label: 'Radio', icon: '📻' },
 ]
@@ -28,26 +28,23 @@ const allLinks = [{ href: '/', label: 'Home', icon: '🏠' }, ...primaryLinks, .
 
 export function Header() {
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false)
+  const [mobileMenuOpenPath, setMobileMenuOpenPath] = useState<string | null>(null)
+  const [toolsDropdownOpenPath, setToolsDropdownOpenPath] = useState<string | null>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const mobileMenuOpen = mobileMenuOpenPath === pathname
+  const toolsDropdownOpen = toolsDropdownOpenPath === pathname
 
   // Check if current page is in tools section
   const isToolsActive = toolsLinks.some(
     (link) => pathname === link.href || pathname.startsWith(`${link.href}/`)
   )
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false)
-    setToolsDropdownOpen(false)
-  }, [pathname])
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setToolsDropdownOpen(false)
+        setToolsDropdownOpenPath(null)
       }
     }
 
@@ -61,7 +58,8 @@ export function Header() {
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setMobileMenuOpen(false)
+        setMobileMenuOpenPath(null)
+        setToolsDropdownOpenPath(null)
         const toggleButton = document.querySelector('[aria-controls="mobile-menu"]') as HTMLElement
         toggleButton?.focus()
       }
@@ -106,12 +104,45 @@ export function Header() {
     return () => document.removeEventListener('keydown', handleTabKey)
   }, [mobileMenuOpen])
 
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileMenuOpen])
+
+  // Scroll progress indicator
+  useEffect(() => {
+    const updateProgress = () => {
+      const doc = document.documentElement
+      const maxScroll = doc.scrollHeight - window.innerHeight
+      if (maxScroll <= 0) {
+        setScrollProgress(0)
+        return
+      }
+      setScrollProgress((window.scrollY / maxScroll) * 100)
+    }
+
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    window.addEventListener('resize', updateProgress)
+    return () => {
+      window.removeEventListener('scroll', updateProgress)
+      window.removeEventListener('resize', updateProgress)
+    }
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 w-full glass-panel">
+    <header className="sticky top-0 z-50 w-full glass-panel safe-area-pt">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <span className="text-2xl md:text-3xl animate-pulse-glow">📻</span>
+        <Link href="/" className="flex items-center gap-3 group delight-link">
+          <span className="text-2xl md:text-3xl animate-pulse-glow group-hover:animate-float-slow">
+            📻
+          </span>
           <div className="hidden sm:block">
             <h1 className="font-display text-lg md:text-xl font-black text-gradient-orange tracking-wider">
               HAMFORGE
@@ -133,7 +164,7 @@ export function Header() {
                 pathname === link.href || pathname.startsWith(`${link.href}/`) ? 'page' : undefined
               }
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap min-h-[44px] touch-manipulation delight-link',
                 pathname === link.href || pathname.startsWith(`${link.href}/`)
                   ? 'bg-plasma-orange/20 text-plasma-orange'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-white/5'
@@ -147,11 +178,13 @@ export function Header() {
           {/* Tools Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
+              onClick={() =>
+                setToolsDropdownOpenPath((current) => (current === pathname ? null : pathname))
+              }
               aria-expanded={toolsDropdownOpen}
               aria-haspopup="true"
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap min-h-[44px] touch-manipulation',
                 isToolsActive
                   ? 'bg-plasma-orange/20 text-plasma-orange'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-white/5'
@@ -174,11 +207,11 @@ export function Header() {
                     aria-current={pathname === link.href ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors',
-                      pathname === link.href
+                      pathname === link.href || pathname.startsWith(`${link.href}/`)
                         ? 'bg-plasma-orange/20 text-plasma-orange'
                         : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                     )}
-                    onClick={() => setToolsDropdownOpen(false)}
+                    onClick={() => setToolsDropdownOpenPath(null)}
                   >
                     <span className="text-base">{link.icon}</span>
                     <span>{link.label}</span>
@@ -214,7 +247,9 @@ export function Header() {
             variant="ghost"
             size="icon"
             className="md:hidden hover:bg-white/5"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() =>
+              setMobileMenuOpenPath((current) => (current === pathname ? null : pathname))
+            }
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
@@ -228,7 +263,7 @@ export function Header() {
       <nav
         id="mobile-menu"
         className={cn(
-          'md:hidden border-t border-white/10 glass-panel p-4',
+          'md:hidden border-t border-white/10 glass-panel p-4 animate-fade-in',
           !mobileMenuOpen && 'hidden'
         )}
         aria-label="Mobile navigation"
@@ -239,14 +274,18 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
-              aria-current={pathname === link.href ? 'page' : undefined}
+              aria-current={
+                pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`))
+                  ? 'page'
+                  : undefined
+              }
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                pathname === link.href
+                'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] touch-manipulation',
+                pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`))
                   ? 'bg-plasma-orange/20 text-plasma-orange'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
               )}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => setMobileMenuOpenPath(null)}
             >
               <span className="text-lg">{link.icon}</span>
               <span>{link.label}</span>
@@ -259,7 +298,7 @@ export function Header() {
               href="https://propulse.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-plasma-orange bg-plasma-orange/10 border border-plasma-orange/30"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-plasma-orange bg-plasma-orange/10 border border-plasma-orange/30 min-h-[44px] touch-manipulation"
             >
               <span className="text-lg">☀️</span>
               <span>Open Propulse Dashboard</span>
@@ -269,6 +308,9 @@ export function Header() {
           </div>
         </div>
       </nav>
+      <div className="header-progress-track" aria-hidden="true">
+        <div className="header-progress-fill" style={{ width: `${scrollProgress}%` }} />
+      </div>
     </header>
   )
 }

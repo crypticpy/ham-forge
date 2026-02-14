@@ -105,7 +105,7 @@ export default function InteractivePanelPage() {
           <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30">
             <Monitor className="size-6 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold">Interactive Front Panel</h1>
+          <h1 className="text-2xl font-bold">Panel Explorer</h1>
         </div>
         <p className="text-muted-foreground">
           Explore the IC-7300 front panel controls. Click or tap any control to learn about its
@@ -133,7 +133,7 @@ export default function InteractivePanelPage() {
         {/* Control Details Sidebar - 1 column on desktop, full width on mobile */}
         <div className="lg:col-span-1">
           {selectedControl ? (
-            <div className="space-y-4 sticky top-6">
+            <div className="space-y-4 lg:sticky lg:top-6">
               {/* Clear selection button */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">Selected Control</span>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,6 +50,23 @@ interface QuizState {
   isCorrect: boolean | null
 }
 
+function createQuizQuestion(): QuizState {
+  const letters = Object.keys(ITU_PHONETIC_ALPHABET).filter((k) => k.match(/^[A-Z]$/))
+  const randomLetter = letters[Math.floor(Math.random() * letters.length)]
+  const correctAnswer = ITU_PHONETIC_ALPHABET[randomLetter]
+  const letterDistractors = distractors[randomLetter] || ['Unknown', 'Mystery', 'Hidden']
+  const shuffledDistractors = [...letterDistractors].sort(() => Math.random() - 0.5).slice(0, 3)
+  const options = [...shuffledDistractors, correctAnswer].sort(() => Math.random() - 0.5)
+
+  return {
+    currentLetter: randomLetter,
+    options,
+    correctAnswer,
+    answered: false,
+    isCorrect: null,
+  }
+}
+
 /**
  * Interactive Phonetic Alphabet Trainer
  *
@@ -62,7 +79,7 @@ interface QuizState {
 export function PhoneticTrainer() {
   const [mode, setMode] = useState<Mode>('quiz')
   const [score, setScore] = useState({ correct: 0, total: 0 })
-  const [quiz, setQuiz] = useState<QuizState | null>(null)
+  const [quiz, setQuiz] = useState<QuizState>(() => createQuizQuestion())
   const [callsign, setCallsign] = useState('')
   const [spelledCallsign, setSpelledCallsign] = useState<string[]>([])
   const [streak, setStreak] = useState(0)
@@ -72,34 +89,12 @@ export function PhoneticTrainer() {
 
   // Generate a new quiz question
   const generateQuestion = useCallback(() => {
-    const letters = Object.keys(ITU_PHONETIC_ALPHABET).filter((k) => k.match(/^[A-Z]$/))
-    const randomLetter = letters[Math.floor(Math.random() * letters.length)]
-    const correctAnswer = ITU_PHONETIC_ALPHABET[randomLetter]
-
-    // Get 3 random distractors
-    const letterDistractors = distractors[randomLetter] || ['Unknown', 'Mystery', 'Hidden']
-    const shuffledDistractors = [...letterDistractors].sort(() => Math.random() - 0.5).slice(0, 3)
-
-    // Create options array with correct answer
-    const options = [...shuffledDistractors, correctAnswer].sort(() => Math.random() - 0.5)
-
-    setQuiz({
-      currentLetter: randomLetter,
-      options,
-      correctAnswer,
-      answered: false,
-      isCorrect: null,
-    })
+    setQuiz(createQuizQuestion())
   }, [])
-
-  // Initialize first question
-  useEffect(() => {
-    generateQuestion()
-  }, [generateQuestion])
 
   // Handle answer selection
   const handleAnswer = (selected: string) => {
-    if (!quiz || quiz.answered) return
+    if (quiz.answered) return
 
     const isCorrect = selected === quiz.correctAnswer
 
@@ -235,7 +230,7 @@ export function PhoneticTrainer() {
         </div>
 
         {/* Quiz Mode */}
-        {mode === 'quiz' && quiz && (
+        {mode === 'quiz' && (
           <div role="tabpanel" id="quiz-panel" aria-labelledby="quiz-tab" className="space-y-6">
             {/* Letter Display */}
             <div className="text-center">
@@ -444,7 +439,7 @@ export function PhoneticTrainer() {
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-bold">•</span>
-              <span>Numbers are spoken as words: "Five" not "Fife"</span>
+              <span>Numbers are spoken as words: &quot;Five&quot; not &quot;Fife&quot;</span>
             </li>
           </ul>
         </div>

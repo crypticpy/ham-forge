@@ -13,25 +13,52 @@ const navLinks = [
   { href: '/practice', label: 'Practice', icon: '📖' },
   { href: '/exam', label: 'Exam', icon: '📋' },
   { href: '/learn', label: 'Learn', icon: '🎓' },
-  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/dashboard', label: 'Stats', icon: '📊' },
   { href: '/spectrum', label: 'Spectrum', icon: '📡' },
   { href: '/radio', label: 'Radio', icon: '📻' },
 ]
 
 export function SiteHeader() {
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpenPath, setMobileMenuOpenPath] = useState<string | null>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const mobileMenuOpen = mobileMenuOpenPath === pathname
 
-  // Close mobile menu on route change
   useEffect(() => {
-    setMobileMenuOpen(false)
-  }, [pathname])
+    const updateProgress = () => {
+      const doc = document.documentElement
+      const maxScroll = doc.scrollHeight - window.innerHeight
+      if (maxScroll <= 0) {
+        setScrollProgress(0)
+        return
+      }
+      setScrollProgress((window.scrollY / maxScroll) * 100)
+    }
+
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    window.addEventListener('resize', updateProgress)
+    return () => {
+      window.removeEventListener('scroll', updateProgress)
+      window.removeEventListener('resize', updateProgress)
+    }
+  }, [])
+
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileMenuOpen])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-panel">
+    <header className="fixed top-0 left-0 right-0 z-50 glass-panel safe-area-pt">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 delight-link">
           <span className="text-xl animate-pulse-glow">📻</span>
           <div>
             <span className="font-display text-base font-black text-gradient-orange tracking-wider">
@@ -46,9 +73,14 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={
+                pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`))
+                  ? 'page'
+                  : undefined
+              }
               className={cn(
-                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                pathname === link.href
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] touch-manipulation delight-link',
+                pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`))
                   ? 'bg-plasma-orange/20 text-plasma-orange'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
               )}
@@ -63,7 +95,7 @@ export function SiteHeader() {
             href="https://propulse.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-plasma-orange hover:bg-plasma-orange/10 transition-colors ml-1 border border-transparent hover:border-plasma-orange/30"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-plasma-orange hover:bg-plasma-orange/10 transition-colors ml-1 border border-transparent hover:border-plasma-orange/30 min-h-[44px] touch-manipulation"
           >
             <span className="text-xs">☀️</span>
             <span>Propulse</span>
@@ -80,8 +112,12 @@ export function SiteHeader() {
             variant="ghost"
             size="icon"
             className="md:hidden hover:bg-white/5"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() =>
+              setMobileMenuOpenPath((current) => (current === pathname ? null : pathname))
+            }
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="site-mobile-menu"
           >
             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -90,19 +126,26 @@ export function SiteHeader() {
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 glass-panel p-4">
+        <div id="site-mobile-menu" className="md:hidden border-t border-white/10 glass-panel p-4">
           <div className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={
+                  pathname === link.href ||
+                  (link.href !== '/' && pathname.startsWith(`${link.href}/`))
+                    ? 'page'
+                    : undefined
+                }
                 className={cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                  pathname === link.href
+                  'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] touch-manipulation',
+                  pathname === link.href ||
+                    (link.href !== '/' && pathname.startsWith(`${link.href}/`))
                     ? 'bg-plasma-orange/20 text-plasma-orange'
                     : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                 )}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setMobileMenuOpenPath(null)}
               >
                 <span className="text-lg">{link.icon}</span>
                 <span>{link.label}</span>
@@ -115,7 +158,7 @@ export function SiteHeader() {
                 href="https://propulse.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-plasma-orange bg-plasma-orange/10 border border-plasma-orange/30"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-plasma-orange bg-plasma-orange/10 border border-plasma-orange/30 min-h-[44px] touch-manipulation"
               >
                 <span className="text-lg">☀️</span>
                 <span>Open Propulse Dashboard</span>
@@ -125,6 +168,9 @@ export function SiteHeader() {
           </div>
         </div>
       )}
+      <div className="header-progress-track" aria-hidden="true">
+        <div className="header-progress-fill" style={{ width: `${scrollProgress}%` }} />
+      </div>
     </header>
   )
 }

@@ -47,10 +47,9 @@ export default function ModeDetailPage({ params }: ModeDetailPageProps) {
               <Radio className="size-6 text-primary" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">
-                {guide.name}
-                <span className="text-muted-foreground font-normal"> - {guide.fullName}</span>
-              </h1>
+              <h1 className="text-2xl font-bold">Mode Guide</h1>
+              <p className="text-sm font-medium text-primary mt-0.5">{guide.name}</p>
+              <p className="text-sm text-muted-foreground">{guide.fullName}</p>
             </div>
           </div>
           <span

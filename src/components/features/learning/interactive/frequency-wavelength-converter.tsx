@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -67,12 +67,6 @@ export function FrequencyWavelengthConverter() {
   const [frequencyUnit, setFrequencyUnit] = useState<'MHz' | 'kHz' | 'Hz'>('MHz')
   const [wavelength, setWavelength] = useState<string>('')
   const [wavelengthUnit, setWavelengthUnit] = useState<'m' | 'cm' | 'mm'>('m')
-  const [result, setResult] = useState<{
-    value: number
-    unit: string
-    formula: string
-    band: BandInfo | null
-  } | null>(null)
 
   // Convert frequency to MHz
   const toMHz = useCallback((value: number, unit: 'MHz' | 'kHz' | 'Hz'): number => {
@@ -103,20 +97,17 @@ export function FrequencyWavelengthConverter() {
     return amateurBands.find((band) => freqMHz >= band.freqStart && freqMHz <= band.freqEnd) || null
   }, [])
 
-  // Calculate based on mode
-  const calculate = useCallback(() => {
+  const result = useMemo(() => {
     if (mode === 'freq-to-wavelength') {
       const freqValue = parseFloat(frequency)
       if (isNaN(freqValue) || freqValue <= 0) {
-        setResult(null)
-        return
+        return null
       }
 
       const freqMHz = toMHz(freqValue, frequencyUnit)
       const wavelengthM = 300 / freqMHz
       const band = findBand(freqMHz)
 
-      // Choose best unit for display
       let displayValue: number
       let displayUnit: string
       if (wavelengthM >= 1) {
@@ -130,54 +121,47 @@ export function FrequencyWavelengthConverter() {
         displayUnit = 'mm'
       }
 
-      setResult({
+      return {
         value: displayValue,
         unit: displayUnit,
         formula: `λ = 300 ÷ ${freqMHz.toFixed(3)} MHz = ${wavelengthM.toFixed(3)} m`,
         band,
-      })
+      }
+    }
+
+    const wavelengthValue = parseFloat(wavelength)
+    if (isNaN(wavelengthValue) || wavelengthValue <= 0) {
+      return null
+    }
+
+    const wavelengthM = toMeters(wavelengthValue, wavelengthUnit)
+    const freqMHz = 300 / wavelengthM
+    const band = findBand(freqMHz)
+
+    let displayValue: number
+    let displayUnit: string
+    if (freqMHz >= 1000) {
+      displayValue = freqMHz / 1000
+      displayUnit = 'GHz'
+    } else if (freqMHz >= 1) {
+      displayValue = freqMHz
+      displayUnit = 'MHz'
     } else {
-      const wavelengthValue = parseFloat(wavelength)
-      if (isNaN(wavelengthValue) || wavelengthValue <= 0) {
-        setResult(null)
-        return
-      }
+      displayValue = freqMHz * 1000
+      displayUnit = 'kHz'
+    }
 
-      const wavelengthM = toMeters(wavelengthValue, wavelengthUnit)
-      const freqMHz = 300 / wavelengthM
-      const band = findBand(freqMHz)
-
-      // Choose best unit for display
-      let displayValue: number
-      let displayUnit: string
-      if (freqMHz >= 1000) {
-        displayValue = freqMHz / 1000
-        displayUnit = 'GHz'
-      } else if (freqMHz >= 1) {
-        displayValue = freqMHz
-        displayUnit = 'MHz'
-      } else {
-        displayValue = freqMHz * 1000
-        displayUnit = 'kHz'
-      }
-
-      setResult({
-        value: displayValue,
-        unit: displayUnit,
-        formula: `f = 300 ÷ ${wavelengthM.toFixed(3)} m = ${freqMHz.toFixed(3)} MHz`,
-        band,
-      })
+    return {
+      value: displayValue,
+      unit: displayUnit,
+      formula: `f = 300 ÷ ${wavelengthM.toFixed(3)} m = ${freqMHz.toFixed(3)} MHz`,
+      band,
     }
   }, [mode, frequency, frequencyUnit, wavelength, wavelengthUnit, toMHz, toMeters, findBand])
-
-  useEffect(() => {
-    calculate()
-  }, [calculate])
 
   const handleReset = () => {
     setFrequency('')
     setWavelength('')
-    setResult(null)
   }
 
   const selectBand = (band: BandInfo) => {

@@ -274,7 +274,7 @@ export function IonosphereVisualizer() {
               className="fill-green-700 dark:fill-green-900"
             />
             <text x="10" y="275" className="text-xs fill-white/80">
-              Earth's Surface
+              Earth&apos;s Surface
             </text>
 
             {/* Transmitter */}

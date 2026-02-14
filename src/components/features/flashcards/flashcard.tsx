@@ -34,10 +34,9 @@ export function Flashcard({
   const leftIndicatorOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0])
   const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1])
 
-  // Initialize and reset start time when card changes
+  // Reset start time when card content changes
   useEffect(() => {
     startTimeRef.current = Date.now()
-    setIsFlipped(false)
   }, [front])
 
   const handleFlip = useCallback(() => {

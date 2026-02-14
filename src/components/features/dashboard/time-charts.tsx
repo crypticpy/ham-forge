@@ -21,13 +21,12 @@ type TimePeriod = 'day' | 'week' | 'month'
 
 interface TimeBarChartProps {
   data: TimeEntry[] | WeekEntry[] | MonthEntry[]
-  period: TimePeriod
 }
 
 /**
  * Horizontal bar chart for displaying time data
  */
-function TimeBarChart({ data, period }: TimeBarChartProps) {
+function TimeBarChart({ data }: TimeBarChartProps) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-center text-muted-foreground">
@@ -257,7 +256,7 @@ export function StudyTimeCard() {
             {period === 'week' && 'Last 4 Weeks'}
             {period === 'month' && 'Last 3 Months'}
           </h4>
-          <TimeBarChart data={chartData} period={period} />
+          <TimeBarChart data={chartData} />
         </div>
       </CardContent>
     </Card>

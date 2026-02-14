@@ -53,7 +53,7 @@ export default function ControlsPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Controls Reference</h1>
+        <h1 className="text-2xl font-bold">Control Reference</h1>
         <p className="text-muted-foreground">IC-7300 front panel, menu, and touchscreen controls</p>
       </div>
 

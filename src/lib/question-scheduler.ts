@@ -135,14 +135,14 @@ export async function getQuestionPool(examLevel: ExamLevel): Promise<Question[]>
   let pool: Question[]
 
   if (examLevel === 'technician') {
-    const module = await import('@/data/pools/technician.json')
-    pool = module.default.questions as Question[]
+    const moduleData = await import('@/data/pools/technician.json')
+    pool = moduleData.default.questions as Question[]
   } else if (examLevel === 'general') {
-    const module = await import('@/data/pools/general.json')
-    pool = module.default.questions as Question[]
+    const moduleData = await import('@/data/pools/general.json')
+    pool = moduleData.default.questions as Question[]
   } else if (examLevel === 'extra') {
-    const module = await import('@/data/pools/extra.json')
-    pool = module.default.questions as Question[]
+    const moduleData = await import('@/data/pools/extra.json')
+    pool = moduleData.default.questions as Question[]
   } else {
     return []
   }

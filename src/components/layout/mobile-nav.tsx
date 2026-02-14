@@ -51,12 +51,13 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed left-0 right-0 z-50 glass-panel border-t border-white/10 md:hidden safe-area-pb transition-[bottom] duration-150"
+      className="fixed left-0 right-0 z-50 glass-panel border-t border-white/10 md:hidden safe-area-pb transition-[bottom] duration-150 backdrop-saturate-150"
       style={{ bottom: `${bottomOffset}px` }}
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-plasma-orange/60 to-transparent" />
       <div className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           const Icon = item.icon
 
           return (
@@ -65,9 +66,11 @@ export function MobileNav() {
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors rounded-lg',
+                'relative flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors rounded-lg delight-link',
                 'min-h-[44px] min-w-[44px] touch-manipulation',
-                isActive ? 'text-plasma-orange' : 'text-muted-foreground hover:text-foreground'
+                isActive
+                  ? 'text-plasma-orange bg-plasma-orange/10'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Icon
@@ -76,6 +79,12 @@ export function MobileNav() {
               <span className={cn('font-medium', isActive && 'text-plasma-orange')}>
                 {item.label}
               </span>
+              {isActive && (
+                <span
+                  className="absolute -bottom-1 h-1.5 w-1.5 rounded-full bg-plasma-orange animate-pulse"
+                  aria-hidden="true"
+                />
+              )}
             </Link>
           )
         })}

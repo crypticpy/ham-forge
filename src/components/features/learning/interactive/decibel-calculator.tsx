@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,48 +40,40 @@ export function DecibelCalculator() {
   const [power1, setPower1] = useState<string>('')
   const [power2, setPower2] = useState<string>('')
   const [dB, setDB] = useState<string>('')
-  const [result, setResult] = useState<{ value: number; formula: string } | null>(null)
-
-  // Calculate based on mode
-  const calculate = useCallback(() => {
+  const result = useMemo(() => {
     if (mode === 'power-to-db') {
       const p1 = parseFloat(power1)
       const p2 = parseFloat(power2)
 
       if (!isNaN(p1) && !isNaN(p2) && p1 > 0 && p2 > 0) {
         const dbValue = 10 * Math.log10(p2 / p1)
-        setResult({
+        return {
           value: dbValue,
           formula: `dB = 10 × log₁₀(${p2}W ÷ ${p1}W) = ${dbValue.toFixed(2)} dB`,
-        })
-      } else {
-        setResult(null)
+        }
       }
-    } else {
-      const p1 = parseFloat(power1)
-      const dbValue = parseFloat(dB)
 
-      if (!isNaN(p1) && !isNaN(dbValue) && p1 > 0) {
-        const p2Value = p1 * Math.pow(10, dbValue / 10)
-        setResult({
-          value: p2Value,
-          formula: `P₂ = ${p1}W × 10^(${dbValue}/10) = ${p2Value.toFixed(2)}W`,
-        })
-      } else {
-        setResult(null)
+      return null
+    }
+
+    const p1 = parseFloat(power1)
+    const dbValue = parseFloat(dB)
+
+    if (!isNaN(p1) && !isNaN(dbValue) && p1 > 0) {
+      const p2Value = p1 * Math.pow(10, dbValue / 10)
+      return {
+        value: p2Value,
+        formula: `P₂ = ${p1}W × 10^(${dbValue}/10) = ${p2Value.toFixed(2)}W`,
       }
     }
-  }, [mode, power1, power2, dB])
 
-  useEffect(() => {
-    calculate()
-  }, [calculate])
+    return null
+  }, [mode, power1, power2, dB])
 
   const handleReset = () => {
     setPower1('')
     setPower2('')
     setDB('')
-    setResult(null)
   }
 
   const applyQuickConversion = (conversion: QuickConversion) => {

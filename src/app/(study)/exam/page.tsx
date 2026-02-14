@@ -98,7 +98,7 @@ export default function ExamLandingPage() {
     <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Practice Exam</h1>
+        <h1 className="text-2xl font-bold">Exam Practice</h1>
         <p className="text-muted-foreground">Simulate the real VE exam experience</p>
       </div>
 

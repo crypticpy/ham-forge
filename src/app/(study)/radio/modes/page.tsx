@@ -24,7 +24,7 @@ export default function ModesPage() {
           <div className="p-2 rounded-lg bg-primary/10">
             <Radio className="size-6 text-primary" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold">Operating Modes</h1>
+          <h1 className="text-2xl font-bold">Mode Guides</h1>
         </div>
         <p className="text-muted-foreground">
           Learn about the different operating modes available on the IC-7300 transceiver

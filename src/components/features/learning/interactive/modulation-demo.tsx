@@ -103,19 +103,23 @@ export function ModulationDemo() {
 
   // Cleanup on unmount
   useEffect(() => {
+    const animationFrame = animationRef.current
+    const oscillator = oscillatorRef.current
+    const audioContext = audioContextRef.current
+
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
       }
-      if (oscillatorRef.current) {
+      if (oscillator) {
         try {
-          oscillatorRef.current.stop()
+          oscillator.stop()
         } catch {
           // Ignore if already stopped
         }
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
+      if (audioContext) {
+        audioContext.close()
       }
     }
   }, [])

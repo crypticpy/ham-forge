@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { Check, X, Image as ImageIcon } from 'lucide-react'
@@ -21,19 +21,16 @@ export function QuestionFlashcard({
   const [revealed, setRevealed] = useState(false)
   const startTimeRef = useRef(0)
 
-  // Initialize and reset state when question changes
   useEffect(() => {
-    setSelectedAnswer(null)
-    setRevealed(false)
     startTimeRef.current = Date.now()
   }, [question.id])
 
-  const handleSelect = (index: number) => {
+  const handleSelect = useCallback((index: number) => {
     if (revealed) return
     setSelectedAnswer(index)
-  }
+  }, [revealed])
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (selectedAnswer === null) return
 
     const timeMs = Date.now() - startTimeRef.current
@@ -44,7 +41,7 @@ export function QuestionFlashcard({
     setTimeout(() => {
       onResult(selectedAnswer, correct, timeMs)
     }, 1500)
-  }
+  }, [selectedAnswer, question.correctAnswer, onResult])
 
   const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -82,7 +79,7 @@ export function QuestionFlashcard({
 
     window.addEventListener('keydown', handleGlobalKeyDown)
     return () => window.removeEventListener('keydown', handleGlobalKeyDown)
-  }, [revealed, selectedAnswer])
+  }, [revealed, selectedAnswer, handleSelect, handleSubmit])
 
   const answerLabels = ['A', 'B', 'C', 'D']
 

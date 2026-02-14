@@ -11,17 +11,20 @@ import {
   ExternalLink,
   ChevronRight,
   Zap,
+  Compass,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { HamDelightCard } from '@/components/features/delight/ham-delight-card'
 import { useStudyStore } from '@/stores/study-store'
 
 const features = [
   {
     href: '/practice',
-    title: 'Practice Questions',
+    title: 'Adaptive Practice',
     description:
-      'Master questions with spaced repetition learning. Focus on weak areas and track your progress.',
+      'Train with spaced repetition, focus your weak areas, and build retention with every session.',
     icon: BookOpen,
     color: 'text-cosmic-cyan',
     glowColor: 'group-hover:shadow-glow-cyan',
@@ -29,9 +32,9 @@ const features = [
   },
   {
     href: '/exam',
-    title: 'Practice Exams',
+    title: 'Exam Simulation',
     description:
-      'Simulate the real VE exam experience with timed tests and authentic question pools.',
+      'Rehearse the real VE flow with timed sessions and authentic question pools.',
     icon: ClipboardCheck,
     color: 'text-signal-green',
     glowColor: 'group-hover:shadow-glow-green',
@@ -39,8 +42,8 @@ const features = [
   },
   {
     href: '/learn',
-    title: 'Study Modules',
-    description: 'Learn concepts through structured educational content organized by topic.',
+    title: 'Learning Modules',
+    description: 'Build fundamentals with structured lessons organized by exam topic.',
     icon: GraduationCap,
     color: 'text-aurora-purple',
     glowColor: 'group-hover:shadow-glow-purple',
@@ -48,9 +51,9 @@ const features = [
   },
   {
     href: '/dashboard',
-    title: 'Track Progress',
+    title: 'Progress Analytics',
     description:
-      'View detailed analytics, track your study streaks, and monitor improvement over time.',
+      'Track streaks, monitor accuracy trends, and see where your gains are strongest.',
     icon: BarChart3,
     color: 'text-caution-amber',
     glowColor: 'group-hover:shadow-[0_0_20px_rgba(255,210,63,0.3)]',
@@ -58,8 +61,8 @@ const features = [
   },
   {
     href: '/spectrum',
-    title: 'Spectrum Explorer',
-    description: 'Interactive visualization of amateur radio bands and frequency allocations.',
+    title: 'Band Explorer',
+    description: 'Visualize amateur bands, allocations, and privileges in one interactive view.',
     icon: Waves,
     color: 'text-plasma-orange',
     glowColor: 'group-hover:shadow-glow-orange',
@@ -67,8 +70,8 @@ const features = [
   },
   {
     href: '/radio',
-    title: 'IC-7300 Guide',
-    description: 'Quick reference for the Icom IC-7300 transceiver controls and band settings.',
+    title: 'Radio Reference',
+    description: 'Use practical control guides and operating references for faster on-air confidence.',
     icon: Radio,
     color: 'text-sunspot-blue',
     glowColor: 'group-hover:shadow-[0_0_20px_rgba(58,134,255,0.3)]',
@@ -79,17 +82,17 @@ const features = [
 const highlights = [
   {
     title: 'Offline Ready',
-    description: 'Study anywhere, even without an internet connection.',
+    description: 'Keep studying when connectivity drops or you are away from Wi-Fi.',
     icon: Zap,
   },
   {
-    title: 'Spaced Repetition',
-    description: 'Smart scheduling helps you remember what you learn.',
+    title: 'Smart Scheduling',
+    description: 'Adaptive review timing helps you retain what matters most.',
     icon: BarChart3,
   },
   {
-    title: 'All License Classes',
-    description: 'Comprehensive question pools for Tech, General, and Extra.',
+    title: 'Full Class Coverage',
+    description: 'Comprehensive pools for Technician, General, and Amateur Extra.',
     icon: GraduationCap,
   },
 ]
@@ -104,40 +107,40 @@ export default function Home() {
   }
 
   return (
-    <main id="main-content" tabIndex={-1} className="outline-none relative">
+    <main id="main-content" tabIndex={-1} className="outline-none relative pb-safe">
       {/* Cosmic background effects (dark mode only) */}
       <div className="fixed inset-0 bg-cosmic-gradient dark:block hidden -z-10" />
       <div className="fixed inset-0 bg-stars opacity-40 dark:block hidden -z-10" />
       <div className="fixed inset-0 bg-glow-orange dark:block hidden -z-10" />
       <div className="fixed inset-0 bg-glow-purple dark:block hidden -z-10" />
 
-      <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="container mx-auto px-3 py-8 sm:px-4 sm:py-12 md:py-16">
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center mb-16 animate-fade-in-up">
           {/* Logo with glow */}
           <div className="mb-6 relative">
             <div className="absolute inset-0 bg-plasma-orange/20 rounded-full blur-2xl scale-150 animate-pulse-glow" />
             <div className="relative rounded-full bg-plasma-orange/10 dark:bg-plasma-orange/20 p-5 border border-plasma-orange/30">
-              <Radio className="size-14 text-plasma-orange animate-pulse-glow" />
+              <Radio className="size-14 text-plasma-orange animate-pulse-glow animate-float-slow" />
             </div>
           </div>
 
           {/* Title with gradient */}
-          <h1 className="font-display text-4xl md:text-6xl font-black tracking-wider mb-4 text-gradient-orange">
+          <h1 className="font-display text-4xl md:text-6xl font-black tracking-wider mb-4 text-gradient-orange text-balance">
             HAMFORGE
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-2 tracking-wide">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-2 tracking-wide text-balance">
             Master Your Ham Radio License
           </p>
-          <p className="text-muted-foreground max-w-2xl mb-8 leading-relaxed">
-            Your comprehensive study companion for amateur radio license exams. Practice questions,
-            track your progress, and ace your Technician, General, or Extra class exam.
+          <p className="text-muted-foreground max-w-2xl mb-8 leading-relaxed text-balance">
+            Prepare for your ham radio license with focused practice, clear lessons, and exam-ready
+            simulations for Technician, General, and Amateur Extra.
           </p>
 
           {/* Current Exam Level Badge */}
           <div className="inline-flex items-center gap-2 rounded-full bg-muted/50 dark:bg-white/5 px-5 py-2.5 text-sm mb-8 border border-border dark:border-white/10 backdrop-blur-sm">
             <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-              Currently studying:
+              Current focus
             </span>
             <span className="font-display font-bold text-plasma-orange">
               {examLevelDisplay[currentExamLevel]} Class
@@ -152,7 +155,7 @@ export default function Home() {
               className="gap-2 bg-plasma-orange hover:bg-plasma-orange/90 text-white font-semibold px-8 shadow-glow-orange"
             >
               <Link href="/practice">
-                Start Practicing
+                Start Practice
                 <ChevronRight className="size-5" />
               </Link>
             </Button>
@@ -163,7 +166,7 @@ export default function Home() {
               className="gap-2 border-plasma-orange/50 text-plasma-orange hover:bg-plasma-orange/10"
             >
               <a href="https://propulse.vercel.app" target="_blank" rel="noopener noreferrer">
-                <span>View Propagation</span>
+                <span>Open Propagation</span>
                 <ExternalLink className="size-4" />
               </a>
             </Button>
@@ -176,7 +179,7 @@ export default function Home() {
             href="https://propulse.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="block glass-card p-6 md:p-8 hover:border-plasma-orange/50 transition-all duration-300 group"
+            className="block glass-card p-6 md:p-8 hover:border-plasma-orange/50 transition-all duration-300 group delight-surface delight-lift"
           >
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-shrink-0 text-5xl animate-pulse-glow">☀️</div>
@@ -185,12 +188,12 @@ export default function Home() {
                   PROPULSE
                 </h2>
                 <p className="text-muted-foreground">
-                  Check real-time solar conditions and HF propagation forecasts. Know when bands are
-                  open before you transmit.
+                  Check real-time solar conditions and HF propagation forecasts, so you know when
+                  bands are open before you transmit.
                 </p>
               </div>
               <div className="flex items-center gap-2 text-plasma-orange group-hover:translate-x-1 transition-transform">
-                <span className="font-medium">Open Dashboard</span>
+                <span className="font-medium">Open Propulse</span>
                 <ExternalLink className="size-5" />
               </div>
             </div>
@@ -199,9 +202,17 @@ export default function Home() {
 
         {/* Feature Cards Grid */}
         <div className="mb-16">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-10 tracking-wide">
-            Everything You Need to Pass
-          </h2>
+          <div className="mb-10 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-4 py-1.5">
+              <Compass className="size-4 text-plasma-orange" />
+              <span className="text-xs font-semibold tracking-[0.14em] uppercase text-muted-foreground">
+                Study Toolkit
+              </span>
+            </div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-center mt-4 tracking-wide text-balance">
+              Everything You Need To Pass
+            </h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, index) => {
               const Icon = feature.icon
@@ -209,16 +220,16 @@ export default function Home() {
                 <Link
                   key={feature.href}
                   href={feature.href}
-                  className={`group animate-fade-in-up`}
+                  className="group animate-fade-in-up delight-lift"
                   style={{ animationDelay: `${(index + 2) * 100}ms` }}
                 >
                   <Card
-                    className={`h-full transition-all duration-300 glass-card ${feature.glowColor} ${feature.borderColor}`}
+                    className={`h-full transition-all duration-300 glass-card delight-surface ${feature.glowColor} ${feature.borderColor}`}
                   >
                     <CardHeader className="pb-3">
-                      <div className="mb-3">
+                      <div className="mb-3 inline-flex size-11 items-center justify-center rounded-xl border border-border/80 bg-muted/40">
                         <Icon
-                          className={`size-8 ${feature.color} transition-transform group-hover:scale-110`}
+                          className={`size-6 ${feature.color} transition-transform group-hover:scale-110`}
                         />
                       </div>
                       <CardTitle className="text-lg group-hover:text-plasma-orange transition-colors font-display tracking-wide">
@@ -239,7 +250,13 @@ export default function Home() {
 
         {/* Why HamForge Section */}
         <div className="text-center animate-fade-in-up animate-delay-500">
-          <h2 className="font-display text-2xl md:text-3xl font-bold mb-8 tracking-wide">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-4 py-1.5">
+            <Sparkles className="size-4 text-plasma-orange" />
+            <span className="text-xs font-semibold tracking-[0.14em] uppercase text-muted-foreground">
+              Why It Works
+            </span>
+          </div>
+          <h2 className="font-display text-2xl md:text-3xl font-bold mt-4 mb-8 tracking-wide text-balance">
             Why HamForge?
           </h2>
           <div className="grid gap-4 md:grid-cols-3 max-w-4xl mx-auto">
@@ -248,10 +265,12 @@ export default function Home() {
               return (
                 <div
                   key={item.title}
-                  className="glass-card p-6 text-center"
+                  className="glass-card p-6 text-center delight-surface delight-lift"
                   style={{ animationDelay: `${(index + 6) * 100}ms` }}
                 >
-                  <Icon className="size-8 mx-auto mb-4 text-plasma-orange" />
+                  <div className="mx-auto mb-4 inline-flex size-11 items-center justify-center rounded-xl border border-border/80 bg-muted/40">
+                    <Icon className="size-5 text-plasma-orange" />
+                  </div>
                   <h3 className="font-display font-bold mb-2 tracking-wide">{item.title}</h3>
                   <p className="text-sm text-muted-foreground">{item.description}</p>
                 </div>
@@ -280,6 +299,10 @@ export default function Home() {
               Spectrum Explorer
             </Link>
           </div>
+        </div>
+
+        <div className="mt-12 max-w-4xl mx-auto animate-fade-in-up animate-delay-500">
+          <HamDelightCard context="home" seed="home-landing" />
         </div>
       </div>
     </main>

@@ -48,7 +48,7 @@ export default function LearnPage() {
     <div className="container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Learning Modules</h1>
+        <h1 className="text-2xl font-bold">Study Modules</h1>
         <p className="text-muted-foreground">Study materials for the {examLevelLabel} exam</p>
       </div>
 

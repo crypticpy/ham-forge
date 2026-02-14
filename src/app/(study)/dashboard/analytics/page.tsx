@@ -127,9 +127,9 @@ export default function AnalyticsPage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Back to Dashboard
+          Back to Stats
         </Link>
-        <h1 className="text-2xl font-bold">Detailed Analytics</h1>
+        <h1 className="text-2xl font-bold">Analytics</h1>
         <p className="text-muted-foreground">{examLevelLabel} exam statistics and trends</p>
       </div>
 

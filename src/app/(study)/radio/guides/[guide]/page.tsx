@@ -37,7 +37,8 @@ export default function GuideDetailPage({ params }: GuideDetailPageProps) {
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">{guide.name}</h1>
+        <h1 className="text-2xl font-bold mb-1">Feature Guide</h1>
+        <p className="text-sm font-medium text-primary mb-1">{guide.name}</p>
         <p className="text-muted-foreground">{guide.description}</p>
       </div>
 
@@ -45,7 +46,7 @@ export default function GuideDetailPage({ params }: GuideDetailPageProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Sidebar with Quick Tips */}
         <div className="lg:col-span-1 lg:order-2">
-          <div className="sticky top-6 space-y-4">
+          <div className="lg:sticky lg:top-6 space-y-4">
             <GuideQuickTips tips={guide.quickTips} />
 
             {/* Related Controls */}

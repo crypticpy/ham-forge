@@ -335,7 +335,8 @@ export default function SectionContentPage({ params }: SectionPageProps) {
             </span>
           )}
         </div>
-        <h1 className="text-2xl font-bold">{section.title}</h1>
+        <h1 className="text-2xl font-bold">Section Overview</h1>
+        <p className="text-lg font-semibold text-foreground/90 mt-1">{section.title}</p>
       </div>
 
       {/* Main Content */}

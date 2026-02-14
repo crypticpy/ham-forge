@@ -315,9 +315,9 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     : `Question ${currentIndex + 1} of ${questions.length}`
 
   return (
-    <div className="container mx-auto max-w-2xl px-3 pt-2 pb-4 sm:p-4">
+    <div className="container mx-auto max-w-2xl px-3 pt-2 pb-4 sm:p-4 session-shell">
       {/* Header with optional timer */}
-      <div className="flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 py-2 sm:px-4 sm:py-3 -mx-3 sm:-mx-4 -mt-2 sm:-mt-4 mb-2">
+      <div className="sticky session-header-safe z-20 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 py-2 sm:px-4 sm:py-3 -mx-3 sm:-mx-4 -mt-2 sm:-mt-4 mb-2">
         <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="ghost" size="icon" className="size-11 sm:size-9" asChild>
             <Link href="/practice">
@@ -344,7 +344,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
         </div>
       </div>
 
-      <div className="mt-3 sm:mt-6">
+      <div className="mt-3 sm:mt-6 session-footer-safe">
         {currentQuestion && (
           <QuestionCard
             key={currentQuestion.id}

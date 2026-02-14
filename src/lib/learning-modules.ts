@@ -50,9 +50,9 @@ export function getSectionById(
   moduleId: string,
   sectionId: string
 ): LearningSection | undefined {
-  const module = getModuleById(examLevel, moduleId)
-  if (!module) return undefined
-  return module.sections.find((section) => section.id === sectionId)
+  const moduleEntry = getModuleById(examLevel, moduleId)
+  if (!moduleEntry) return undefined
+  return moduleEntry.sections.find((section) => section.id === sectionId)
 }
 
 /**
@@ -67,9 +67,9 @@ export function getAllSections(
   const modules = getModulesForExamLevel(examLevel)
   const sections: Array<{ moduleId: string; section: LearningSection }> = []
 
-  for (const module of modules) {
-    for (const section of module.sections) {
-      sections.push({ moduleId: module.id, section })
+  for (const moduleEntry of modules) {
+    for (const section of moduleEntry.sections) {
+      sections.push({ moduleId: moduleEntry.id, section })
     }
   }
 

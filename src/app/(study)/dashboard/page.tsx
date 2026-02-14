@@ -70,7 +70,7 @@ export default function DashboardPage() {
 
       {/* Header with Exam Level Selector */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Progress Dashboard</h1>
+        <h1 className="text-2xl font-bold">Progress</h1>
         <p className="text-muted-foreground">
           Track your study progress for the {examLevelLabel} exam
         </p>

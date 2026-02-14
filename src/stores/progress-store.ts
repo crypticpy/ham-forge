@@ -142,7 +142,8 @@ export const useProgressStore = create<ProgressState>()(
       // Reset all progress for a specific module
       resetModuleProgress: (moduleId) =>
         set((state) => {
-          const { [moduleId]: _, ...rest } = state.completedModules
+          const rest = { ...state.completedModules }
+          delete rest[moduleId]
           return {
             completedModules: rest,
           }

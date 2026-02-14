@@ -146,7 +146,7 @@ export default function MenuSystemPage() {
           <div className="p-2 rounded-lg bg-primary/10">
             <Menu className="size-6 text-primary" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold">Menu System Guide</h1>
+          <h1 className="text-2xl font-bold">Menu Guide</h1>
         </div>
         <p className="text-muted-foreground">
           Navigate and understand the IC-7300 menu structure for optimal configuration

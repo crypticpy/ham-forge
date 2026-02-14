@@ -125,7 +125,6 @@ export default function FlashcardSessionPage() {
     }
 
     loadSession()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally capture cardProgress once at session start
   }, [isHydrated, router, getAllCategoryProgress, cardProgress])
 
   // Handle learning card result
@@ -256,9 +255,9 @@ export default function FlashcardSessionPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col session-shell">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+      <header className="sticky session-header-safe z-20 border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto max-w-4xl px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" asChild>
@@ -324,7 +323,7 @@ export default function FlashcardSessionPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-8">
+      <main className="flex-1 container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-8 session-footer-safe">
         <AnimatePresence mode="wait">
           {phase === 'learning' && learningCards[currentIndex] && (
             <motion.div

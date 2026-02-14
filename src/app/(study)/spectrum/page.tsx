@@ -85,7 +85,7 @@ export default function SpectrumPage() {
           <div className="p-2 rounded-lg bg-primary/10">
             <Waves className="size-6 text-primary" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold">Amateur Radio Spectrum</h1>
+          <h1 className="text-2xl font-bold">Spectrum Explorer</h1>
         </div>
         <p className="text-muted-foreground">
           Interactive visualization of US amateur radio frequency allocations from 160 meters to 23

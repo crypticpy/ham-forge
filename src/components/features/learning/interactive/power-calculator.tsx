@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,12 +64,9 @@ export function PowerCalculator() {
   const [power, setPower] = useState<string>('')
   const [voltage, setVoltage] = useState<string>('')
   const [current, setCurrent] = useState<string>('')
-  const [solveFor, setSolveFor] = useState<SolveFor>(null)
-  const [result, setResult] = useState<CalculationResult | null>(null)
   const [activeScenario, setActiveScenario] = useState<PracticeScenario | null>(null)
 
-  // Calculate when we have exactly 2 values
-  const calculate = useCallback(() => {
+  const calculation = useMemo((): { solveFor: SolveFor; result: CalculationResult } | null => {
     const p = parseFloat(power)
     const e = parseFloat(voltage)
     const i = parseFloat(current)
@@ -81,48 +78,53 @@ export function PowerCalculator() {
     const valueCount = [hasPower, hasVoltage, hasCurrent].filter(Boolean).length
 
     if (valueCount !== 2) {
-      setResult(null)
-      setSolveFor(null)
-      return
+      return null
     }
 
     if (!hasPower && hasVoltage && hasCurrent) {
       const calculated = e * i
-      setSolveFor('power')
-      setResult({
-        value: calculated,
-        formula: 'P = E × I',
-        steps: `P = ${e}V × ${i}A = ${calculated.toFixed(2)}W`,
-      })
-    } else if (hasPower && !hasVoltage && hasCurrent) {
-      const calculated = p / i
-      setSolveFor('voltage')
-      setResult({
-        value: calculated,
-        formula: 'E = P ÷ I',
-        steps: `E = ${p}W ÷ ${i}A = ${calculated.toFixed(2)}V`,
-      })
-    } else if (hasPower && hasVoltage && !hasCurrent) {
-      const calculated = p / e
-      setSolveFor('current')
-      setResult({
-        value: calculated,
-        formula: 'I = P ÷ E',
-        steps: `I = ${p}W ÷ ${e}V = ${calculated.toFixed(2)}A`,
-      })
+      return {
+        solveFor: 'power',
+        result: {
+          value: calculated,
+          formula: 'P = E × I',
+          steps: `P = ${e}V × ${i}A = ${calculated.toFixed(2)}W`,
+        },
+      }
     }
+    if (hasPower && !hasVoltage && hasCurrent) {
+      const calculated = p / i
+      return {
+        solveFor: 'voltage',
+        result: {
+          value: calculated,
+          formula: 'E = P ÷ I',
+          steps: `E = ${p}W ÷ ${i}A = ${calculated.toFixed(2)}V`,
+        },
+      }
+    }
+    if (hasPower && hasVoltage && !hasCurrent) {
+      const calculated = p / e
+      return {
+        solveFor: 'current',
+        result: {
+          value: calculated,
+          formula: 'I = P ÷ E',
+          steps: `I = ${p}W ÷ ${e}V = ${calculated.toFixed(2)}A`,
+        },
+      }
+    }
+
+    return null
   }, [power, voltage, current])
 
-  useEffect(() => {
-    calculate()
-  }, [calculate])
+  const solveFor = calculation?.solveFor ?? null
+  const result = calculation?.result ?? null
 
   const handleReset = () => {
     setPower('')
     setVoltage('')
     setCurrent('')
-    setResult(null)
-    setSolveFor(null)
     setActiveScenario(null)
   }
 
