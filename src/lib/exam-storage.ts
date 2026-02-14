@@ -14,12 +14,13 @@ export async function saveExamAttempt(
   score: number,
   passed: boolean,
   timeSpent: number, // in seconds
-  answers: ExamAnswer[]
+  answers: ExamAnswer[],
+  id?: string
 ): Promise<string> {
-  const id = `exam-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+  const attemptId = id ?? `exam-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 
   const attempt: ExamAttempt = {
-    id,
+    id: attemptId,
     examLevel,
     date: new Date(),
     score,
@@ -29,7 +30,7 @@ export async function saveExamAttempt(
   }
 
   await db.examAttempts.add(attempt)
-  return id
+  return attemptId
 }
 
 /**

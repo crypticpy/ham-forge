@@ -187,6 +187,18 @@ describe('exam-generator', () => {
       expect(uniqueGroups.size).toBe(35)
     })
 
+    it('rotates questions within groups across retakes (no immediate repeats)', async () => {
+      const exam1 = await generateExam('technician')
+      const exam2 = await generateExam('technician')
+
+      const q1 = exam1.questions.find((q) => q.subelement === 'T1' && q.group === 'A')
+      const q2 = exam2.questions.find((q) => q.subelement === 'T1' && q.group === 'A')
+
+      expect(q1).toBeDefined()
+      expect(q2).toBeDefined()
+      expect(q1!.id).not.toBe(q2!.id)
+    })
+
     it('selects questions from 50 different groups for extra exam', async () => {
       const exam = await generateExam('extra')
       const groups = exam.questions.map((q) => q.subelement + q.group)
@@ -299,6 +311,17 @@ describe('exam-generator', () => {
           questionCount++
         }
       }
+    })
+
+    it('handles empty exams gracefully', () => {
+      const result = calculateExamResult([], [])
+
+      expect(result.totalQuestions).toBe(0)
+      expect(result.correctCount).toBe(0)
+      expect(result.incorrectCount).toBe(0)
+      expect(result.score).toBe(0)
+      expect(result.passed).toBe(false)
+      expect(result.passingScore).toBe(0)
     })
 
     it('correctly counts all correct answers', () => {

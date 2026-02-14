@@ -17,6 +17,7 @@ import {
 import { ExamHistory } from '@/components/features/exam/exam-history'
 import { useStudyStore } from '@/stores/study-store'
 import { getExamConfig } from '@/lib/exam-generator'
+import { EXAM_SESSION_STORAGE_KEY } from '@/lib/exam-session-persistence'
 import type { ExamLevel } from '@/types'
 
 export default function ExamLandingPage() {
@@ -46,7 +47,7 @@ export default function ExamLandingPage() {
     setExamLevel(selectedLevel)
 
     // Clear any existing exam session
-    sessionStorage.removeItem('hamforge-exam-session')
+    sessionStorage.removeItem(EXAM_SESSION_STORAGE_KEY)
 
     // Generate unique exam ID for URL
     const examId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`

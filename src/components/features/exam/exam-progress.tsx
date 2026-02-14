@@ -15,7 +15,7 @@ export function ExamProgress({
   answered,
   showPercentage = true,
 }: ExamProgressProps) {
-  const progressPercentage = Math.round((answered / total) * 100)
+  const progressPercentage = total > 0 ? Math.round((answered / total) * 100) : 0
 
   return (
     <div className="w-full space-y-2">

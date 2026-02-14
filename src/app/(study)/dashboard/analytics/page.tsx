@@ -166,12 +166,12 @@ export default function AnalyticsPage() {
                 <div className="space-y-4">
                   {/* Recent exams list */}
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {examHistory.slice(0, 10).map((attempt) => (
-                      <Link
-                        key={attempt.id}
-                        href={`/exam/${attempt.id.replace('exam-', '')}/review`}
-                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                      >
+	                    {examHistory.slice(0, 10).map((attempt) => (
+	                      <Link
+	                        key={attempt.id}
+	                        href={`/exam/${attempt.id}/review`}
+	                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+	                      >
                         <div className="flex items-center gap-3">
                           {attempt.passed ? (
                             <CheckCircle

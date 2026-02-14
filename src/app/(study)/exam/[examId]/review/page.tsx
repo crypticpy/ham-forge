@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -19,14 +19,20 @@ import {
   SubelementChart,
   TECHNICIAN_SUBELEMENT_NAMES,
   GENERAL_SUBELEMENT_NAMES,
+  EXTRA_SUBELEMENT_NAMES,
 } from '@/components/features/exam/subelement-chart'
 import { FigureDisplay } from '@/components/features/practice/figure-display'
 import { ExplanationCard } from '@/components/features/practice/explanation-card'
+import {
+  EXAM_SESSION_STORAGE_KEY,
+  deserializeExamSessionState,
+  type SerializedExamSessionState,
+} from '@/lib/exam-session-persistence'
 import { getExamAttempt } from '@/lib/exam-storage'
 import { getQuestionPool } from '@/lib/question-scheduler'
+import { useStudyStore } from '@/stores/study-store'
 import type { ExamAttempt, Question } from '@/types'
 import { cn } from '@/lib/utils'
-import { use } from 'react'
 
 const ANSWER_LABELS = ['A', 'B', 'C', 'D'] as const
 
@@ -40,9 +46,69 @@ interface ReviewQuestion {
   correct: boolean
 }
 
+function getFallbackAttemptFromSessionStorage(examId: string): {
+  attempt: ExamAttempt
+  reviewQuestions: ReviewQuestion[]
+} | null {
+  try {
+    const raw = sessionStorage.getItem(EXAM_SESSION_STORAGE_KEY)
+    if (!raw) return null
+
+    const parsed: SerializedExamSessionState = JSON.parse(raw)
+    if (!parsed.savedExamId || parsed.savedExamId !== examId) return null
+
+    const session = deserializeExamSessionState(parsed)
+    if (!session.exam) return null
+
+    const answers = session.exam.questions.map((question) => {
+      const selectedAnswer = session.answers.get(question.id) ?? -1
+      const correct = selectedAnswer !== -1 && selectedAnswer === question.correctAnswer
+      return {
+        questionId: question.id,
+        selectedAnswer,
+        correct,
+      }
+    })
+
+    const correctCount = answers.filter((a) => a.correct).length
+    const totalQuestions = answers.length
+    const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
+    const passingScore = Math.ceil(totalQuestions * 0.74)
+
+    const timeLimitSeconds = Math.max(1, session.exam.timeLimit) * 60
+    const rawTimeSpent = timeLimitSeconds - session.timeRemaining
+    const timeSpent = Math.max(0, Math.min(timeLimitSeconds, rawTimeSpent))
+
+    const attempt: ExamAttempt = {
+      id: examId,
+      examLevel: session.exam.examLevel,
+      date: session.startTime ?? new Date(),
+      score,
+      passed: correctCount >= passingScore,
+      timeSpent,
+      answers,
+    }
+
+    const reviewQuestions: ReviewQuestion[] = session.exam.questions.map((question) => {
+      const selectedAnswer = session.answers.get(question.id) ?? -1
+      return {
+        question,
+        selectedAnswer,
+        correct: selectedAnswer !== -1 && selectedAnswer === question.correctAnswer,
+      }
+    })
+
+    return { attempt, reviewQuestions }
+  } catch (error) {
+    console.warn('Failed to restore exam review from session storage:', error)
+    return null
+  }
+}
+
 export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   const resolvedParams = use(params)
   const router = useRouter()
+  const { setExamLevel } = useStudyStore()
   const [attempt, setAttempt] = useState<ExamAttempt | null>(null)
   const [reviewQuestions, setReviewQuestions] = useState<ReviewQuestion[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -52,20 +118,34 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
   // Load exam attempt
   useEffect(() => {
+    let cancelled = false
+
     async function loadAttempt() {
+      setIsLoading(true)
+      setError(null)
+
       try {
         const examAttempt = await getExamAttempt(resolvedParams.examId)
 
         if (!examAttempt) {
-          setError('Exam not found')
-          setIsLoading(false)
+          const fallback = getFallbackAttemptFromSessionStorage(resolvedParams.examId)
+          if (!cancelled && fallback) {
+            setAttempt(fallback.attempt)
+            setReviewQuestions(fallback.reviewQuestions)
+            setIsLoading(false)
+          } else if (!cancelled) {
+            setError('Exam not found')
+            setIsLoading(false)
+          }
           return
         }
 
+        if (cancelled) return
         setAttempt(examAttempt)
 
         // Load questions from pool
         const pool = await getQuestionPool(examAttempt.examLevel)
+        if (cancelled) return
         const poolMap = new Map(pool.map((q) => [q.id, q]))
 
         const questions: ReviewQuestion[] = examAttempt.answers
@@ -83,16 +163,31 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
         setReviewQuestions(questions)
         setIsLoading(false)
       } catch (err) {
+        const fallback = getFallbackAttemptFromSessionStorage(resolvedParams.examId)
+        if (!cancelled && fallback) {
+          setAttempt(fallback.attempt)
+          setReviewQuestions(fallback.reviewQuestions)
+          setIsLoading(false)
+          return
+        }
+
+        if (cancelled) return
         setError(err instanceof Error ? err.message : 'Failed to load exam')
         setIsLoading(false)
       }
     }
 
     loadAttempt()
+
+    return () => {
+      cancelled = true
+    }
   }, [resolvedParams.examId])
 
   const handleRetakeExam = () => {
-    sessionStorage.removeItem('hamforge-exam-session')
+    if (!attempt) return
+    sessionStorage.removeItem(EXAM_SESSION_STORAGE_KEY)
+    setExamLevel(attempt.examLevel)
     const examId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
     router.push(`/exam/${examId}`)
   }
@@ -104,7 +199,13 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
     const incorrectIds = attempt.answers.filter((a) => !a.correct).map((a) => a.questionId)
 
     // Get unique subelements from incorrect questions
-    const incorrectSubelements = [...new Set(incorrectIds.map((id) => id.substring(0, 2)))]
+    const incorrectSubelementsFromReview = reviewQuestions
+      .filter((q) => !q.correct)
+      .map((q) => q.question.subelement)
+    const incorrectSubelements =
+      incorrectSubelementsFromReview.length > 0
+        ? [...new Set(incorrectSubelementsFromReview)]
+        : [...new Set(incorrectIds.map((id) => id.substring(0, 2)))]
 
     // Store in session storage for practice mode
     sessionStorage.setItem(
@@ -153,7 +254,11 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
   // Get subelement data for chart
   const subelementNames =
-    attempt.examLevel === 'technician' ? TECHNICIAN_SUBELEMENT_NAMES : GENERAL_SUBELEMENT_NAMES
+    attempt.examLevel === 'technician'
+      ? TECHNICIAN_SUBELEMENT_NAMES
+      : attempt.examLevel === 'general'
+        ? GENERAL_SUBELEMENT_NAMES
+        : EXTRA_SUBELEMENT_NAMES
 
   const subelementStats = new Map<string, { correct: number; total: number }>()
 
@@ -179,21 +284,35 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
   const correctCount = attempt.answers.filter((a) => a.correct).length
   const totalQuestions = attempt.answers.length
+  const passingScore = Math.ceil(totalQuestions * 0.74)
   const incorrectQuestions = reviewQuestions.filter((rq) => !rq.correct)
 
   // Question review mode
   if (currentReviewIndex !== null) {
     const questionsToReview = showOnlyIncorrect ? incorrectQuestions : reviewQuestions
-    const currentReview = questionsToReview[currentReviewIndex]
 
-    if (!currentReview) {
-      setCurrentReviewIndex(null)
-      return null
+    if (questionsToReview.length === 0) {
+      return (
+        <div className="container mx-auto max-w-3xl py-6 px-4">
+          <Button variant="ghost" className="mb-4" onClick={() => setCurrentReviewIndex(null)}>
+            <ChevronLeft className="size-4 mr-1" aria-hidden="true" />
+            Back to Results
+          </Button>
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No questions available to review.
+            </CardContent>
+          </Card>
+        </div>
+      )
     }
 
+    const safeIndex = Math.max(0, Math.min(currentReviewIndex, questionsToReview.length - 1))
+    const currentReview = questionsToReview[safeIndex]
+
     const { question, selectedAnswer, correct } = currentReview
-    const isFirst = currentReviewIndex === 0
-    const isLast = currentReviewIndex === questionsToReview.length - 1
+    const isFirst = safeIndex === 0
+    const isLast = safeIndex === questionsToReview.length - 1
 
     return (
       <div className="container mx-auto max-w-3xl py-6 px-4">
@@ -208,7 +327,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">
-                Question {currentReviewIndex + 1} of {questionsToReview.length}
+                Question {safeIndex + 1} of {questionsToReview.length}
                 {showOnlyIncorrect && ' (Incorrect Only)'}
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -302,14 +421,14 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
             <div className="flex items-center justify-between pt-4 border-t">
               <Button
                 variant="outline"
-                onClick={() => setCurrentReviewIndex(currentReviewIndex - 1)}
+                onClick={() => setCurrentReviewIndex(safeIndex - 1)}
                 disabled={isFirst}
               >
                 <ChevronLeft className="size-4 mr-1" aria-hidden="true" />
                 Previous
               </Button>
               <Button
-                onClick={() => setCurrentReviewIndex(currentReviewIndex + 1)}
+                onClick={() => setCurrentReviewIndex(safeIndex + 1)}
                 disabled={isLast}
               >
                 Next
@@ -340,14 +459,14 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
       {/* Results Card */}
       <div className="mb-8">
-        <ExamResultsCard
-          score={attempt.score}
-          correctCount={correctCount}
-          totalQuestions={totalQuestions}
-          passed={attempt.passed}
-          passingScore={26}
-          timeTaken={attempt.timeSpent}
-        />
+	        <ExamResultsCard
+	          score={attempt.score}
+	          correctCount={correctCount}
+	          totalQuestions={totalQuestions}
+	          passed={attempt.passed}
+	          passingScore={passingScore}
+	          timeTaken={attempt.timeSpent}
+	        />
       </div>
 
       {/* Subelement Breakdown */}

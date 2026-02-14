@@ -779,7 +779,8 @@ describe('useExamSession', () => {
         expect.any(Number), // score
         expect.any(Boolean), // passed
         expect.any(Number), // timeSpent
-        expect.any(Array) // answers
+        expect.any(Array), // answers
+        expect.stringMatching(/^exam-\d+-[a-z0-9]+$/) // attempt id
       )
     })
 
@@ -797,7 +798,7 @@ describe('useExamSession', () => {
       })
     })
 
-    it('submitExam updates savedExamId after save completes', async () => {
+    it('submitExam assigns savedExamId and passes it to saveExamAttempt', async () => {
       mockSaveExamAttempt.mockResolvedValue('exam-saved-xyz')
 
       const { result } = renderHook(() => useExamSession('technician'))
@@ -809,8 +810,11 @@ describe('useExamSession', () => {
       })
 
       await waitFor(() => {
-        expect(result.current.savedExamId).toBe('exam-saved-xyz')
+        expect(result.current.savedExamId).toMatch(/^exam-\d+-[a-z0-9]+$/)
       })
+
+      const saveCall = mockSaveExamAttempt.mock.calls[0]
+      expect(saveCall?.[5]).toBe(result.current.savedExamId)
     })
 
     it('submitExam clears session storage after save', async () => {
@@ -836,10 +840,7 @@ describe('useExamSession', () => {
         expect(result.current.savedExamId).not.toBeNull()
       })
 
-      // Note: The hook clears sessionStorage after save, but the savedExamId state update
-      // triggers a re-save. The key behavior is that completed sessions are marked isComplete=true
-      // and won't be restored on reload (checked in the restoration logic).
-      // Verify the saved state has isComplete=true
+      // The key behavior is that completed sessions are marked isComplete=true and won't be restored.
       const stored = sessionStorage.getItem(storageKey)
       if (stored) {
         const parsed = JSON.parse(stored)

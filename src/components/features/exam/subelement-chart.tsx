@@ -29,6 +29,19 @@ export const GENERAL_SUBELEMENT_NAMES: Record<string, string> = {
   G0: 'Safety',
 }
 
+export const EXTRA_SUBELEMENT_NAMES: Record<string, string> = {
+  E1: 'FCC Rules',
+  E2: 'Operating Procedures',
+  E3: 'Radio Wave Propagation',
+  E4: 'Amateur Radio Practices',
+  E5: 'Electrical Principles',
+  E6: 'Circuit Components',
+  E7: 'Practical Circuits',
+  E8: 'Signals and Emissions',
+  E9: 'Antennas and Feed Lines',
+  E0: 'Safety',
+}
+
 interface SubelementData {
   id: string
   name: string

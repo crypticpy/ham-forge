@@ -5,9 +5,13 @@ import type { GeneratedExam, ExamResult } from '@/lib/exam-generator'
 import { generateExam, calculateExamResult } from '@/lib/exam-generator'
 import { saveExamAttempt } from '@/lib/exam-storage'
 import { saveQuestionProgress } from '@/lib/question-scheduler'
+import {
+  EXAM_SESSION_STORAGE_KEY,
+  deserializeExamSessionState,
+  serializeExamSessionState,
+  type SerializedExamSessionState,
+} from '@/lib/exam-session-persistence'
 import type { ExamLevel, ExamAnswer } from '@/types'
-
-const SESSION_STORAGE_KEY = 'hamforge-exam-session'
 
 export interface ExamSessionState {
   exam: GeneratedExam | null
@@ -23,53 +27,8 @@ export interface ExamSessionState {
   startTime: Date | null
 }
 
-interface SerializedExamState {
-  exam: GeneratedExam | null
-  currentIndex: number
-  answers: [string, number][] // serialized Map
-  flaggedQuestions: number[] // serialized Set
-  isComplete: boolean
-  result: ExamResult | null
-  savedExamId: string | null
-  timeRemaining: number
-  startTime: string | null
-}
-
-function serializeState(state: ExamSessionState): SerializedExamState {
-  return {
-    exam: state.exam,
-    currentIndex: state.currentIndex,
-    answers: Array.from(state.answers.entries()),
-    flaggedQuestions: Array.from(state.flaggedQuestions),
-    isComplete: state.isComplete,
-    result: state.result,
-    savedExamId: state.savedExamId,
-    timeRemaining: state.timeRemaining,
-    startTime: state.startTime?.toISOString() ?? null,
-  }
-}
-
-function deserializeState(serialized: SerializedExamState): Partial<ExamSessionState> {
-  // Reconstruct dates in exam object
-  let exam = serialized.exam
-  if (exam) {
-    exam = {
-      ...exam,
-      createdAt: new Date(exam.createdAt),
-    }
-  }
-
-  return {
-    exam,
-    currentIndex: serialized.currentIndex,
-    answers: new Map(serialized.answers),
-    flaggedQuestions: new Set(serialized.flaggedQuestions),
-    isComplete: serialized.isComplete,
-    result: serialized.result,
-    savedExamId: serialized.savedExamId,
-    timeRemaining: serialized.timeRemaining,
-    startTime: serialized.startTime ? new Date(serialized.startTime) : null,
-  }
+function createExamAttemptId(): string {
+  return `exam-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 }
 
 export function useExamSession(examLevel: ExamLevel) {
@@ -93,21 +52,31 @@ export function useExamSession(examLevel: ExamLevel) {
   // Save state to sessionStorage whenever it changes
   useEffect(() => {
     if (state.exam && !state.isLoading) {
-      const serialized = serializeState(state)
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(serialized))
+      const serialized = serializeExamSessionState({
+        exam: state.exam,
+        currentIndex: state.currentIndex,
+        answers: state.answers,
+        flaggedQuestions: state.flaggedQuestions,
+        isComplete: state.isComplete,
+        result: state.result,
+        savedExamId: state.savedExamId,
+        timeRemaining: state.timeRemaining,
+        startTime: state.startTime,
+      })
+      sessionStorage.setItem(EXAM_SESSION_STORAGE_KEY, JSON.stringify(serialized))
     }
   }, [state])
 
   // Load exam on mount - check sessionStorage first
   useEffect(() => {
-    const savedState = sessionStorage.getItem(SESSION_STORAGE_KEY)
+    const savedState = sessionStorage.getItem(EXAM_SESSION_STORAGE_KEY)
 
     if (savedState) {
       try {
-        const parsed: SerializedExamState = JSON.parse(savedState)
+        const parsed: SerializedExamSessionState = JSON.parse(savedState)
         // Only restore if same exam level and not complete
         if (parsed.exam?.examLevel === examLevel && !parsed.isComplete) {
-          const restored = deserializeState(parsed)
+          const restored = deserializeExamSessionState(parsed)
           setState((prev) => ({
             ...prev,
             ...restored,
@@ -172,8 +141,13 @@ export function useExamSession(examLevel: ExamLevel) {
     if (isSubmittingRef.current) return
     isSubmittingRef.current = true
 
+    const attemptId = createExamAttemptId()
+
     setState((prev) => {
-      if (!prev.exam || prev.isComplete) return prev
+      if (!prev.exam || prev.isComplete) {
+        isSubmittingRef.current = false
+        return prev
+      }
 
       // Stop timer
       if (timerRef.current) {
@@ -202,17 +176,19 @@ export function useExamSession(examLevel: ExamLevel) {
 
       const result = calculateExamResult(prev.exam.questions, answerResults)
       const timeLimitSeconds = Math.max(1, prev.exam.timeLimit) * 60
-      const timeSpent = timeLimitSeconds - prev.timeRemaining
+      const rawTimeSpent = timeLimitSeconds - prev.timeRemaining
+      const timeSpent = Math.max(0, Math.min(timeLimitSeconds, rawTimeSpent))
 
       // Save exam attempt and question progress asynchronously
       ;(async () => {
         try {
-          const examId = await saveExamAttempt(
+          await saveExamAttempt(
             examLevel,
             result.score,
             result.passed,
             timeSpent,
-            examAnswers
+            examAnswers,
+            attemptId
           )
 
           // Save individual question progress for spaced repetition
@@ -224,13 +200,8 @@ export function useExamSession(examLevel: ExamLevel) {
             }
           }
 
-          setState((current) => ({
-            ...current,
-            savedExamId: examId,
-          }))
-
           // Clear session storage after successful save
-          sessionStorage.removeItem(SESSION_STORAGE_KEY)
+          sessionStorage.removeItem(EXAM_SESSION_STORAGE_KEY)
         } catch (e) {
           console.error('Failed to save exam attempt:', e)
         } finally {
@@ -242,6 +213,7 @@ export function useExamSession(examLevel: ExamLevel) {
         ...prev,
         isComplete: true,
         result,
+        savedExamId: attemptId,
       }
     })
   }, [examLevel])
