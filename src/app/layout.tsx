@@ -1,29 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono, Orbitron } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/layout/theme-provider'
 import { Header } from '@/components/layout/header'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { SkipLink } from '@/components/ui/skip-link'
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-jetbrains-mono',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
-const orbitron = Orbitron({
-  variable: '--font-orbitron',
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '700', '900'],
-})
 
 export const metadata: Metadata = {
   title: {
@@ -102,18 +82,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${orbitron.variable} font-sans antialiased`}
-      >
+      <body className="font-sans antialiased">
         <ThemeProvider>
           <SkipLink />
-          <div className="relative flex min-h-screen flex-col">
+          <div className="relative flex min-h-[100dvh] flex-col">
             <Header />
             {/*
               Main content wrapper - child layouts should provide <main id="main-content">
               for proper accessibility. The skip link targets #main-content.
             */}
-            <div className="flex-1 pb-16 md:pb-0">{children}</div>
+            <div className="flex-1 pb-safe md:pb-0">{children}</div>
             <MobileNav />
           </div>
         </ThemeProvider>

@@ -279,7 +279,7 @@ export default function PracticePage() {
   if (showConfig) {
     return (
       <main
-        className="container mx-auto max-w-2xl py-6 px-4"
+        className="container mx-auto max-w-2xl px-3 py-4 sm:px-4 sm:py-6"
         role="main"
         aria-labelledby="custom-session-title"
       >
@@ -312,7 +312,7 @@ export default function PracticePage() {
   }
 
   return (
-    <main className="min-h-screen pb-safe" role="main" aria-labelledby="practice-title">
+    <main className="min-h-[100dvh]" role="main" aria-labelledby="practice-title">
       {/* Skip link for screen readers */}
       <a
         href="#quick-start-section"

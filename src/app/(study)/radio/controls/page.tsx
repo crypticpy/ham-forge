@@ -41,7 +41,7 @@ export default function ControlsPage() {
   const controlsWithExamTips = filteredControls.filter((c) => c.examTips)
 
   return (
-    <div className="container mx-auto max-w-4xl py-6 px-4">
+    <div className="container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Back link */}
       <Link
         href="/radio"

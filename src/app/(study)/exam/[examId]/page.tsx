@@ -143,7 +143,7 @@ export default function ExamSessionPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Generating exam...</p>
@@ -155,7 +155,7 @@ export default function ExamSessionPage() {
   // Error state
   if (error || !exam || !currentQuestion) {
     return (
-      <div className="container mx-auto max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         <Card className="border-destructive">
           <CardContent className="py-8 text-center">
             <AlertTriangle className="size-12 text-destructive mx-auto mb-4" />

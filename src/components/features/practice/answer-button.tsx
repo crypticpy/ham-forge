@@ -71,7 +71,8 @@ export function AnswerButton({
       aria-pressed={isSelected}
       aria-label={`Answer ${label}: ${text}${isRevealed && isCorrect ? ' (Correct answer)' : ''}`}
       className={cn(
-        'relative w-full flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all',
+        'relative w-full flex items-start gap-2.5 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 text-left transition-all',
+        'min-h-[44px] touch-manipulation',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed',
         getVariantStyles()
@@ -85,7 +86,7 @@ export function AnswerButton({
       )}
       <span
         className={cn(
-          'flex items-center justify-center size-8 rounded-full text-sm font-semibold shrink-0',
+          'flex items-center justify-center size-7 sm:size-8 rounded-full text-xs sm:text-sm font-semibold shrink-0',
           'border-2 transition-colors',
           isSelected && !isRevealed && 'border-primary bg-primary text-primary-foreground',
           !isSelected && !isRevealed && 'border-muted-foreground/30 bg-muted text-muted-foreground',
@@ -99,7 +100,7 @@ export function AnswerButton({
       >
         {label}
       </span>
-      <span className="flex-1 pt-1">{text}</span>
+      <span className="flex-1 pt-0.5 sm:pt-1 text-sm sm:text-base leading-snug">{text}</span>
       {renderIcon()}
     </button>
   )

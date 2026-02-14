@@ -6,7 +6,7 @@ import { ExportDialog } from '@/components/features/settings/export-dialog'
 
 export default function SettingsPage() {
   return (
-    <div className="container mx-auto max-w-2xl py-6 px-4">
+    <div className="container mx-auto max-w-2xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header with back link */}
       <div className="mb-6">
         <Link

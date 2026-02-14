@@ -197,6 +197,7 @@ export function Flashcard({
                   }}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-full',
+                    'min-h-[44px] touch-manipulation',
                     'bg-red-500/10 text-red-500 border border-red-500/30',
                     'hover:bg-red-500/20 transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500'
@@ -213,6 +214,7 @@ export function Flashcard({
                   }}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-full',
+                    'min-h-[44px] touch-manipulation',
                     'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30',
                     'hover:bg-emerald-500/20 transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500'

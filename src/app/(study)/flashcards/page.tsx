@@ -116,7 +116,7 @@ export default function FlashcardsPage() {
   const focusDecks = flashcardDecks.filter((d) => d.id.startsWith('focus-'))
 
   return (
-    <main className="min-h-screen pb-safe" role="main" aria-labelledby="flashcards-title">
+    <main className="min-h-[100dvh]" role="main" aria-labelledby="flashcards-title">
       {/* Skip link */}
       <a
         href="#decks-section"

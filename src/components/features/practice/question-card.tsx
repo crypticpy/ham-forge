@@ -121,11 +121,11 @@ export function QuestionCard({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-2xl mx-auto shadow-sm">
+      <CardHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4">
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <CardTitle className="text-lg sm:text-xl">
+            <CardTitle className="text-base sm:text-xl">
               Question {questionNumber} of {totalQuestions}
             </CardTitle>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
@@ -135,15 +135,15 @@ export function QuestionCard({
           <FlagButton questionId={question.id} />
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 px-4 pb-4 sm:space-y-6 sm:px-6 sm:pb-6">
         {/* Question text */}
-        <p className="text-base sm:text-lg font-medium leading-relaxed">{question.question}</p>
+        <p className="text-sm sm:text-lg font-medium leading-relaxed">{question.question}</p>
 
         {/* Figure display if applicable */}
         {question.figure && <FigureDisplay figure={question.figure} />}
 
         {/* Answer buttons */}
-        <div className="space-y-3" role="group" aria-label="Answer options">
+        <div className="space-y-2.5 sm:space-y-3" role="group" aria-label="Answer options">
           {shuffledAnswers.map((answer, shuffledIndex) => {
             const isThisCorrect = answer.originalIndex === question.correctAnswer
             return (
@@ -174,7 +174,7 @@ export function QuestionCard({
           <Button
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto min-h-[44px]"
             size="lg"
           >
             Submit Answer
@@ -199,7 +199,7 @@ export function QuestionCard({
                 isCorrect={isCorrect}
               />
             )}
-            <Button onClick={handleNext} className="w-full sm:w-auto" size="lg">
+            <Button onClick={handleNext} className="w-full sm:w-auto min-h-[44px]" size="lg">
               Next Question
               <ChevronRight className="size-4 ml-1" aria-hidden="true" />
             </Button>

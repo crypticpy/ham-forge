@@ -259,7 +259,7 @@ export function QCodeReference() {
             </div>
 
             {/* Code List */}
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 max-h-[55dvh] md:max-h-[400px] overflow-y-auto">
               {filteredCodes.map((code) => (
                 <div
                   key={code.code}

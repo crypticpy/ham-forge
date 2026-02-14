@@ -256,10 +256,10 @@ export default function FlashcardSessionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto max-w-4xl px-4 py-3">
+        <div className="container mx-auto max-w-4xl px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/flashcards">
@@ -324,7 +324,7 @@ export default function FlashcardSessionPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 container mx-auto max-w-4xl px-4 py-8">
+      <main className="flex-1 container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-8">
         <AnimatePresence mode="wait">
           {phase === 'learning' && learningCards[currentIndex] && (
             <motion.div
@@ -385,7 +385,7 @@ export default function FlashcardSessionPage() {
 
       {/* Phase transition */}
       {phase === 'learning' && currentIndex === learningCards.length - 1 && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background to-transparent">
+        <div className="fixed bottom-safe-nav left-0 right-0 px-3 sm:px-4 py-3 sm:py-4 bg-gradient-to-t from-background to-transparent">
           <div className="container mx-auto max-w-4xl">
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <span>Next up:</span>

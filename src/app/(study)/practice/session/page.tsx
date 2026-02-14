@@ -174,7 +174,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
 
   if (error) {
     return (
-      <div className="container mx-auto p-4 max-w-2xl">
+      <div className="container mx-auto max-w-2xl px-3 pt-3 pb-4 sm:p-4">
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive">Error Loading Questions</CardTitle>
@@ -190,7 +190,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
 
   if (questions.length === 0) {
     return (
-      <div className="container mx-auto p-4 max-w-2xl">
+      <div className="container mx-auto max-w-2xl px-3 pt-3 pb-4 sm:p-4">
         <Card>
           <CardHeader>
             <CardTitle>No Questions Available</CardTitle>
@@ -214,7 +214,7 @@ function PracticeSession({ config }: { config: SessionConfig }) {
       : `You completed ${stats.totalQuestions} questions`
 
     return (
-      <div className="container mx-auto p-4 max-w-2xl">
+      <div className="container mx-auto max-w-2xl px-3 pt-3 pb-4 sm:p-4">
         <PracticeHeader title={completionTitle} showBack={false} />
 
         <div className="mt-6 space-y-6">
@@ -315,19 +315,19 @@ function PracticeSession({ config }: { config: SessionConfig }) {
     : `Question ${currentIndex + 1} of ${questions.length}`
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-3 pt-2 pb-4 sm:p-4">
       {/* Header with optional timer */}
-      <div className="flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 -mx-4 -mt-4 mb-2">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="size-9" asChild>
+      <div className="flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 py-2 sm:px-4 sm:py-3 -mx-3 sm:-mx-4 -mt-2 sm:-mt-4 mb-2">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button variant="ghost" size="icon" className="size-11 sm:size-9" asChild>
             <Link href="/practice">
-              <Home className="size-5" />
+              <Home className="size-4 sm:size-5" />
               <span className="sr-only">Back to Practice</span>
             </Link>
           </Button>
           <div className="flex flex-col">
-            <h1 className="text-lg font-semibold leading-tight">{sessionTitle}</h1>
-            <p className="text-sm text-muted-foreground">{sessionSubtitle}</p>
+            <h1 className="text-base sm:text-lg font-semibold leading-tight">{sessionTitle}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">{sessionSubtitle}</p>
           </div>
         </div>
 
@@ -335,16 +335,16 @@ function PracticeSession({ config }: { config: SessionConfig }) {
           {isQuickStudy ? (
             <QuickStudyTimer durationSeconds={config.durationSeconds!} onTimeUp={handleTimeUp} />
           ) : (
-            <div className="flex items-center gap-1 rounded-full bg-muted px-3 py-1">
-              <span className="text-sm font-medium">{currentIndex + 1}</span>
-              <span className="text-sm text-muted-foreground">/</span>
-              <span className="text-sm text-muted-foreground">{questions.length}</span>
+            <div className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 sm:px-3">
+              <span className="text-xs sm:text-sm font-medium">{currentIndex + 1}</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">/</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{questions.length}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3 sm:mt-6">
         {currentQuestion && (
           <QuestionCard
             key={currentQuestion.id}
@@ -360,15 +360,15 @@ function PracticeSession({ config }: { config: SessionConfig }) {
       </div>
 
       {/* Progress bar at bottom */}
-      <div className="mt-6">
-        <div className="flex justify-between text-sm text-muted-foreground mb-2">
+      <div className="mt-3 sm:mt-6">
+        <div className="flex justify-between text-xs sm:text-sm text-muted-foreground mb-2">
           <span>{isQuickStudy ? 'Stats' : 'Progress'}</span>
           <span>
             {stats.correct} correct, {stats.incorrect} incorrect
           </span>
         </div>
         {!isQuickStudy && (
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-300"
               style={{ width: `${(currentIndex / questions.length) * 100}%` }}

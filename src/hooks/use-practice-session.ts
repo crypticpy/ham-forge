@@ -55,6 +55,15 @@ function shuffleArray<T>(array: T[]): T[] {
   return result
 }
 
+function dedupeQuestions(questions: Question[]): Question[] {
+  const seen = new Set<string>()
+  return questions.filter((question) => {
+    if (seen.has(question.id)) return false
+    seen.add(question.id)
+    return true
+  })
+}
+
 /**
  * Hook to manage a practice session
  * Handles loading questions, tracking answers, and calculating stats
@@ -130,6 +139,8 @@ export function usePracticeSession(config: SessionConfig) {
           const statusIds = new Set(statusQuestions.map((q) => q.id))
           questions = questions.filter((q) => statusIds.has(q.id))
         }
+
+        questions = dedupeQuestions(questions)
 
         // If flaggedOnly is set, filter to only flagged questions
         if (config.flaggedOnly) {

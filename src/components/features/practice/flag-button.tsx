@@ -25,6 +25,7 @@ export function FlagButton({ questionId, className }: FlagButtonProps) {
       aria-pressed={isFlagged}
       className={cn(
         'inline-flex items-center justify-center rounded-md p-2 transition-colors',
+        'min-h-[44px] min-w-[44px] touch-manipulation',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'hover:bg-accent',
         isFlagged &&

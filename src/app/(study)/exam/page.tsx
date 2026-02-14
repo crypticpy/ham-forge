@@ -95,7 +95,7 @@ export default function ExamLandingPage() {
   ]
 
   return (
-    <div className="container mx-auto max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Practice Exam</h1>

@@ -19,6 +19,107 @@ export { getExplanation } from '@/data/explanations'
 // Cache for dynamically loaded question pools
 const poolCache = new Map<ExamLevel, Question[]>()
 
+type PracticeMix = {
+  due: number
+  newCount: number
+  review: number
+}
+
+interface ProgressStats {
+  total: number
+  new: number
+  learning: number
+  review: number
+  mastered: number
+  accuracy: number
+  dueCount: number
+}
+
+function getRandomFraction(): number {
+  const globalCrypto =
+    typeof globalThis !== 'undefined' &&
+    globalThis.crypto &&
+    typeof globalThis.crypto.getRandomValues === 'function'
+      ? globalThis.crypto
+      : undefined
+
+  if (globalCrypto) {
+    const bytes = new Uint32Array(1)
+    globalCrypto.getRandomValues(bytes)
+    return bytes[0] / 2 ** 32
+  }
+
+  return Math.random()
+}
+
+/**
+ * Fisher-Yates shuffle with secure random selection where available.
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array]
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(getRandomFraction() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+
+  return result
+}
+
+/**
+ * Remove duplicate questions while preserving the first-seen order.
+ */
+function dedupeQuestions(questions: Question[]): Question[] {
+  const seen = new Set<string>()
+  return questions.filter((question) => {
+    if (seen.has(question.id)) return false
+    seen.add(question.id)
+    return true
+  })
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value))
+}
+
+function getAdaptivePracticeMix(stats: ProgressStats, count: number): PracticeMix {
+  if (count <= 0) {
+    return { due: 0, newCount: 0, review: 0 }
+  }
+
+  // New users or early stages should see more new questions to build coverage.
+  const newRatio = stats.total > 0 ? stats.new / stats.total : 1
+
+  // If accuracy is low, bias toward review and reinforcement.
+  const reinforcementBoost = stats.accuracy < 0.65 ? 0.2 : stats.accuracy < 0.75 ? 0.1 : 0
+
+  // Due questions are important to retain retention, especially when they accumulate.
+  const duePressure = clamp(stats.dueCount / Math.max(stats.total, 1), 0, 1)
+
+  const dueTarget = clamp(0.2 + duePressure * 0.4 + reinforcementBoost, 0.2, 0.75)
+  const newTarget = clamp(0.25 + newRatio * 0.4 - reinforcementBoost * 0.5, 0.15, 0.7)
+
+  const due = Math.round(count * dueTarget)
+  const remainingForNewAndReview = count - due
+  const newCount = Math.round(remainingForNewAndReview * newTarget)
+  const review = remainingForNewAndReview - newCount
+
+  // If there are no seen questions, avoid starving review.
+  if (stats.total === stats.new) {
+    return {
+      due: Math.min(due, count),
+      newCount: Math.max(0, count - Math.min(due, count)),
+      review: 0,
+    }
+  }
+
+  return {
+    due: clamp(due, 0, count),
+    newCount: clamp(newCount, 0, Math.max(0, count - due)),
+    review: clamp(review, 0, Math.max(0, count - due - newCount)),
+  }
+}
+
 /**
  * Get the question pool for a given exam level
  * Uses dynamic imports with caching for performance optimization
@@ -71,6 +172,10 @@ export async function getDueQuestions(
   examLevel: ExamLevel,
   limit: number = 10
 ): Promise<Question[]> {
+  if (limit <= 0) {
+    return []
+  }
+
   const now = new Date()
   const pool = await getQuestionPool(examLevel)
 
@@ -99,11 +204,29 @@ export async function getDueQuestions(
   const poolMap = new Map(pool.map((q) => [q.id, q]))
 
   // Get the actual questions in priority order
+  const duePriorityById = new Map(dueIds.map((id, index) => [id, index]))
   const dueQuestions = dueIds
     .map((id) => poolMap.get(id))
     .filter((q): q is Question => q !== undefined)
 
-  return dueQuestions.slice(0, limit)
+  // Keep deterministic highest urgency order, while randomizing ties.
+  const randomizedTies = dueQuestions.map((question) => ({
+    question,
+    jitter: getRandomFraction(),
+  }))
+
+  const uniqueDue = dedupeQuestions(
+    randomizedTies
+      .sort((a, b) => {
+        const indexA = duePriorityById.get(a.question.id) ?? Number.MAX_SAFE_INTEGER
+        const indexB = duePriorityById.get(b.question.id) ?? Number.MAX_SAFE_INTEGER
+        const delta = indexA - indexB
+        return delta !== 0 ? delta : a.jitter - b.jitter
+      })
+      .map(({ question }) => question)
+  )
+
+  return uniqueDue.slice(0, limit)
 }
 
 /**
@@ -116,6 +239,10 @@ export async function getNewQuestions(
   examLevel: ExamLevel,
   limit: number = 10
 ): Promise<Question[]> {
+  if (limit <= 0) {
+    return []
+  }
+
   const pool = await getQuestionPool(examLevel)
 
   if (pool.length === 0) {
@@ -126,15 +253,15 @@ export async function getNewQuestions(
   const allProgress = await db.questionProgress.toArray()
   const seenIds = new Set(allProgress.map((p) => p.questionId))
 
-  // Filter to unseen questions
-  const newQuestions = pool.filter((q) => !seenIds.has(q.id))
+  // Filter to unseen questions and randomize order for broader coverage.
+  const newQuestions = shuffleArray(pool.filter((q) => !seenIds.has(q.id)))
 
   return newQuestions.slice(0, limit)
 }
 
 /**
  * Get a mixed set of questions for practice
- * Prioritizes: due questions > new questions > random review
+ * Prioritizes: due questions and adaptive reinforcement of review/new material
  * @param examLevel - The exam level
  * @param count - Number of questions to return
  * @returns Mixed array of questions for practice
@@ -145,21 +272,28 @@ export async function getPracticeQuestions(
 ): Promise<Question[]> {
   const result: Question[] = []
 
+  if (count <= 0) {
+    return []
+  }
+
+  const progressStats = await getProgressStats(examLevel)
+  const mix = getAdaptivePracticeMix(progressStats, count)
+
   // First, get due questions (highest priority)
-  const due = await getDueQuestions(examLevel, count)
+  const due = await getDueQuestions(examLevel, mix.due)
   result.push(...due)
 
   if (result.length >= count) {
-    return result.slice(0, count)
+    return dedupeQuestions(result).slice(0, count)
   }
 
   // Then, add new questions
   const remaining = count - result.length
-  const newQs = await getNewQuestions(examLevel, remaining)
+  const newQs = await getNewQuestions(examLevel, Math.min(mix.newCount, remaining))
   result.push(...newQs)
 
   if (result.length >= count) {
-    return result.slice(0, count)
+    return dedupeQuestions(result).slice(0, count)
   }
 
   // Finally, add random review questions if needed
@@ -174,7 +308,7 @@ export async function getPracticeQuestions(
     result.push(...reviewQs)
   }
 
-  return result
+  return dedupeQuestions(result).slice(0, count)
 }
 
 /**
@@ -189,6 +323,10 @@ async function getReviewQuestions(
   limit: number,
   excludeIds: Set<string>
 ): Promise<Question[]> {
+  if (limit <= 0) {
+    return []
+  }
+
   const now = new Date()
   const pool = await getQuestionPool(examLevel)
   const poolIds = new Set(pool.map((q) => q.id))
@@ -207,8 +345,20 @@ async function getReviewQuestions(
   // Map to questions
   const poolMap = new Map(pool.map((q) => [q.id, q]))
   const reviewQuestions = reviewProgress
-    .map((p) => poolMap.get(p.questionId))
-    .filter((q): q is Question => q !== undefined)
+    .map((p) => ({
+      question: poolMap.get(p.questionId),
+      interval: p.interval,
+      jitter: getRandomFraction(),
+    }))
+    .filter(
+      (entry): entry is { question: Question; interval: number; jitter: number } =>
+        entry.question !== undefined
+    )
+    .sort((a, b) => {
+      const intervalDelta = a.interval - b.interval
+      return intervalDelta !== 0 ? intervalDelta : a.jitter - b.jitter
+    })
+    .map(({ question }) => question)
 
   return reviewQuestions.slice(0, limit)
 }
@@ -288,7 +438,7 @@ export async function getQuestionsByStatus(
     progressByStatus.filter((p) => poolIds.has(p.questionId)).map((p) => p.questionId)
   )
 
-  return pool.filter((q) => matchingIds.has(q.id))
+  return shuffleArray(pool.filter((q) => matchingIds.has(q.id)))
 }
 
 /**
@@ -376,15 +526,7 @@ export async function getQuestionProgress(
  * @param examLevel - The exam level
  * @returns Statistics object with counts and accuracy
  */
-export async function getProgressStats(examLevel: ExamLevel): Promise<{
-  total: number
-  new: number
-  learning: number
-  review: number
-  mastered: number
-  accuracy: number
-  dueCount: number
-}> {
+export async function getProgressStats(examLevel: ExamLevel): Promise<ProgressStats> {
   const pool = await getQuestionPool(examLevel)
   const poolIds = new Set(pool.map((q) => q.id))
 

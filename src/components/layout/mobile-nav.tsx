@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BookOpen, ClipboardCheck, GraduationCap, Radio, Layers, BarChart3 } from 'lucide-react'
@@ -16,9 +17,43 @@ const navItems = [
 
 export function MobileNav() {
   const pathname = usePathname()
+  const [bottomOffset, setBottomOffset] = useState(0)
+
+  useEffect(() => {
+    if (!window.visualViewport) return
+
+    let rafId = 0
+    const updateBottomOffset = () => {
+      cancelAnimationFrame(rafId)
+      rafId = window.requestAnimationFrame(() => {
+        const viewport = window.visualViewport
+        if (!viewport) return
+        const offset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)
+        const roundedOffset = Math.round(offset)
+        setBottomOffset(roundedOffset)
+        document.documentElement.style.setProperty('--mobile-nav-offset', `${roundedOffset}px`)
+      })
+    }
+
+    updateBottomOffset()
+    window.visualViewport.addEventListener('resize', updateBottomOffset)
+    window.visualViewport.addEventListener('scroll', updateBottomOffset)
+    window.addEventListener('orientationchange', updateBottomOffset)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.visualViewport?.removeEventListener('resize', updateBottomOffset)
+      window.visualViewport?.removeEventListener('scroll', updateBottomOffset)
+      window.removeEventListener('orientationchange', updateBottomOffset)
+      document.documentElement.style.removeProperty('--mobile-nav-offset')
+    }
+  }, [])
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-white/10 md:hidden safe-area-pb">
+    <nav
+      className="fixed left-0 right-0 z-50 glass-panel border-t border-white/10 md:hidden safe-area-pb transition-[bottom] duration-150"
+      style={{ bottom: `${bottomOffset}px` }}
+    >
       <div className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href
@@ -31,6 +66,7 @@ export function MobileNav() {
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors rounded-lg',
+                'min-h-[44px] min-w-[44px] touch-manipulation',
                 isActive ? 'text-plasma-orange' : 'text-muted-foreground hover:text-foreground'
               )}
             >

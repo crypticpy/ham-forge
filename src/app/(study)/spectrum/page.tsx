@@ -78,7 +78,7 @@ export default function SpectrumPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl py-6 px-4">
+    <div className="container mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">

@@ -227,7 +227,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Loading exam results...</p>
@@ -239,7 +239,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   // Error state
   if (error || !attempt) {
     return (
-      <div className="container mx-auto max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         <Card className="border-destructive">
           <CardContent className="py-8 text-center">
             <X className="size-12 text-destructive mx-auto mb-4" />
@@ -293,7 +293,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
     if (questionsToReview.length === 0) {
       return (
-        <div className="container mx-auto max-w-3xl py-6 px-4">
+        <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
           <Button variant="ghost" className="mb-4" onClick={() => setCurrentReviewIndex(null)}>
             <ChevronLeft className="size-4 mr-1" aria-hidden="true" />
             Back to Results
@@ -315,7 +315,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
     const isLast = safeIndex === questionsToReview.length - 1
 
     return (
-      <div className="container mx-auto max-w-3xl py-6 px-4">
+      <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         {/* Back button */}
         <Button variant="ghost" className="mb-4" onClick={() => setCurrentReviewIndex(null)}>
           <ChevronLeft className="size-4 mr-1" aria-hidden="true" />
@@ -443,7 +443,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
   // Main results view
   return (
-    <div className="container mx-auto max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Exam Results</h1>

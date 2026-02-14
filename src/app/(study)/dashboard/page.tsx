@@ -64,7 +64,7 @@ export default function DashboardPage() {
   const accuracyPercent = stats ? Math.round(stats.accuracy * 100) : 0
 
   return (
-    <div className="container mx-auto max-w-3xl py-6 px-4">
+    <div className="container mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Continue Where You Left Off */}
       <ContinueCard />
 
