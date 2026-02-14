@@ -37,7 +37,8 @@ function getPassedMessage(score: number): string {
 }
 
 function getFailedMessage(score: number, passingScore: number): string {
-  const needed = passingScore - Math.floor((score / 100) * 35)
+function getFailedMessage(score: number, correctCount: number, passingScore: number): string {
+  const needed = Math.max(0, passingScore - correctCount)
   if (score >= 60) {
     return `So close! You need just ${needed} more correct answer${needed !== 1 ? 's' : ''} to pass. Keep practicing!`
   }
@@ -98,7 +99,9 @@ export function ExamResultsCard({
         <CardHeader className="text-center pb-2">
           <CardTitle className="text-5xl font-bold tabular-nums">{roundedScore}%</CardTitle>
           <CardDescription className="text-base">
-            {passed ? getPassedMessage(roundedScore) : getFailedMessage(roundedScore, passingScore)}
+            {passed
+              ? getPassedMessage(roundedScore)
+              : getFailedMessage(roundedScore, correctCount, passingScore)}
           </CardDescription>
         </CardHeader>
 

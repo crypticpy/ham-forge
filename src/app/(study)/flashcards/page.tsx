@@ -108,7 +108,8 @@ export default function FlashcardsPage() {
     router.push('/flashcards/session')
   }
 
-  const examLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
+  const examLabel =
+    currentExamLevel === 'technician' ? 'Technician' : currentExamLevel === 'general' ? 'General' : 'Extra'
 
   // Split decks into main and focus categories
   const mainDecks = flashcardDecks.filter((d) => !d.id.startsWith('focus-'))

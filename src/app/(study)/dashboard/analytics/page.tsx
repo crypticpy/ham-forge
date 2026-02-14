@@ -81,9 +81,14 @@ export default function AnalyticsPage() {
     : []
 
   // Calculate time statistics
+  const avgQuestionsPerExam =
+    examHistory.length > 0
+      ? Math.round(examHistory.reduce((sum, attempt) => sum + attempt.answers.length, 0) / examHistory.length)
+      : 0
+
   const avgTimePerQuestion =
-    examStats && examStats.totalAttempts > 0
-      ? Math.round(examStats.averageTime / 35) // 35 questions per exam
+    examStats && examStats.totalAttempts > 0 && avgQuestionsPerExam > 0
+      ? Math.round(examStats.averageTime / avgQuestionsPerExam)
       : 0
 
   const totalStudyTime = examHistory.reduce((sum, attempt) => sum + attempt.timeSpent, 0)
@@ -110,7 +115,8 @@ export default function AnalyticsPage() {
     }).format(date)
   }
 
-  const examLevelLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
+  const examLevelLabel =
+    currentExamLevel === 'technician' ? 'Technician' : currentExamLevel === 'general' ? 'General' : 'Extra'
 
   return (
     <div className="container mx-auto max-w-3xl py-6 px-4">

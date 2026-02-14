@@ -39,9 +39,10 @@ export async function getQuestionPool(examLevel: ExamLevel): Promise<Question[]>
   } else if (examLevel === 'general') {
     const module = await import('@/data/pools/general.json')
     pool = module.default.questions as Question[]
+  } else if (examLevel === 'extra') {
+    const module = await import('@/data/pools/extra.json')
+    pool = module.default.questions as Question[]
   } else {
-    // Extra pool not yet available - will be added in a future update
-    console.warn('Extra class exam pool is not yet available')
     return []
   }
 

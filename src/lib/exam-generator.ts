@@ -3,11 +3,12 @@
  * Implements official VE exam question selection rules
  *
  * Rules:
- * - Each exam has 35 questions
- * - Questions are selected from 35 "groups" (one from each)
+ * - Exams are built by selecting one random question from each "group"
+ *   - Technician/General: 35 groups → 35 questions
+ *   - Extra: 50 groups → 50 questions
  * - Groups are organized by subelement (e.g., T1A, T1B, T2A, etc.)
  * - One question is randomly selected from each group
- * - To pass: 26 or more correct (74%)
+ * - To pass: 74% correct (rounded up)
  */
 
 import type { Question, ExamLevel } from '@/types'
@@ -23,7 +24,7 @@ export interface GeneratedExam {
   questions: ExamQuestion[]
   createdAt: Date
   timeLimit: number // in minutes (typically 60)
-  passingScore: number // 26 for standard exams
+  passingScore: number // 74% rounded up (e.g., 26/35, 37/50)
 }
 
 /**
@@ -84,13 +85,16 @@ export async function generateExam(examLevel: ExamLevel): Promise<GeneratedExam>
   // Generate unique exam ID
   const id = `exam-${examLevel}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 
+  const totalQuestions = groups.length
+  const passingScore = Math.ceil(totalQuestions * 0.74)
+
   return {
     id,
     examLevel,
     questions,
     createdAt: new Date(),
     timeLimit: 60, // 60 minutes standard
-    passingScore: 26, // 74% to pass
+    passingScore,
   }
 }
 
@@ -138,7 +142,7 @@ export function calculateExamResult(
 
   const totalQuestions = questions.length
   const score = Math.round((correctCount / totalQuestions) * 100)
-  const passingScore = 26
+  const passingScore = Math.ceil(totalQuestions * 0.74)
 
   return {
     totalQuestions,
@@ -162,10 +166,11 @@ export async function getExamConfig(examLevel: ExamLevel): Promise<{
   groups: string[]
 }> {
   const groups = await getExamGroups(examLevel)
+  const totalQuestions = groups.length
 
   return {
-    totalQuestions: groups.length, // Should be 35
-    passingScore: 26,
+    totalQuestions,
+    passingScore: Math.ceil(totalQuestions * 0.74),
     passingPercentage: 74,
     timeLimit: 60,
     groups,

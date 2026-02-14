@@ -15,6 +15,16 @@ const figurePatterns = [
   { pattern: /figure\s+T-3/i, figure: 'T3' },
   { pattern: /figure\s+G7-1/i, figure: 'G7-1' },
   { pattern: /Figure\s+G7-1/i, figure: 'G7-1' },
+  // Extra (2024-2028) figures
+  { pattern: /figure\s+E5-1/i, figure: 'E5-1' },
+  { pattern: /figure\s+E6-1/i, figure: 'E6-1' },
+  { pattern: /figure\s+E6-2/i, figure: 'E6-2' },
+  { pattern: /figure\s+E6-3/i, figure: 'E6-3' },
+  { pattern: /figure\s+E7-1/i, figure: 'E7-1' },
+  { pattern: /figure\s+E7-2/i, figure: 'E7-2' },
+  { pattern: /figure\s+E7-3/i, figure: 'E7-3' },
+  { pattern: /figure\s+E9-1/i, figure: 'E9-1' },
+  { pattern: /figure\s+E9-2/i, figure: 'E9-2' },
 ]
 
 /**
@@ -102,6 +112,13 @@ const poolConfigs = {
     effectiveTo: '2027-06-30',
     inputFile: 'general_raw.json',
     outputFile: 'general.json',
+  },
+  extra: {
+    examLevel: 'extra',
+    effectiveFrom: '2024-07-01',
+    effectiveTo: '2028-06-30',
+    inputFile: 'extra_raw.json',
+    outputFile: 'extra.json',
   },
 }
 

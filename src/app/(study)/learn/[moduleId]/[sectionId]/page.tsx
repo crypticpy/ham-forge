@@ -162,10 +162,18 @@ function renderInteractiveComponent(type: InteractiveComponentType): React.React
 }
 
 /**
- * Get a learning module by ID, checking both exam levels
+ * Get a learning module by ID, inferring exam level from the module prefix
  */
 function getModule(moduleId: string): LearningModule | null {
-  const examLevel: ExamLevel = moduleId.startsWith('G') ? 'general' : 'technician'
+  const examLevel: ExamLevel | null = moduleId.startsWith('T')
+    ? 'technician'
+    : moduleId.startsWith('G')
+      ? 'general'
+      : moduleId.startsWith('E')
+        ? 'extra'
+        : null
+
+  if (!examLevel) return null
   return getModuleById(examLevel, moduleId) ?? null
 }
 

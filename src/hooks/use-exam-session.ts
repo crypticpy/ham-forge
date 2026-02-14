@@ -7,7 +7,6 @@ import { saveExamAttempt } from '@/lib/exam-storage'
 import { saveQuestionProgress } from '@/lib/question-scheduler'
 import type { ExamLevel, ExamAnswer } from '@/types'
 
-const EXAM_TIME_LIMIT = 60 * 60 // 60 minutes in seconds
 const SESSION_STORAGE_KEY = 'hamforge-exam-session'
 
 export interface ExamSessionState {
@@ -84,7 +83,7 @@ export function useExamSession(examLevel: ExamLevel) {
     error: null,
     result: null,
     savedExamId: null,
-    timeRemaining: EXAM_TIME_LIMIT,
+    timeRemaining: 60 * 60, // default 60 minutes
     startTime: null,
   })
 
@@ -125,12 +124,13 @@ export function useExamSession(examLevel: ExamLevel) {
     async function loadExam() {
       try {
         const exam = await generateExam(examLevel)
+        const timeLimitSeconds = Math.max(1, exam.timeLimit) * 60
         setState((prev) => ({
           ...prev,
           exam,
           isLoading: false,
           startTime: new Date(),
-          timeRemaining: EXAM_TIME_LIMIT,
+          timeRemaining: timeLimitSeconds,
         }))
       } catch (error) {
         setState((prev) => ({
@@ -201,7 +201,8 @@ export function useExamSession(examLevel: ExamLevel) {
       }
 
       const result = calculateExamResult(prev.exam.questions, answerResults)
-      const timeSpent = EXAM_TIME_LIMIT - prev.timeRemaining
+      const timeLimitSeconds = Math.max(1, prev.exam.timeLimit) * 60
+      const timeSpent = timeLimitSeconds - prev.timeRemaining
 
       // Save exam attempt and question progress asynchronously
       ;(async () => {

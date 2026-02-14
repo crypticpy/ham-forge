@@ -57,7 +57,8 @@ export default function DashboardPage() {
     setExamLevel(level)
   }
 
-  const examLevelLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
+  const examLevelLabel =
+    currentExamLevel === 'technician' ? 'Technician' : currentExamLevel === 'general' ? 'General' : 'Extra'
 
   // Format accuracy as percentage
   const accuracyPercent = stats ? Math.round(stats.accuracy * 100) : 0
@@ -84,7 +85,7 @@ export default function DashboardPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => handleExamLevelChange('technician')}
               className={`p-4 rounded-lg border-2 text-left transition-all ${
@@ -106,6 +107,17 @@ export default function DashboardPage() {
             >
               <div className="font-medium">General</div>
               <div className="text-sm text-muted-foreground">HF privileges</div>
+            </button>
+            <button
+              onClick={() => handleExamLevelChange('extra')}
+              className={`p-4 rounded-lg border-2 text-left transition-all ${
+                currentExamLevel === 'extra'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="font-medium">Extra</div>
+              <div className="text-sm text-muted-foreground">Maximum privileges</div>
             </button>
           </div>
         </CardContent>

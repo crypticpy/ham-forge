@@ -27,11 +27,18 @@ interface ModulePageProps {
 }
 
 /**
- * Get a learning module by ID, checking both exam levels
+ * Get a learning module by ID, inferring exam level from the module prefix
  */
 function getModule(moduleId: string): LearningModule | null {
-  // Determine exam level from module ID prefix
-  const examLevel: ExamLevel = moduleId.startsWith('G') ? 'general' : 'technician'
+  const examLevel: ExamLevel | null = moduleId.startsWith('T')
+    ? 'technician'
+    : moduleId.startsWith('G')
+      ? 'general'
+      : moduleId.startsWith('E')
+        ? 'extra'
+        : null
+
+  if (!examLevel) return null
   return getModuleById(examLevel, moduleId) ?? null
 }
 
@@ -135,7 +142,12 @@ export default function ModuleOverviewPage({ params }: ModulePageProps) {
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <span className="inline-block text-sm font-medium text-primary mb-1">
-              {module.id} - {module.examLevel === 'technician' ? 'Technician' : 'General'}
+              {module.id} -{' '}
+              {module.examLevel === 'technician'
+                ? 'Technician'
+                : module.examLevel === 'general'
+                  ? 'General'
+                  : 'Extra'}
             </span>
             <h1 className="text-2xl font-bold">{module.title}</h1>
           </div>

@@ -37,6 +37,19 @@ const GENERAL_SUBELEMENTS = [
   { id: 'G0', name: 'Safety' },
 ]
 
+const EXTRA_SUBELEMENTS = [
+  { id: 'E1', name: 'FCC Rules' },
+  { id: 'E2', name: 'Operating Procedures' },
+  { id: 'E3', name: 'Radio Wave Propagation' },
+  { id: 'E4', name: 'Amateur Radio Practices' },
+  { id: 'E5', name: 'Electrical Principles' },
+  { id: 'E6', name: 'Circuit Components' },
+  { id: 'E7', name: 'Practical Circuits' },
+  { id: 'E8', name: 'Signals and Emissions' },
+  { id: 'E9', name: 'Antennas and Feed Lines' },
+  { id: 'E0', name: 'Safety' },
+]
+
 const STATUS_OPTIONS = [
   { id: 'new', name: 'New', color: 'bg-blue-500' },
   { id: 'learning', name: 'Learning', color: 'bg-amber-500' },
@@ -110,7 +123,12 @@ export function FilterPanel({
   onStatusChange,
   onFlaggedOnlyChange,
 }: FilterPanelProps) {
-  const subelements = examLevel === 'technician' ? TECHNICIAN_SUBELEMENTS : GENERAL_SUBELEMENTS
+  const subelements =
+    examLevel === 'technician'
+      ? TECHNICIAN_SUBELEMENTS
+      : examLevel === 'general'
+        ? GENERAL_SUBELEMENTS
+        : EXTRA_SUBELEMENTS
   const [availableGroups, setAvailableGroups] = useState<string[]>([])
   const [groupsCache, setGroupsCache] = useState<Map<string, string[]>>(new Map())
 

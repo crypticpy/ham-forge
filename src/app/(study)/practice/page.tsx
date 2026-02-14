@@ -188,7 +188,8 @@ export default function PracticePage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [showConfig, handleQuickStart])
 
-  const examLevelLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
+  const examLevelLabel =
+    currentExamLevel === 'technician' ? 'Technician' : currentExamLevel === 'general' ? 'General' : 'Extra'
   const overallAccuracy =
     totalQuestionsAnswered > 0 ? Math.round((totalCorrect / totalQuestionsAnswered) * 100) : 0
 

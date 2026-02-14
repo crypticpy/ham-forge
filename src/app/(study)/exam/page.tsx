@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,45 +16,30 @@ import {
 } from 'lucide-react'
 import { ExamHistory } from '@/components/features/exam/exam-history'
 import { useStudyStore } from '@/stores/study-store'
+import { getExamConfig } from '@/lib/exam-generator'
 import type { ExamLevel } from '@/types'
-
-const EXAM_RULES = [
-  {
-    icon: FileCheck,
-    title: '35 Questions',
-    description: 'One question randomly selected from each of 35 groups',
-  },
-  {
-    icon: Clock,
-    title: '60 Minutes',
-    description: 'Complete the exam within the time limit',
-  },
-  {
-    icon: Target,
-    title: '74% to Pass',
-    description: '26 correct answers required (out of 35)',
-  },
-  {
-    icon: Flag,
-    title: 'Flag for Review',
-    description: 'Mark questions to revisit before submitting',
-  },
-  {
-    icon: ChevronRight,
-    title: 'Free Navigation',
-    description: 'Move between questions anytime during the exam',
-  },
-  {
-    icon: AlertCircle,
-    title: 'No Immediate Feedback',
-    description: 'Correct answers shown only after submission',
-  },
-]
 
 export default function ExamLandingPage() {
   const router = useRouter()
   const { currentExamLevel, setExamLevel } = useStudyStore()
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>(currentExamLevel)
+  const [examConfig, setExamConfig] = useState<Awaited<ReturnType<typeof getExamConfig>> | null>(
+    null
+  )
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadConfig = async () => {
+      const config = await getExamConfig(selectedLevel)
+      if (!cancelled) setExamConfig(config)
+    }
+
+    loadConfig()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedLevel])
 
   const handleStartExam = () => {
     // Set exam level in store and navigate
@@ -72,7 +57,41 @@ export default function ExamLandingPage() {
     setSelectedLevel(level)
   }
 
-  const examLevelLabel = selectedLevel === 'technician' ? 'Technician' : 'General'
+  const examLevelLabel =
+    selectedLevel === 'technician' ? 'Technician' : selectedLevel === 'general' ? 'General' : 'Extra'
+
+  const examRules = [
+    {
+      icon: FileCheck,
+      title: `${examConfig?.totalQuestions ?? '—'} Questions`,
+      description: `One question randomly selected from each of ${examConfig?.totalQuestions ?? '—'} groups`,
+    },
+    {
+      icon: Clock,
+      title: `${examConfig?.timeLimit ?? 60} Minutes`,
+      description: 'Complete the exam within the time limit',
+    },
+    {
+      icon: Target,
+      title: `${examConfig?.passingPercentage ?? 74}% to Pass`,
+      description: `${examConfig?.passingScore ?? '—'} correct answers required (out of ${examConfig?.totalQuestions ?? '—'})`,
+    },
+    {
+      icon: Flag,
+      title: 'Flag for Review',
+      description: 'Mark questions to revisit before submitting',
+    },
+    {
+      icon: ChevronRight,
+      title: 'Free Navigation',
+      description: 'Move between questions anytime during the exam',
+    },
+    {
+      icon: AlertCircle,
+      title: 'No Immediate Feedback',
+      description: 'Correct answers shown only after submission',
+    },
+  ]
 
   return (
     <div className="container mx-auto max-w-3xl py-6 px-4">
@@ -91,7 +110,7 @@ export default function ExamLandingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => handleExamLevelChange('technician')}
               className={`p-4 rounded-lg border-2 text-left transition-all ${
@@ -114,6 +133,17 @@ export default function ExamLandingPage() {
               <div className="font-medium">General</div>
               <div className="text-sm text-muted-foreground">HF privileges</div>
             </button>
+            <button
+              onClick={() => handleExamLevelChange('extra')}
+              className={`p-4 rounded-lg border-2 text-left transition-all ${
+                selectedLevel === 'extra'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="font-medium">Extra</div>
+              <div className="text-sm text-muted-foreground">Maximum privileges</div>
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -129,7 +159,7 @@ export default function ExamLandingPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {EXAM_RULES.map((rule) => (
+            {examRules.map((rule) => (
               <div key={rule.title} className="flex items-start gap-3">
                 <div className="mt-0.5 text-muted-foreground">
                   <rule.icon className="size-5" aria-hidden="true" />

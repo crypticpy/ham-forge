@@ -7,6 +7,7 @@ import type { ExamLevel } from '@/types/question'
 import type { LearningModule, LearningSection } from '@/types/learning'
 import { technicianModules } from '@/data/modules/technician'
 import { generalModules } from '@/data/modules/general'
+import { extraModules } from '@/data/modules/extra'
 
 /**
  * Module registry organized by exam level
@@ -14,7 +15,7 @@ import { generalModules } from '@/data/modules/general'
 const moduleRegistry: Record<ExamLevel, LearningModule[]> = {
   technician: technicianModules,
   general: generalModules,
-  extra: [], // Future: import extraModules
+  extra: extraModules,
 }
 
 /**

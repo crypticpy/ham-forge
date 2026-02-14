@@ -17,7 +17,8 @@ export default function LearnPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const examLevelLabel = currentExamLevel === 'technician' ? 'Technician' : 'General'
+  const examLevelLabel =
+    currentExamLevel === 'technician' ? 'Technician' : currentExamLevel === 'general' ? 'General' : 'Extra'
 
   // Load modules when exam level changes
   useEffect(() => {
@@ -121,6 +122,9 @@ async function loadModulesForLevel(examLevel: ExamLevel): Promise<LearningModule
     } else if (examLevel === 'general') {
       const data = await import('@/data/modules/general').catch(() => null)
       return data?.generalModules ?? []
+    } else if (examLevel === 'extra') {
+      const data = await import('@/data/modules/extra').catch(() => null)
+      return data?.extraModules ?? []
     }
     return []
   } catch {

@@ -329,7 +329,12 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Exam Results</h1>
         <p className="text-muted-foreground">
-          {attempt.examLevel === 'technician' ? 'Technician' : 'General'} Practice Exam
+          {attempt.examLevel === 'technician'
+            ? 'Technician'
+            : attempt.examLevel === 'general'
+              ? 'General'
+              : 'Extra'}{' '}
+          Practice Exam
         </p>
       </div>
 

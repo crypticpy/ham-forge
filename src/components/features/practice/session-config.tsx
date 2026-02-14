@@ -41,13 +41,14 @@ interface SessionConfigProps {
 const EXAM_LEVELS: { id: ExamLevel; name: string; description: string }[] = [
   { id: 'technician', name: 'Technician', description: 'Entry-level license' },
   { id: 'general', name: 'General', description: 'HF privileges' },
+  { id: 'extra', name: 'Extra', description: 'Maximum privileges' },
 ]
 
 const QUESTION_COUNTS = [
   { value: 10, label: '10', description: 'Quick session' },
   { value: 20, label: '20', description: 'Standard' },
-  { value: 35, label: '35', description: 'Exam length' },
-  { value: 50, label: '50', description: 'Extended' },
+  { value: 35, label: '35', description: 'Tech/General exam' },
+  { value: 50, label: '50', description: 'Extra exam' },
   { value: -1, label: 'All', description: 'Full pool' },
 ]
 
@@ -328,7 +329,8 @@ export function SessionConfig({ onStart, initialExamLevel = 'technician' }: Sess
       {/* Session Summary */}
       <p className="text-center text-sm text-muted-foreground" aria-live="polite">
         {questionCount === -1 ? 'All available' : questionCount}{' '}
-        {examLevel === 'technician' ? 'Technician' : 'General'} questions
+        {examLevel === 'technician' ? 'Technician' : examLevel === 'general' ? 'General' : 'Extra'}{' '}
+        questions
         {hasFilters && ' (filtered)'}
       </p>
     </div>

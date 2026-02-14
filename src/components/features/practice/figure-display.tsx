@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 
 interface FigureDisplayProps {
@@ -9,9 +9,20 @@ interface FigureDisplayProps {
 
 export function FigureDisplay({ figure }: FigureDisplayProps) {
   const [hasError, setHasError] = useState(false)
+  const [srcIndex, setSrcIndex] = useState(0)
 
-  // Map figure ID to image path
-  const imagePath = `/figures/${figure}.jpg`
+  const extensions = useMemo(() => {
+    // Extra figures are stored as PNGs; Tech/General figures are currently JPGs.
+    return figure.startsWith('E') ? (['png', 'jpg'] as const) : (['jpg', 'png'] as const)
+  }, [figure])
+
+  // Reset when figure changes
+  useEffect(() => {
+    setHasError(false)
+    setSrcIndex(0)
+  }, [figure])
+
+  const imagePath = `/figures/${figure}.${extensions[srcIndex]}`
 
   if (hasError) {
     return (
@@ -36,7 +47,13 @@ export function FigureDisplay({ figure }: FigureDisplayProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 448px"
             className="object-contain rounded"
-            onError={() => setHasError(true)}
+            onError={() => {
+              if (srcIndex < extensions.length - 1) {
+                setSrcIndex(srcIndex + 1)
+              } else {
+                setHasError(true)
+              }
+            }}
             loading="lazy"
           />
         </div>
