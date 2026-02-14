@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback, useMemo, useRef } from 'react'
+import { useState, useCallback, useMemo, useRef, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import type { AmateurBand, BandSegment, LicenseClass, SpectrumFilter } from '@/types/spectrum'
 import { getLogPosition, formatFrequency, formatWavelength } from '@/lib/frequency-utils'
@@ -229,6 +230,7 @@ interface BandBarProps {
 
 function BandBar({ band, filter, isSelected, onSelect, index, onFocus }: BandBarProps) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number } | null>(null)
   const barRef = useRef<HTMLButtonElement>(null)
 
   // Calculate position and width using logarithmic scale
@@ -263,6 +265,7 @@ function BandBar({ band, filter, isSelected, onSelect, index, onFocus }: BandBar
 
   const handleMouseLeave = useCallback(() => {
     setShowTooltip(false)
+    setTooltipPos(null)
   }, [])
 
   const handleFocus = useCallback(() => {
@@ -272,7 +275,40 @@ function BandBar({ band, filter, isSelected, onSelect, index, onFocus }: BandBar
 
   const handleBlur = useCallback(() => {
     setShowTooltip(false)
+    setTooltipPos(null)
   }, [])
+
+  const updateTooltipPosition = useCallback(() => {
+    const el = barRef.current
+    if (!el) return
+
+    const rect = el.getBoundingClientRect()
+
+    // Anchor at the top-center of the band bar, then the tooltip translates up.
+    const rawLeft = rect.left + rect.width / 2
+    const rawTop = rect.top - 8 // matches the visual "mb-2" from the original tooltip
+
+    const padding = 8
+    const left = Math.min(Math.max(rawLeft, padding), window.innerWidth - padding)
+    const top = Math.max(rawTop, padding)
+
+    setTooltipPos({ left, top })
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!showTooltip) return
+
+    updateTooltipPosition()
+
+    const onScrollOrResize = () => updateTooltipPosition()
+    window.addEventListener('scroll', onScrollOrResize, { capture: true, passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [showTooltip, updateTooltipPosition])
 
   return (
     <div
@@ -311,33 +347,36 @@ function BandBar({ band, filter, isSelected, onSelect, index, onFocus }: BandBar
       />
 
       {/* Tooltip */}
-      {showTooltip && (
-        <div
-          id={`tooltip-${band.id}`}
-          role="tooltip"
-          className={cn(
-            'absolute z-50 pointer-events-none',
-            'min-w-64 max-w-80 p-3',
-            'bg-popover text-popover-foreground',
-            'rounded-lg border shadow-lg',
-            'animate-in fade-in-0 zoom-in-95 duration-150',
-            // Position above the bar
-            'bottom-full mb-2',
-            // Center horizontally
-            'left-1/2 -translate-x-1/2'
-          )}
-        >
-          <BandTooltipContent band={band} filter={filter} />
-          {/* Arrow pointing down */}
+      {showTooltip &&
+        tooltipPos &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
+            id={`tooltip-${band.id}`}
+            role="tooltip"
             className={cn(
-              'absolute left-1/2 -translate-x-1/2',
-              'w-3 h-3 bg-popover border rotate-45',
-              'bottom-0 translate-y-1/2 border-t-0 border-l-0'
+              'fixed z-50 pointer-events-none',
+              'min-w-64 max-w-80 p-3',
+              'bg-popover text-popover-foreground',
+              'rounded-lg border shadow-lg',
+              'animate-in fade-in-0 zoom-in-95 duration-150',
+              // Anchor positioning (top-center of bar), then translate above it
+              '-translate-x-1/2 -translate-y-full'
             )}
-          />
-        </div>
-      )}
+            style={{ left: tooltipPos.left, top: tooltipPos.top }}
+          >
+            <BandTooltipContent band={band} filter={filter} />
+            {/* Arrow pointing down */}
+            <div
+              className={cn(
+                'absolute left-1/2 -translate-x-1/2',
+                'w-3 h-3 bg-popover border rotate-45',
+                'bottom-0 translate-y-1/2 border-t-0 border-l-0'
+              )}
+            />
+          </div>,
+          document.body
+        )}
     </div>
   )
 }
