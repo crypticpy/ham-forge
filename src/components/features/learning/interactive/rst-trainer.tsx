@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Signal, Check, X, RotateCcw, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useFlashcardStore } from '@/stores/flashcard-store'
 
 interface RSTValue {
   value: number
@@ -124,6 +125,8 @@ export function RSTTrainer() {
   const [inputRST, setInputRST] = useState('')
   const [score, setScore] = useState({ correct: 0, total: 0 })
 
+  const updateSkillProgress = useFlashcardStore((s) => s.updateSkillProgress)
+
   // Generate quiz question
   const generateQuestion = useCallback(() => {
     const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)]
@@ -152,6 +155,9 @@ export function RSTTrainer() {
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
     }))
+
+    // Track procedural skill mastery
+    updateSkillProgress('rst', isCorrect)
   }
 
   const handleResetQuiz = () => {

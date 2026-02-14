@@ -121,6 +121,7 @@ While not legally required, following band plans is good amateur practice!
         'T2A11',
         'T2A12',
       ],
+      interactiveComponents: ['qso-trainer', 'rst-trainer'],
     },
     {
       id: 'T2B',

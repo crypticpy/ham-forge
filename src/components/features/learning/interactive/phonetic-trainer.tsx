@@ -7,46 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Check, X, RotateCcw, Zap, Volume2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-// ITU Phonetic Alphabet
-const phoneticAlphabet: Record<string, string> = {
-  A: 'Alpha',
-  B: 'Bravo',
-  C: 'Charlie',
-  D: 'Delta',
-  E: 'Echo',
-  F: 'Foxtrot',
-  G: 'Golf',
-  H: 'Hotel',
-  I: 'India',
-  J: 'Juliet',
-  K: 'Kilo',
-  L: 'Lima',
-  M: 'Mike',
-  N: 'November',
-  O: 'Oscar',
-  P: 'Papa',
-  Q: 'Quebec',
-  R: 'Romeo',
-  S: 'Sierra',
-  T: 'Tango',
-  U: 'Uniform',
-  V: 'Victor',
-  W: 'Whiskey',
-  X: 'X-ray',
-  Y: 'Yankee',
-  Z: 'Zulu',
-  '0': 'Zero',
-  '1': 'One',
-  '2': 'Two',
-  '3': 'Three',
-  '4': 'Four',
-  '5': 'Five',
-  '6': 'Six',
-  '7': 'Seven',
-  '8': 'Eight',
-  '9': 'Nine',
-}
+import { useFlashcardStore } from '@/stores/flashcard-store'
+import { ITU_PHONETIC_ALPHABET, spellCallsignToWords } from '@/lib/phonetics'
 
 // Common wrong answers for multiple choice
 const distractors: Record<string, string[]> = {
@@ -106,11 +68,13 @@ export function PhoneticTrainer() {
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreak] = useState(0)
 
+  const updateSkillProgress = useFlashcardStore((s) => s.updateSkillProgress)
+
   // Generate a new quiz question
   const generateQuestion = useCallback(() => {
-    const letters = Object.keys(phoneticAlphabet).filter((k) => k.match(/[A-Z]/))
+    const letters = Object.keys(ITU_PHONETIC_ALPHABET).filter((k) => k.match(/^[A-Z]$/))
     const randomLetter = letters[Math.floor(Math.random() * letters.length)]
-    const correctAnswer = phoneticAlphabet[randomLetter]
+    const correctAnswer = ITU_PHONETIC_ALPHABET[randomLetter]
 
     // Get 3 random distractors
     const letterDistractors = distractors[randomLetter] || ['Unknown', 'Mystery', 'Hidden']
@@ -159,6 +123,9 @@ export function PhoneticTrainer() {
     } else {
       setStreak(0)
     }
+
+    // Track procedural skill mastery
+    updateSkillProgress('phonetic', isCorrect)
   }
 
   // Proceed to next question
@@ -177,15 +144,7 @@ export function PhoneticTrainer() {
 
   // Spell out a callsign
   const spellCallsign = useCallback(() => {
-    const upper = callsign.toUpperCase()
-    const spelled = upper.split('').map((char) => {
-      if (phoneticAlphabet[char]) {
-        return phoneticAlphabet[char]
-      }
-      if (char === '/') return 'Stroke'
-      if (char === '-') return 'Dash'
-      return char
-    })
+    const spelled = spellCallsignToWords(callsign)
     setSpelledCallsign(spelled)
 
     // Speak it

@@ -24,8 +24,7 @@ const RECENCY_DECAY_RATE = 0.1 // 10% boost per day since studied
 const RECENCY_MAX_BOOST = 2.0 // Cap recency boost
 const COLD_START_THRESHOLD = 10 // Min attempts before full algorithm
 const EXPLORATION_BONUS = 1.5 // Boost for unexplored categories
-// Interleaving ensures ~30% of transitions switch between different subelements
-// This is achieved via round-robin distribution in applyInterleaving()
+export const INTERLEAVING_RATIO = 0.3 // Target minimum ratio of subelement switches (adjacent pairs)
 
 /**
  * Calculate category weights based on performance and recency
@@ -187,16 +186,30 @@ export function selectCards(
   // This ensures we only allocate slots to subelements that have cards of that type
   const isColdStart = categoryProgress.length === 0
 
+  const subelementsForLearningCards = new Set(learningCards.map((c) => c.subelement))
+  const subelementsForQuestionCards = new Set(questionCards.map((c) => c.subelement))
+
+  // Prefer subelement-level progress for selection to avoid double-counting group + subelement stats.
+  const subelementProgress = categoryProgress.filter((p) => p.categoryType === 'subelement')
+
   // Generate category progress for learning cards (only subelements with learning cards)
-  let learningCategoryProgress = categoryProgress
+  let learningCategoryProgress: CategoryProgress[]
   if (isColdStart) {
     learningCategoryProgress = generateDefaultCategoryProgress(learningCards)
+  } else {
+    const filtered = subelementProgress.filter((p) => subelementsForLearningCards.has(p.categoryId))
+    learningCategoryProgress =
+      filtered.length > 0 ? filtered : generateDefaultCategoryProgress(learningCards)
   }
 
   // Generate category progress for question cards (only subelements with question cards)
-  let questionCategoryProgress = categoryProgress
+  let questionCategoryProgress: CategoryProgress[]
   if (isColdStart) {
     questionCategoryProgress = generateDefaultCategoryProgress(questionCards)
+  } else {
+    const filtered = subelementProgress.filter((p) => subelementsForQuestionCards.has(p.categoryId))
+    questionCategoryProgress =
+      filtered.length > 0 ? filtered : generateDefaultCategoryProgress(questionCards)
   }
 
   // Filter categories if in focus mode
@@ -421,9 +434,9 @@ function applyInterleaving<T extends { subelement: string }>(cards: T[]): T[] {
     groups.set(card.subelement, existing)
   }
 
-  // Edge case: all cards from single subelement - preserve original order
+  // Edge case: all cards from single subelement - fall back to shuffle for variety
   if (groups.size <= 1) {
-    return cards
+    return shuffleArray(cards)
   }
 
   // Round-robin distribution: take one card from each subelement in rotation
@@ -499,14 +512,17 @@ export function getRecommendedMode(
   mode: SessionMode
   reason: string
 } {
-  if (categoryProgress.length === 0) {
+  const subelementProgress = categoryProgress.filter((p) => p.categoryType === 'subelement')
+  const progress = subelementProgress.length > 0 ? subelementProgress : categoryProgress
+
+  if (progress.length === 0) {
     return {
       mode: 'explore',
       reason: 'Start by exploring new concepts',
     }
   }
 
-  const totalAttempts = categoryProgress.reduce((sum, p) => sum + p.totalAttempts, 0)
+  const totalAttempts = progress.reduce((sum, p) => sum + p.totalAttempts, 0)
 
   // Cold start
   if (totalAttempts < COLD_START_THRESHOLD) {
@@ -528,7 +544,7 @@ export function getRecommendedMode(
   }
 
   // Check for weak areas
-  const weakCategories = categoryProgress.filter((p) => p.weaknessScore > 0.5)
+  const weakCategories = progress.filter((p) => p.weaknessScore > 0.5)
   if (weakCategories.length > 0) {
     return {
       mode: 'adaptive',
@@ -538,7 +554,7 @@ export function getRecommendedMode(
 
   // Strong everywhere
   const avgAccuracy =
-    categoryProgress.reduce((sum, p) => sum + p.recentAccuracy, 0) / categoryProgress.length
+    progress.reduce((sum, p) => sum + p.recentAccuracy, 0) / progress.length
   if (avgAccuracy > 0.85) {
     return {
       mode: 'explore',

@@ -4,9 +4,10 @@ import { useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Radio, Mic, Check, X, RotateCcw, ChevronRight, BookOpen } from 'lucide-react'
+import { Radio, Mic, Check, X, RotateCcw, ChevronRight, BookOpen, Volume2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useFlashcardStore } from '@/stores/flashcard-store'
+import { spellCallsignString } from '@/lib/phonetics'
 
 interface QSOScenario {
   id: string
@@ -14,6 +15,8 @@ interface QSOScenario {
   title: string
   setup: string
   prompt: string
+  frequency?: string
+  pronounceCallsign?: string
   correctResponses: string[]
   feedback: {
     correct: string
@@ -29,6 +32,7 @@ const scenarios: QSOScenario[] = [
     title: 'Frequency Etiquette',
     setup: 'You want to make a call on 146.520 MHz. The frequency appears clear.',
     prompt: 'What should you say BEFORE calling CQ?',
+    frequency: '146.520 MHz',
     correctResponses: [
       'is the frequency in use',
       'is this frequency in use',
@@ -53,6 +57,8 @@ const scenarios: QSOScenario[] = [
     title: 'Basic CQ Call',
     setup: 'The frequency is clear. Your callsign is W1ABC. Make a CQ call.',
     prompt: 'What do you say?',
+    frequency: '146.520 MHz',
+    pronounceCallsign: 'W1ABC',
     correctResponses: [
       'cq cq cq this is w1abc w1abc calling cq and listening',
       'cq cq cq this is w1abc w1abc calling cq',
@@ -76,6 +82,8 @@ const scenarios: QSOScenario[] = [
     title: 'Responding to CQ',
     setup: 'You hear "CQ CQ CQ this is N2XYZ calling CQ". Your callsign is W1ABC.',
     prompt: 'How do you respond?',
+    frequency: '146.520 MHz',
+    pronounceCallsign: 'W1ABC',
     correctResponses: [
       'n2xyz this is w1abc',
       'n2xyz w1abc',
@@ -97,6 +105,7 @@ const scenarios: QSOScenario[] = [
     title: 'Signal Report Exchange',
     setup: 'N2XYZ responds to your call. The signal is strong and clear (S9, no noise).',
     prompt: 'What signal report do you give?',
+    frequency: '146.520 MHz',
     correctResponses: [
       '59',
       '5-9',
@@ -125,6 +134,7 @@ const scenarios: QSOScenario[] = [
     title: 'QSL Confirmation',
     setup: 'The contact is ending. N2XYZ says "Thanks for the contact, 73!"',
     prompt: 'How do you end the contact?',
+    frequency: '146.520 MHz',
     correctResponses: [
       '73',
       '73 w1abc clear',
@@ -152,6 +162,8 @@ const scenarios: QSOScenario[] = [
     setup:
       'The other operator asks you to repeat your callsign phonetically. Your callsign is W1ABC.',
     prompt: 'How do you say W1ABC phonetically?',
+    frequency: '146.520 MHz',
+    pronounceCallsign: 'W1ABC',
     correctResponses: [
       'whiskey one alpha bravo charlie',
       'whiskey 1 alpha bravo charlie',
@@ -201,6 +213,18 @@ export function QSOTrainer() {
 
   // Get skill progress updater from store
   const updateSkillProgress = useFlashcardStore((state) => state.updateSkillProgress)
+
+  // Speak text using Web Speech API (best-effort)
+  const speak = useCallback((text: string) => {
+    if (typeof window === 'undefined') return
+    if (!('speechSynthesis' in window)) return
+    if (!('SpeechSynthesisUtterance' in window)) return
+
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.rate = 0.9
+    window.speechSynthesis.speak(utterance)
+  }, [])
 
   // Normalize answer for comparison (lowercase, trim, remove punctuation)
   const normalizeAnswer = (answer: string): string => {
@@ -454,21 +478,31 @@ export function QSOTrainer() {
               <span className="text-sm text-muted-foreground">
                 Scenario {practice.currentIndex + 1} of {scenarios.length}
               </span>
-              <span
-                className={cn(
-                  'px-2 py-1 rounded text-xs font-medium',
-                  currentScenario.type === 'cq' &&
-                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-                  currentScenario.type === 'report' &&
-                    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                  currentScenario.type === 'etiquette' &&
-                    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-                  currentScenario.type === 'qsl' &&
-                    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+              <div className="flex items-center gap-2">
+                {currentScenario.frequency && (
+                  <div
+                    className="px-3 py-1 rounded-md border bg-black/90 text-green-300 font-mono text-xs tracking-widest"
+                    aria-label={`Frequency ${currentScenario.frequency}`}
+                  >
+                    {currentScenario.frequency}
+                  </div>
                 )}
-              >
-                {currentScenario.type.toUpperCase()}
-              </span>
+                <span
+                  className={cn(
+                    'px-2 py-1 rounded text-xs font-medium',
+                    currentScenario.type === 'cq' &&
+                      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                    currentScenario.type === 'report' &&
+                      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                    currentScenario.type === 'etiquette' &&
+                      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                    currentScenario.type === 'qsl' &&
+                      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                  )}
+                >
+                  {currentScenario.type.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             {/* Scenario Card */}
@@ -481,6 +515,24 @@ export function QSOTrainer() {
                 <Mic className="size-4 text-rose-500" aria-hidden="true" />
                 {currentScenario.prompt}
               </p>
+
+              {/* Callsign pronunciation helper */}
+              {currentScenario.pronounceCallsign && (
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => speak(spellCallsignString(currentScenario.pronounceCallsign!))}
+                  >
+                    <Volume2 className="size-4 mr-2" aria-hidden="true" />
+                    Pronounce {currentScenario.pronounceCallsign}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    Uses ITU phonetics via your browser&apos;s speech engine
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Hint Display */}

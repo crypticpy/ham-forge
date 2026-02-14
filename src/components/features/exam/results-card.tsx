@@ -36,7 +36,6 @@ function getPassedMessage(score: number): string {
   return 'Congratulations! You passed the exam!'
 }
 
-function getFailedMessage(score: number, passingScore: number): string {
 function getFailedMessage(score: number, correctCount: number, passingScore: number): string {
   const needed = Math.max(0, passingScore - correctCount)
   if (score >= 60) {

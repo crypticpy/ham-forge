@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Search, BookOpen, Check, X, RotateCcw, Zap, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useFlashcardStore } from '@/stores/flashcard-store'
 
 interface QCode {
   code: string
@@ -98,6 +99,8 @@ export function QCodeReference() {
   const [score, setScore] = useState({ correct: 0, total: 0 })
   const [showExamOnly, setShowExamOnly] = useState(false)
 
+  const updateSkillProgress = useFlashcardStore((s) => s.updateSkillProgress)
+
   // Filter codes based on search and category
   const filteredCodes = useMemo(() => {
     return qCodes.filter((code) => {
@@ -148,6 +151,9 @@ export function QCodeReference() {
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
     }))
+
+    // Track procedural skill mastery
+    updateSkillProgress('q-codes', isCorrect)
   }
 
   // Reset quiz

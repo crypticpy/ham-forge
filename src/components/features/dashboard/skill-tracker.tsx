@@ -30,14 +30,14 @@ const SKILL_CONFIG: Record<
   phonetic: {
     label: 'Phonetic Alphabet',
     icon: <Radio className="size-5" />,
-    href: '/learn/T2/T2B',
+    href: '/learn/T2/T2C',
     colorClass: 'text-blue-600 dark:text-blue-400',
     bgClass: 'bg-blue-100 dark:bg-blue-950/50',
   },
   rst: {
     label: 'Signal Reports',
     icon: <Signal className="size-5" />,
-    href: '/learn/T2/T2B',
+    href: '/learn/T2/T2A',
     colorClass: 'text-amber-600 dark:text-amber-400',
     bgClass: 'bg-amber-100 dark:bg-amber-950/50',
   },
