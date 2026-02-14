@@ -8,6 +8,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useProgressStore } from '@/stores/progress-store'
+import { getLocalDateString } from '@/lib/date-utils'
 
 /**
  * Reset the store to its initial state before each test.
@@ -28,7 +29,7 @@ describe('Progress Store', () => {
     describe('recordStudyDay()', () => {
       it('should update lastStudyDate to today when recording study day', () => {
         const store = useProgressStore.getState()
-        const today = new Date().toISOString().split('T')[0]
+        const today = getLocalDateString()
 
         expect(store.lastStudyDate).toBeNull()
 

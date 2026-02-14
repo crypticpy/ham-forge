@@ -547,7 +547,10 @@ export function BandPlanExplorer() {
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
               <span className="text-primary font-bold">•</span>
-              <span>Technicians have full HF privileges on 10 meters (28-29.7 MHz)</span>
+              <span>
+                Technicians have limited HF privileges on 10m: CW/data 28.0-28.3 and SSB phone
+                28.3-28.5 (200W PEP max)
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-bold">•</span>
@@ -555,7 +558,7 @@ export function BandPlanExplorer() {
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-bold">•</span>
-              <span>Maximum power is 1,500 watts PEP for most amateur frequencies</span>
+              <span>Maximum power is 1,500 watts PEP for most amateur frequencies (some bands lower)</span>
             </li>
           </ul>
         </div>
